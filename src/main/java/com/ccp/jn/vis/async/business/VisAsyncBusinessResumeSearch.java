@@ -7,6 +7,7 @@ import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.CcpEntityOperationType;
 import com.ccp.jn.async.business.JnAsyncBusinessCommitAndAudit;
+import com.ccp.jn.vis.async.business.resumes.send.VisAsyncBusinessSchedulledSendingResumeToRecruiter;
 import com.ccp.jn.vis.async.business.utils.CalculateHashes;
 import com.jn.commons.entities.base.JnBaseEntity;
 import com.jn.vis.commons.entities.VisEntityPosition;
@@ -30,11 +31,17 @@ public class VisAsyncBusinessResumeSearch
 		String title = json.getAsString("title");
 		List<CcpJsonRepresentation> positionsAndResumes = resumes.stream()
 				.map(x -> x.put("recruiter", recruiter).put("title", title)).collect(Collectors.toList());
-		this.commitAndAudit.execute(positionsAndResumes, CcpEntityOperationType.create,
-				new VisEntityPositionAndResume());
 
 		String frequency = json.getAsString("frequency");
 
+		boolean instantSending = "minute".equals(frequency);
+		
+		if(instantSending) {
+			this.commitAndAudit.execute(positionsAndResumes, CcpEntityOperationType.create,new VisEntityPositionAndResume());
+			CcpJsonRepresentation apply = new VisAsyncBusinessSchedulledSendingResumeToRecruiter().apply(json);
+			return apply;			
+		}
+		
 		JnBaseEntity entity = switch (frequency) {
 		case "monthly" -> new VisEntityPositionMonthlySendingResumes();
 		case "hourly" -> new VisEntityPositionHourlySendingResumes();
@@ -43,6 +50,8 @@ public class VisAsyncBusinessResumeSearch
 		};
 		
 		this.commitAndAudit.execute(positionsAndResumes, CcpEntityOperationType.create, entity);
+		this.commitAndAudit.execute(positionsAndResumes, CcpEntityOperationType.create,new VisEntityPositionAndResume());
+
 		
 		return CcpConstants.EMPTY_JSON;
 	}
