@@ -2,7 +2,7 @@ package com.ccp.jn.vis.async.business;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 
-public class VisAsyncBusinessAllocateResume  implements  java.util.function.Function<CcpJsonRepresentation, CcpJsonRepresentation> {
+public class VisAsyncBusinessResumeSave  implements  java.util.function.Function<CcpJsonRepresentation, CcpJsonRepresentation> {
 
 	@Override
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
