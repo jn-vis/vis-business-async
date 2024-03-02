@@ -1,4 +1,4 @@
-package com.ccp.jn.vis.async.business.utils;
+package com.ccp.jn.vis.business.utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +44,7 @@ class GetMoneyValues implements Function<CcpJsonRepresentation, List<CcpJsonRepr
 		
 		int end = json.getAsDoubleNumber(this.field).intValue();
 		
-		for(int k = 1000; k >= end; k -= 100) {
+		for(int k = end; k >= 1000; k -= 100) {
 			response.add(CcpConstants.EMPTY_JSON.put("moneyValue", k).put("moneyType", this.field));
 		}
 		

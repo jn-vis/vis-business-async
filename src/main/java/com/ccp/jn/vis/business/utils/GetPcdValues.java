@@ -1,4 +1,4 @@
-package com.ccp.jn.vis.async.business.utils;
+package com.ccp.jn.vis.business.utils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,17 +12,15 @@ class GetPcdValues implements Function<CcpJsonRepresentation, List<Boolean>>{
 
 		boolean isCandidateJson = json.containsAllKeys("experience");
 		
+		boolean pcd = json.getAsBoolean("pcd");
+
 		if(isCandidateJson) {
-			boolean pcd = json.getAsBoolean("pcd");
 			
 			if(pcd) {
 				return Arrays.asList(true, false);
 			}
-
 			return Arrays.asList(false);
 		}
-
-		boolean pcd = json.getAsBoolean("pcd");
 		
 		if(pcd) {
 			return Arrays.asList(true);

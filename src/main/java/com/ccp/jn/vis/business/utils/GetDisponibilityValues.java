@@ -1,4 +1,4 @@
-package com.ccp.jn.vis.async.business.utils;
+package com.ccp.jn.vis.business.utils;
 
 import java.util.ArrayList;
 import java.util.List;

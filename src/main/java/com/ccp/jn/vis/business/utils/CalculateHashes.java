@@ -1,4 +1,4 @@
-package com.ccp.jn.vis.async.business.utils;
+package com.ccp.jn.vis.business.utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +14,8 @@ public class CalculateHashes {
 		List<Integer> ddds = json.getAsStringList("ddd").stream().map(x -> Integer.valueOf(x)).collect(Collectors.toList());
 		
 		List<String> resumeWords = json.getAsStringList("resumeWord", "mandatorySkills");
+
+		List<String> synonyms = json.getAsStringList("synonym");
 		
 		List<Integer> disponibilities = json.get(new GetDisponibilityValues());
 
@@ -28,29 +30,32 @@ public class CalculateHashes {
 		String email = json.getAsString("email");
 		
 		for (Boolean pcd : pcds) {
-			for (Integer disponibility : disponibilities) {
-				for (String seniority : seniorities) {
+			for (Integer disponibility : disponibilities) {// 5 (vaga) = [5, 4, 3, 2, 1, 0] || 6 (candidato) [6, 7, 8, 9
+															// ... 30]
+				for (String seniority : seniorities) {// vaga = [PL, SR] || candidato = 2 anos [JR]
 					for (CcpJsonRepresentation moneyValue : moneyValues) {
 						for (String resumeWord : resumeWords) {
-							for (Integer ddd : ddds) {
-								CcpJsonRepresentation hash = CcpConstants.EMPTY_JSON
-										.put("disponibility", disponibility)
-										.put("resumeWord", resumeWord)
-										.put("seniority", seniority)
-										.put("email", email)
-										.putAll(moneyValue)
-										.put("pcd", pcd)
-										.put("ddd", ddd)
-										;
-								hashes.add(hash);
-								
+							for (String synonym : synonyms) {
+								for (Integer ddd : ddds) {
+									CcpJsonRepresentation hash = CcpConstants.EMPTY_JSON
+											.put("disponibility", disponibility)
+											.put("resumeWord", resumeWord)
+											.put("seniority", seniority)
+											.put("synonym", synonym)
+											.put("email", email)
+											.putAll(moneyValue)
+											.put("pcd", pcd)
+											.put("ddd", ddd)
+											;
+									hashes.add(hash);
+
+								}
 							}
 						}
-					}	
-				}	
+					}
+				}
 			}
-		}
-		
+		}		
 
 		return hashes;
 	}

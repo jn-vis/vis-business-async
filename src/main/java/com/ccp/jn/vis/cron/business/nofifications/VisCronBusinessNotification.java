@@ -1,8 +1,8 @@
-package com.ccp.jn.vis.async.business;
+package com.ccp.jn.vis.cron.business.nofifications;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 
-public class VisAsyncBusinessPositionSave  implements  java.util.function.Function<CcpJsonRepresentation, CcpJsonRepresentation> {
+public class VisCronBusinessNotification implements  java.util.function.Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
 	@Override
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
