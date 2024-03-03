@@ -25,7 +25,7 @@
 		
 		/*Visualização da vaga
 		 * A) Verificação permissão do candidato àquele recrutador
-		 * B) Verificação de cumprimento de requisitos do currículo em realação à vaga
+		 * B) Verificação de cumprimento de requisitos do currículo em relação à vaga
 		 * C) Verificação de disponibilidade de currículo
 		 * D) Verificação de suficiência de saldo do recrutador
 		 * E) Verificação de disponibilidade da vaga

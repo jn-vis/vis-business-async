@@ -1,4 +1,4 @@
-package com.ccp.jn.vis.async.business;
+package com.ccp.jn.vis.async.business.resume;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 

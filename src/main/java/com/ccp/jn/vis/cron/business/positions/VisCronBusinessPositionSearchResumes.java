@@ -6,11 +6,13 @@ import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.exceptions.process.CcpAsyncProcess;
+import com.jn.commons.entities.JnEntityAsyncTask;
 import com.jn.vis.commons.entities.VisEntityBalance;
 import com.jn.vis.commons.entities.VisEntityPosition;
 import com.jn.vis.commons.entities.VisEntityPositionFeesToSend;
 import com.jn.vis.commons.entities.VisEntityPositionSchedulleSendResumes;
-import com.jn.vis.commons.entities.VisEntitySchedulleNotification;
+import com.jn.vis.commons.utils.VisTopics;
 
 public class VisCronBusinessPositionSearchResumes  implements  java.util.function.Function<CcpJsonRepresentation, CcpJsonRepresentation> {
 
@@ -22,9 +24,12 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 		List<CcpJsonRepresentation> schedullingsFilteredByRecruiterFunds = this.getSchedullingsFilteredByRecruiterFunds(schedullingPlan, schedullings);
 		
 		List<CcpJsonRepresentation> positions = new VisEntityPosition().getManyByIds(schedullingsFilteredByRecruiterFunds);
-					
+		for (CcpJsonRepresentation position : positions) {
+			new CcpAsyncProcess().send(position, VisTopics.sendResumesToThisPosition, new JnEntityAsyncTask());
+		}
+
 		
-		return null;
+		return CcpConstants.EMPTY_JSON;
 	}
 	
 	
@@ -34,7 +39,7 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 
 		List<CcpJsonRepresentation> balancesNotFound = new ArrayList<CcpJsonRepresentation>(allBalances).stream().filter(balance -> balance.getAsBoolean("_found") == false).collect(Collectors.toList());
 
-		new VisEntitySchedulleNotification().create(CcpConstants.EMPTY_JSON.put("reason", "balanceNotFound").put("data", balancesNotFound));
+		CcpConstants.EMPTY_JSON.put("reason", "balanceNotFound").put("data", balancesNotFound);
 		
 		List<CcpJsonRepresentation> balancesFound = new ArrayList<CcpJsonRepresentation>(allBalances).stream().filter(balance -> balance.getAsBoolean("_found")).collect(Collectors.toList());
 		
@@ -53,7 +58,7 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 						.putAll(schedullingPlan))
 				.collect(Collectors.toList());
 		
-		new VisEntitySchedulleNotification().create(CcpConstants.EMPTY_JSON.put("reason", "insufficientFunds").put("data", insufficientFunds));
+		CcpConstants.EMPTY_JSON.put("reason", "insufficientFunds").put("data", insufficientFunds);
 		
 		return balancesAble;
 	}

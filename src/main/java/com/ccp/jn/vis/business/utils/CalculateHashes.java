@@ -31,7 +31,6 @@ public class CalculateHashes {
 		
 		for (Boolean pcd : pcds) {
 			for (Integer disponibility : disponibilities) {// 5 (vaga) = [5, 4, 3, 2, 1, 0] || 6 (candidato) [6, 7, 8, 9
-															// ... 30]
 				for (String seniority : seniorities) {// vaga = [PL, SR] || candidato = 2 anos [JR]
 					for (CcpJsonRepresentation moneyValue : moneyValues) {
 						for (String resumeWord : resumeWords) {
