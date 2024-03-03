@@ -6,12 +6,10 @@ import java.util.stream.Collectors;
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.jn.vis.commons.entities.VisEntityDeniedViewToCompany;
 import com.jn.vis.commons.entities.VisEntityResumeHash;
 
 public class VisAsyncBusinessPositionSendResume  implements  java.util.function.Function<CcpJsonRepresentation, CcpJsonRepresentation> {
 
-	@Override
 	public CcpJsonRepresentation apply(CcpJsonRepresentation position) {
 		
 		List<String> hashes = position.getAsStringList("hash");
@@ -22,23 +20,25 @@ public class VisAsyncBusinessPositionSendResume  implements  java.util.function.
 		
 		for (CcpJsonRepresentation item : lista) {
 			List<String> emails = item.getAsStringList("email");
-			List<Object> intersectList = allEmails.getIntersectList(emails);
+			List<String> intersectList = allEmails.getIntersectList(emails);
 			allEmails = new CcpCollectionDecorator(intersectList);
 		}
-		
-		
-		String recruiter = position.getAsString("email");
-		String domain = recruiter.split("@")[1];
+		/*
+		 * Candidatos negativados por recrutadores (email_recruiter)
+		 * Consultorias proibidas por candidatos (domain_email)
+		 * Ultimas visualizações de candidatos por recrutadores (email_recruiter)
+		 * Reputações (email)
+		 */
 		
 		List<CcpJsonRepresentation> collect = allEmails.content.stream()
-		.map(email -> CcpConstants.EMPTY_JSON.put("domain", domain)
-				.put("recruiter", recruiter)
-				.put("email", email))
+		.map(email -> position
+				.putTransformedValue("email", "domain", mail -> mail.toString().split("@")[1])
+				.renameKey("email", "recruiter")
+				.put("email", email)
+				)
 		.collect(Collectors.toList());
 		;
-		
-		
-		
+
 		return CcpConstants.EMPTY_JSON;
 	}
 
