@@ -36,64 +36,29 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 		
 		List<CcpJsonRepresentation> positions = new VisEntityPosition().getManyByIds(schedullingsFilteredByRecruiterFunds);
 		
-		List<CcpJsonRepresentation> positionsWithResumes = this.getPositionsWithResumes(positions);
+		CcpDaoUnionAll resumesHahes = this.getAllResumesHashes(positions);
+
+		CcpJsonRepresentation recruitersWithResumes = this.getRecruitersWithResumes(positions, resumesHahes);
+		
+		List<CcpJsonRepresentation> positionsWithResumes = this.getPositionsWithResumes(positions, recruitersWithResumes);
 		
 		for (CcpJsonRepresentation positionWithResume : positionsWithResumes) {
-			
 			new CcpAsyncProcess().send(positionWithResume, VisTopics.sendResumesToThisPosition, new JnEntityAsyncTask());
 		}
 		return CcpConstants.EMPTY_JSON;
 	}
 	
-	
-	private List<CcpJsonRepresentation> getPositionsWithResumes(List<CcpJsonRepresentation> positions) {
-		
-		List<CcpJsonRepresentation> positionsWithResumes = new ArrayList<>();
-		
-		HashSet<String> allHashes = new HashSet<>();
-		
-		for (CcpJsonRepresentation position : positions) {
-			List<String> hashes = position.getAsStringList("hash");
-			allHashes.addAll(hashes);
-		}
-		
-		CcpDao dao = CcpDependencyInjection.getDependency(CcpDao.class);
-		VisEntityResumeHash entityResumeHash = new VisEntityResumeHash();
-		CcpDaoUnionAll resumesHahes = dao.unionAll(allHashes, entityResumeHash);
+	public List<CcpJsonRepresentation> getPositionsWithResumes(List<CcpJsonRepresentation> positions,  CcpJsonRepresentation recruitersWithResumes) {
 		
 		Set<String> recruiters = new ArrayList<>(positions).stream().map(position -> position.getAsString("email")).collect(Collectors.toSet());
+		CcpDao dao = CcpDependencyInjection.getDependency(CcpDao.class);
+		
+		List<CcpJsonRepresentation> positionsWithResumes = new ArrayList<>();
 
 		for (String recruiter : recruiters) {
+			Set<String> allResumesReachedByThisRecruiter = recruitersWithResumes.getAsObject(recruiter);
 			
-			Set<String> allCandidatesReachedByThisRecruiter = new HashSet<>();
-			
-			List<CcpJsonRepresentation> recruiterPositions = new ArrayList<>(positions).stream().filter(position -> position.getAsString("email").equals(recruiter)).collect(Collectors.toList());
-			for (CcpJsonRepresentation recruiterPosition : recruiterPositions) {
-				List<String> allFilteredCandidatesToThisPosition = new ArrayList<>();
-				List<String> positionHashes = recruiterPosition.getAsStringList("hash");
-				
-				for (String positionHash : positionHashes) {
-					
-					boolean ignoreThisHash = resumesHahes.isPresent(entityResumeHash.name(), positionHash) == false;
-					
-					if(ignoreThisHash) {
-						continue;
-					}
-					
-					CcpJsonRepresentation jsonResumeHash = resumesHahes.get(entityResumeHash.name(), positionHash);
-				
-					boolean firstPositionHash = allFilteredCandidatesToThisPosition.isEmpty();
-					List<String> candidatesFromThisPositionHash = jsonResumeHash.getAsStringList("email");
-					if(firstPositionHash) {
-						allFilteredCandidatesToThisPosition = candidatesFromThisPositionHash;
-					}
-					
-					List<String> intersectList = new CcpCollectionDecorator(allFilteredCandidatesToThisPosition).getIntersectList(candidatesFromThisPositionHash);
-					allFilteredCandidatesToThisPosition = intersectList;
-				}
-				allCandidatesReachedByThisRecruiter.addAll(allFilteredCandidatesToThisPosition);
-			}
-			List<CcpJsonRepresentation> allSearchParameters = allCandidatesReachedByThisRecruiter.stream()
+			List<CcpJsonRepresentation> allSearchParameters = allResumesReachedByThisRecruiter.stream()
 					.map(email -> CcpConstants.EMPTY_JSON
 							.put("domain", recruiter.toString().split("@")[1])
 							.put("recruiter", recruiter)
@@ -106,11 +71,12 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 			VisEntityResumeNegativeted visEntityResumeNegativeted = new VisEntityResumeNegativeted();
 			VisEntityDeniedViewToCompany visEntityDeniedViewToCompany = new VisEntityDeniedViewToCompany();
 			
-			CcpDaoUnionAll searchResults = dao.unionAll(allSearchParameters, 
-					visEntityResume
-					,visEntityResumeView
-					,visEntityResumeNegativeted
+			CcpDaoUnionAll searchResults = dao.unionAll(
+					allSearchParameters
 					,visEntityDeniedViewToCompany
+					,visEntityResumeNegativeted
+					,visEntityResumeView
+					,visEntityResume
 					);
 			
 			List<CcpJsonRepresentation> ableResumesToThisRecruiter = new ArrayList<>();
@@ -155,6 +121,8 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 				ableResumesToThisRecruiter.add(resume);
 			}
 			
+			List<CcpJsonRepresentation> recruiterPositions = new ArrayList<>(positions).stream().filter(position -> position.getAsString("email").equals(recruiter)).collect(Collectors.toList());
+
 			for (CcpJsonRepresentation recruiterPosition : recruiterPositions) {
 			
 				List<CcpJsonRepresentation> ableResumesToThisPosition = new ArrayList<>(ableResumesToThisRecruiter).stream()
@@ -172,6 +140,68 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 			}
 		}
 		return positionsWithResumes;
+	}
+
+
+	public CcpJsonRepresentation getRecruitersWithResumes(List<CcpJsonRepresentation> positions, CcpDaoUnionAll resumesHahes) {
+		
+		Set<String> recruiters = new ArrayList<>(positions).stream().map(position -> position.getAsString("email")).collect(Collectors.toSet());
+		VisEntityResumeHash entityResumeHash = new VisEntityResumeHash();
+		
+		CcpJsonRepresentation recruitersWithResumes = CcpConstants.EMPTY_JSON;
+		
+		for (String recruiter : recruiters) {
+			
+			Set<String> allResumesReachedByThisRecruiter = new HashSet<>();
+			
+			List<CcpJsonRepresentation> recruiterPositions = new ArrayList<>(positions).stream().filter(position -> position.getAsString("email").equals(recruiter)).collect(Collectors.toList());
+	
+			for (CcpJsonRepresentation recruiterPosition : recruiterPositions) {
+				List<String> allFilteredCandidatesToThisPosition = new ArrayList<>();
+				List<String> positionHashes = recruiterPosition.getAsStringList("hash");
+				
+				for (String positionHash : positionHashes) {
+					
+					boolean ignoreThisHash = resumesHahes.isPresent(entityResumeHash.name(), positionHash) == false;
+					
+					if(ignoreThisHash) {
+						continue;
+					}
+					
+					CcpJsonRepresentation jsonResumeHash = resumesHahes.get(entityResumeHash.name(), positionHash);
+				
+					boolean firstPositionHash = allFilteredCandidatesToThisPosition.isEmpty();
+					List<String> candidatesFromThisPositionHash = jsonResumeHash.getAsStringList("email");
+					if(firstPositionHash) {
+						allFilteredCandidatesToThisPosition = candidatesFromThisPositionHash;
+					}
+					
+					List<String> intersectList = new CcpCollectionDecorator(allFilteredCandidatesToThisPosition).getIntersectList(candidatesFromThisPositionHash);
+					allFilteredCandidatesToThisPosition = intersectList;
+				}
+				allResumesReachedByThisRecruiter.addAll(allFilteredCandidatesToThisPosition);
+			}
+			recruitersWithResumes = recruitersWithResumes.put(recruiter, allResumesReachedByThisRecruiter);
+		}
+		return recruitersWithResumes;
+	}
+
+
+	public CcpDaoUnionAll getAllResumesHashes(List<CcpJsonRepresentation> positions) {
+		
+		VisEntityResumeHash entityResumeHash = new VisEntityResumeHash();
+		CcpDao dao = CcpDependencyInjection.getDependency(CcpDao.class);
+
+		
+		HashSet<String> allHashes = new HashSet<>();
+		
+		for (CcpJsonRepresentation position : positions) {
+			List<String> hashes = position.getAsStringList("hash");
+			allHashes.addAll(hashes);
+		}
+		
+		CcpDaoUnionAll resumesHahes = dao.unionAll(allHashes, entityResumeHash);
+		return resumesHahes;
 	}
 
 

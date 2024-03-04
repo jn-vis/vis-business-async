@@ -24,18 +24,18 @@
 		 */
 		
 		/*Visualização da vaga
-		 * A) Verificação permissão do candidato àquele recrutador
-		 * B) Verificação de cumprimento de requisitos do currículo em relação à vaga
-		 * C) Verificação de disponibilidade de currículo
-		 * D) Verificação de suficiência de saldo do recrutador
-		 * E) Verificação de disponibilidade da vaga
-		 * F) Verificação de prévio pagamento à visualização
-		 * G) Debitação de saldo do recrutador
-		 * H) Creditação de saldo ao candidato
-		 * I) Registro de transações financeiras
-		 * J) Notificação ao candidato
-		 * K) Registro da ocorrência
-		 * L) Montagem da visualização 
+		 *[X] A) Verificação permissão do candidato àquele recrutador
+		 *[X] B) Verificação de cumprimento de requisitos do currículo em relação à vaga
+		 *[X] C) Verificação de disponibilidade de currículo
+		 *[O] D) Verificação de suficiência de saldo do recrutador
+		 *[X] E) Verificação de disponibilidade da vaga
+		 *[O] F) Verificação de prévio pagamento à visualização
+		 *[O] G) Debitação de saldo do recrutador
+		 *[O] H) Creditação de saldo ao candidato
+		 *[O] I) Registro de transações financeiras
+		 *[O] J) Notificação ao candidato
+		 *[O] K) Registro da ocorrência
+		 *[O] L) Montagem da visualização 
 		 */
 		
 		/*Cálculo de hashes de curriculos
