@@ -1,4 +1,4 @@
-package com.ccp.jn.vis.cron.business.positions;
+package com.ccp.jn.vis.cron.business.resumes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import com.ccp.jn.async.business.JnAsyncBusinessCommitAndAudit;
 import com.jn.vis.commons.entities.VisEntityResume;
 import com.jn.vis.commons.entities.VisEntityResumeHash;
 
-public class VisCronBusinessAllocateResumes implements  java.util.function.Function<CcpJsonRepresentation, CcpJsonRepresentation>{
+public class VisCronBusinessResumesGetHash implements  java.util.function.Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 	private JnAsyncBusinessCommitAndAudit commitAndAudit = new JnAsyncBusinessCommitAndAudit();
 
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
@@ -75,7 +75,9 @@ public class VisCronBusinessAllocateResumes implements  java.util.function.Funct
 			}
 			hashesToCreate.add(updatedHash);
 		}
-		
+		/*
+		 * TODO PROBLEMA DE COMPETIÇÃO
+		 */
 		this.commitAndAudit.execute(hashesToCreate, CcpEntityOperationType.create, new VisEntityResumeHash());
 
 		this.commitAndAudit.execute(hashesToUpdate, CcpEntityOperationType.update, new VisEntityResumeHash());

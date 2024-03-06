@@ -18,7 +18,7 @@ import com.jn.vis.commons.entities.VisEntityBalance;
 import com.jn.vis.commons.entities.VisEntityDeniedViewToCompany;
 import com.jn.vis.commons.entities.VisEntityResumeNegativeted;
 import com.jn.vis.commons.entities.VisEntityPosition;
-import com.jn.vis.commons.entities.VisEntityPositionFeesToSend;
+import com.jn.vis.commons.entities.VisEntityFees;
 import com.jn.vis.commons.entities.VisEntityPositionSchedulleSendResumes;
 import com.jn.vis.commons.entities.VisEntityResume;
 import com.jn.vis.commons.entities.VisEntityResumeHash;
@@ -27,7 +27,6 @@ import com.jn.vis.commons.utils.VisTopics;
 
 public class VisCronBusinessPositionSearchResumes  implements  java.util.function.Function<CcpJsonRepresentation, CcpJsonRepresentation> {
 
-	@Override
 	public CcpJsonRepresentation apply(CcpJsonRepresentation schedullingPlan) {
 		
 		List<CcpJsonRepresentation> schedullings = new VisEntityPositionSchedulleSendResumes().getManyByIds(schedullingPlan);
@@ -86,18 +85,21 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 				boolean inactiveResume = searchResults.isPresent(visEntityResume, searchParameters) == false;
 				
 				if(inactiveResume) {
+					//TODO SALVAR ESSA OCORRENCIA
 					continue;
 				}
 
 				boolean negativetedResume = searchResults.isPresent(visEntityResumeNegativeted, searchParameters);
 				
 				if(negativetedResume) {
+					//TODO SALVAR ESSA OCORRENCIA
 					continue;
 				}
 
 				boolean deniedResume = searchResults.isPresent(visEntityDeniedViewToCompany, searchParameters);
 				
 				if(deniedResume) {
+					//TODO SALVAR ESSA OCORRENCIA
 					continue;
 				}
 				
@@ -126,9 +128,7 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 			for (CcpJsonRepresentation recruiterPosition : recruiterPositions) {
 			
 				List<CcpJsonRepresentation> ableResumesToThisPosition = new ArrayList<>(ableResumesToThisRecruiter).stream()
-				.filter(ableResume -> 
-					recruiterPosition.itIsTrueThatTheFollowingFields("hash").ifTheyAreAll()
-					.textsThenEachOneIsContainedAtTheList(ableResume.getAsStringList("hash")))
+						.filter(ableResume -> this.matches(recruiterPosition, ableResume))
 					.collect(Collectors.toList());
 				
 				if(ableResumesToThisPosition.isEmpty()) {
@@ -142,6 +142,19 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 		return positionsWithResumes;
 	}
 
+	public boolean matches(CcpJsonRepresentation recruiterPosition, CcpJsonRepresentation ableResume) {
+		
+		CcpJsonRepresentation positionHash = recruiterPosition.getInnerJson("hash");
+		
+		CcpJsonRepresentation resumeHash = ableResume.getInnerJson("hash");
+		
+		List<String> resumeInsert = resumeHash.getAsStringList("insert");
+		
+		boolean matches = positionHash.itIsTrueThatTheFollowingFields("insert")
+				.ifTheyAreAllArrayValuesThenEachOne().isTextAndItIsContainedAtTheList(resumeInsert);
+		
+		return matches;
+	}
 
 	public CcpJsonRepresentation getRecruitersWithResumes(List<CcpJsonRepresentation> positions, CcpDaoUnionAll resumesHahes) {
 		
@@ -186,7 +199,6 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 		return recruitersWithResumes;
 	}
 
-
 	public CcpDaoUnionAll getAllResumesHashes(List<CcpJsonRepresentation> positions) {
 		
 		VisEntityResumeHash entityResumeHash = new VisEntityResumeHash();
@@ -216,7 +228,7 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 		
 		List<CcpJsonRepresentation> balancesFound = new ArrayList<CcpJsonRepresentation>(allBalances).stream().filter(balance -> balance.getAsBoolean("_found")).collect(Collectors.toList());
 		
-		CcpJsonRepresentation jsonFee = new VisEntityPositionFeesToSend().getOneById(schedullingPlan);
+		CcpJsonRepresentation jsonFee = new VisEntityFees().getOneById(schedullingPlan);
 		
 		Double fee = jsonFee.getAsDoubleNumber("fee");
 
@@ -235,6 +247,4 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 		
 		return balancesAble;
 	}
-
-
 }

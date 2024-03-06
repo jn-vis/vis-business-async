@@ -35,5 +35,9 @@ public class VisAsyncBusinessResumeSave  implements  java.util.function.Function
 		
 		return dataToSave;
 	}
+	
+	private void sendResumeToPositions(CcpJsonRepresentation resume, List<String> hashesToInsertIn) {
+		
+	}
 
 }
