@@ -12,7 +12,7 @@ import com.ccp.especifications.db.query.CcpQueryExecutor;
 import com.ccp.especifications.db.utils.CcpEntityOperationType;
 import com.ccp.jn.async.business.JnAsyncBusinessCommitAndAudit;
 import com.jn.vis.commons.entities.VisEntityResume;
-import com.jn.vis.commons.entities.VisEntityResumeHash;
+import com.jn.vis.commons.entities.VisEntityHashGrouper;
 
 public class VisCronBusinessResumesGetHash implements  java.util.function.Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 	private JnAsyncBusinessCommitAndAudit commitAndAudit = new JnAsyncBusinessCommitAndAudit();
@@ -46,7 +46,7 @@ public class VisCronBusinessResumesGetHash implements  java.util.function.Functi
 		
 		Set<String> keySet = allHashes.keySet();
 		String[] array = keySet.toArray(new String[keySet.size()]);
-		List<CcpJsonRepresentation> manyByIds = new VisEntityResumeHash().getManyByIds(array);
+		List<CcpJsonRepresentation> manyByIds = new VisEntityHashGrouper().getManyByIds(array);
 		List<CcpJsonRepresentation> hashesToCreate = new ArrayList<>();
 		List<CcpJsonRepresentation> hashesToUpdate = new ArrayList<>();
 		
@@ -78,9 +78,9 @@ public class VisCronBusinessResumesGetHash implements  java.util.function.Functi
 		/*
 		 * TODO PROBLEMA DE COMPETIÇÃO
 		 */
-		this.commitAndAudit.execute(hashesToCreate, CcpEntityOperationType.create, new VisEntityResumeHash());
+		this.commitAndAudit.execute(hashesToCreate, CcpEntityOperationType.create, new VisEntityHashGrouper());
 
-		this.commitAndAudit.execute(hashesToUpdate, CcpEntityOperationType.update, new VisEntityResumeHash());
+		this.commitAndAudit.execute(hashesToUpdate, CcpEntityOperationType.update, new VisEntityHashGrouper());
 	
 		return CcpConstants.EMPTY_JSON;
 	}

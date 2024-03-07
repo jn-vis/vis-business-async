@@ -13,15 +13,16 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.dao.CcpDao;
 import com.ccp.especifications.db.dao.CcpDaoUnionAll;
 import com.ccp.exceptions.process.CcpAsyncProcess;
+import com.ccp.jn.vis.business.utils.PositionSendFrequency;
+import com.ccp.jn.vis.business.utils.VisAsyncUtils;
 import com.jn.commons.entities.JnEntityAsyncTask;
 import com.jn.vis.commons.entities.VisEntityBalance;
 import com.jn.vis.commons.entities.VisEntityDeniedViewToCompany;
-import com.jn.vis.commons.entities.VisEntityResumeNegativeted;
-import com.jn.vis.commons.entities.VisEntityPosition;
 import com.jn.vis.commons.entities.VisEntityFees;
-import com.jn.vis.commons.entities.VisEntityPositionSchedulleSendResumes;
 import com.jn.vis.commons.entities.VisEntityResume;
-import com.jn.vis.commons.entities.VisEntityResumeHash;
+import com.jn.vis.commons.entities.VisEntityHashGrouper;
+import com.jn.vis.commons.entities.VisEntityPosition;
+import com.jn.vis.commons.entities.VisEntityResumeNegativeted;
 import com.jn.vis.commons.entities.VisEntityResumeView;
 import com.jn.vis.commons.utils.VisTopics;
 
@@ -29,24 +30,27 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 
 	public CcpJsonRepresentation apply(CcpJsonRepresentation schedullingPlan) {
 		
-		List<CcpJsonRepresentation> schedullings = new VisEntityPositionSchedulleSendResumes().getManyByIds(schedullingPlan);
+		VisAsyncUtils.saveHashes(PositionSendFrequency.hourly, new VisEntityResume());
 
-		List<CcpJsonRepresentation> schedullingsFilteredByRecruiterFunds = this.getSchedullingsFilteredByRecruiterFunds(schedullingPlan, schedullings);
-		
-		List<CcpJsonRepresentation> positions = new VisEntityPosition().getManyByIds(schedullingsFilteredByRecruiterFunds);
-		
-		CcpDaoUnionAll resumesHahes = this.getAllResumesHashes(positions);
+		VisAsyncUtils.saveHashes(PositionSendFrequency.hourly, new VisEntityPosition());
 
-		CcpJsonRepresentation recruitersWithResumes = this.getRecruitersWithResumes(positions, resumesHahes);
 		
-		List<CcpJsonRepresentation> positionsWithResumes = this.getPositionsWithResumes(positions, recruitersWithResumes);
+		List<CcpJsonRepresentation> positionsBySchedullingFrequency = VisAsyncUtils.getPositionsBySchedullingFrequency(schedullingPlan);
+
+		List<CcpJsonRepresentation> positionsFilteredByRecruiterFunds = this.getPositionsFilteredByRecruiterFunds(schedullingPlan, positionsBySchedullingFrequency);
+		
+		CcpDaoUnionAll resumesHahes = this.getAllResumesHashes(positionsFilteredByRecruiterFunds);
+
+		CcpJsonRepresentation recruitersWithResumes = this.getRecruitersWithResumes(positionsFilteredByRecruiterFunds, resumesHahes);
+		
+		List<CcpJsonRepresentation> positionsWithResumes = this.getPositionsWithResumes(positionsFilteredByRecruiterFunds, recruitersWithResumes);
 		
 		for (CcpJsonRepresentation positionWithResume : positionsWithResumes) {
 			new CcpAsyncProcess().send(positionWithResume, VisTopics.sendResumesToThisPosition, new JnEntityAsyncTask());
 		}
 		return CcpConstants.EMPTY_JSON;
 	}
-	
+
 	public List<CcpJsonRepresentation> getPositionsWithResumes(List<CcpJsonRepresentation> positions,  CcpJsonRepresentation recruitersWithResumes) {
 		
 		Set<String> recruiters = new ArrayList<>(positions).stream().map(position -> position.getAsString("email")).collect(Collectors.toSet());
@@ -128,7 +132,7 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 			for (CcpJsonRepresentation recruiterPosition : recruiterPositions) {
 			
 				List<CcpJsonRepresentation> ableResumesToThisPosition = new ArrayList<>(ableResumesToThisRecruiter).stream()
-						.filter(ableResume -> this.matches(recruiterPosition, ableResume))
+						.filter(ableResume -> VisAsyncUtils.matches(recruiterPosition, ableResume))
 					.collect(Collectors.toList());
 				
 				if(ableResumesToThisPosition.isEmpty()) {
@@ -142,24 +146,11 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 		return positionsWithResumes;
 	}
 
-	public boolean matches(CcpJsonRepresentation recruiterPosition, CcpJsonRepresentation ableResume) {
-		
-		CcpJsonRepresentation positionHash = recruiterPosition.getInnerJson("hash");
-		
-		CcpJsonRepresentation resumeHash = ableResume.getInnerJson("hash");
-		
-		List<String> resumeInsert = resumeHash.getAsStringList("insert");
-		
-		boolean matches = positionHash.itIsTrueThatTheFollowingFields("insert")
-				.ifTheyAreAllArrayValuesThenEachOne().isTextAndItIsContainedAtTheList(resumeInsert);
-		
-		return matches;
-	}
 
 	public CcpJsonRepresentation getRecruitersWithResumes(List<CcpJsonRepresentation> positions, CcpDaoUnionAll resumesHahes) {
 		
 		Set<String> recruiters = new ArrayList<>(positions).stream().map(position -> position.getAsString("email")).collect(Collectors.toSet());
-		VisEntityResumeHash entityResumeHash = new VisEntityResumeHash();
+		VisEntityHashGrouper entityResumeHash = new VisEntityHashGrouper();
 		
 		CcpJsonRepresentation recruitersWithResumes = CcpConstants.EMPTY_JSON;
 		
@@ -201,7 +192,7 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 
 	public CcpDaoUnionAll getAllResumesHashes(List<CcpJsonRepresentation> positions) {
 		
-		VisEntityResumeHash entityResumeHash = new VisEntityResumeHash();
+		VisEntityHashGrouper entityResumeHash = new VisEntityHashGrouper();
 		CcpDao dao = CcpDependencyInjection.getDependency(CcpDao.class);
 
 		
@@ -217,9 +208,9 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 	}
 
 
-	private List<CcpJsonRepresentation> getSchedullingsFilteredByRecruiterFunds( CcpJsonRepresentation schedullingPlan, List<CcpJsonRepresentation> schedullings){
-		
-		List<CcpJsonRepresentation> allBalances = new VisEntityBalance().getManyByIds(schedullings);
+	private List<CcpJsonRepresentation> getPositionsFilteredByRecruiterFunds( CcpJsonRepresentation schedullingPlan, List<CcpJsonRepresentation> schedulledPositions){
+		//TODO FILTRAR APENAS EMAIL + FREQUENCY COM SALDO PARA ENVIO
+		List<CcpJsonRepresentation> allBalances = new VisEntityBalance().getManyByIds(schedulledPositions);
 
 		List<CcpJsonRepresentation> balancesNotFound = new ArrayList<CcpJsonRepresentation>(allBalances).stream().filter(balance -> balance.getAsBoolean("_found") == false).collect(Collectors.toList());
 
