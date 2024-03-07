@@ -53,11 +53,10 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 
 	public List<CcpJsonRepresentation> getPositionsWithResumes(List<CcpJsonRepresentation> positions,  CcpJsonRepresentation recruitersWithResumes) {
 		
+		List<CcpJsonRepresentation> positionsWithResumes = new ArrayList<>();
 		Set<String> recruiters = new ArrayList<>(positions).stream().map(position -> position.getAsString("email")).collect(Collectors.toSet());
 		CcpDao dao = CcpDependencyInjection.getDependency(CcpDao.class);
 		
-		List<CcpJsonRepresentation> positionsWithResumes = new ArrayList<>();
-
 		for (String recruiter : recruiters) {
 			Set<String> allResumesReachedByThisRecruiter = recruitersWithResumes.getAsObject(recruiter);
 			
