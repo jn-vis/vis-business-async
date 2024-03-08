@@ -206,7 +206,7 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 		return resumesHahes;
 	}
 
-
+	//TODO HASH DO E-MAIL
 	private List<CcpJsonRepresentation> getPositionsFilteredByRecruiterFunds( CcpJsonRepresentation schedullingPlan, List<CcpJsonRepresentation> schedulledPositions){
 		//TODO FILTRAR APENAS EMAIL + FREQUENCY COM SALDO PARA ENVIO
 		List<CcpJsonRepresentation> allBalances = new VisEntityBalance().getManyByIds(schedulledPositions);
