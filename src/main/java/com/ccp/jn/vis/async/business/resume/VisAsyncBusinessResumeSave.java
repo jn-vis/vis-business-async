@@ -17,7 +17,6 @@ import com.jn.vis.commons.entities.VisEntityDeniedViewToCompany;
 import com.jn.vis.commons.entities.VisEntityPosition;
 import com.jn.vis.commons.entities.VisEntityResume;
 import com.jn.vis.commons.entities.VisEntityResumeNegativeted;
-import com.jn.vis.commons.entities.VisEntityResumeView;
 
 public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {
 
@@ -32,11 +31,11 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 
 	private void sendResumeToPositions(CcpJsonRepresentation resume, List<String> hashesToInsertIn) {
 		
-		List<CcpJsonRepresentation> positions = VisAsyncUtils.getPositionsBySchedullingFrequency(PositionSendFrequency.minute);
+		List<CcpJsonRepresentation> intantlyPositions = VisAsyncUtils.getPositionsBySchedullingFrequency(PositionSendFrequency.minute);
 		
 		String email = resume.getAsString("email");
 		
-		Set<String> recruiters = new ArrayList<>(positions).stream().map(position -> position.getAsString("email")).collect(Collectors.toSet());
+		Set<String> recruiters = new ArrayList<>(intantlyPositions).stream().map(position -> position.getAsString("email")).collect(Collectors.toSet());
 		CcpDao dao = CcpDependencyInjection.getDependency(CcpDao.class);
 		List<CcpJsonRepresentation> allSearchParameters = recruiters.stream().map(recruiter -> CcpConstants.EMPTY_JSON
 				.put("domain",  recruiter.split("@")[1])
@@ -45,7 +44,6 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 				).collect(Collectors.toList());
 		VisEntityPosition visEntityPosition = new VisEntityPosition();
 		
-		VisEntityResumeView visEntityResumeView = new VisEntityResumeView();
 		VisEntityResumeNegativeted visEntityResumeNegativeted = new VisEntityResumeNegativeted();
 		VisEntityDeniedViewToCompany visEntityDeniedViewToCompany = new VisEntityDeniedViewToCompany();
 		
@@ -53,7 +51,6 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 				allSearchParameters
 				,visEntityDeniedViewToCompany
 				,visEntityResumeNegativeted
-				,visEntityResumeView
 				);
 		List<CcpJsonRepresentation> ablePositionsToThisResume = new ArrayList<>();
 
@@ -79,33 +76,15 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 				//TODO SALVAR ESSA OCORRENCIA
 				continue;
 			}
-			
-			
-			boolean thisResumeNeverHasSeenBefore = searchResults.isPresent(visEntityResumeView, searchParameters) == false;
 
 			CcpJsonRepresentation position = searchResults.get(visEntityPosition, searchParameters);
-			
+
 			boolean doesNotMatch = VisAsyncUtils.matches(position, resume) == false;
 			
 			if(doesNotMatch) {
 				continue;
 			}
 
-			if(thisResumeNeverHasSeenBefore) {
-				ablePositionsToThisResume.add(position);
-				continue;
-			}
-			
-			CcpJsonRepresentation resumeView = searchResults.get(visEntityResumeView, searchParameters);
-			
-			Long resumeLastView = resumeView.getAsLongNumber("lastView");
-			Long resumeLastUpdate = resume.getAsLongNumber("lastUpdate");
-			boolean thisResumeDoesNotChangedSinceTheLastRecruiterView = resumeLastView > resumeLastUpdate;
-			
-			if(thisResumeDoesNotChangedSinceTheLastRecruiterView) {
-				continue;
-			}
-			
 			ablePositionsToThisResume.add(position);
 		}
 

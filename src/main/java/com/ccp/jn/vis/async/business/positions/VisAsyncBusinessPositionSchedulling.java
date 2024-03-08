@@ -21,9 +21,8 @@ public class VisAsyncBusinessPositionSchedulling implements java.util.function.F
 
 }
 /*
-	TODO
-	visualizaçoes por recrutador
-	calculo de reputação
-	agrupar vagas por schedulling
-	calculo de saldos
+	TODO visualizaçoes por recrutador
+	TODO calculo de reputação
+	TODO transação comercial
+	TODO calculo de saldos
 */

@@ -118,8 +118,13 @@ public class VisAsyncUtils {
 				;
 		String[] resourcesNames = new String[] {new VisEntityPosition().name()};
 
-		List<CcpJsonRepresentation> positions = queryExecutor.getResultAsList(queryToSearchLastUpdatedResumes, resourcesNames, "hash");
+		List<CcpJsonRepresentation> positions = queryExecutor.getResultAsList(queryToSearchLastUpdatedResumes, resourcesNames);
+		
 		return positions;
+	}
+	
+	public static void disableEntity(CcpJsonRepresentation id) {
+		//TODO RETIRAR HASHES
 	}
 	
 	public static List<String> saveEntityValue(CcpJsonRepresentation newValue, JnBaseEntity entity, Function<CcpJsonRepresentation, CcpJsonRepresentation> function) {
@@ -201,8 +206,6 @@ public class VisAsyncUtils {
 		commitAndAudit.execute(hashesToUpdate, CcpEntityOperationType.update, entityHash);
 	}
 
-	
-	
 	private static CcpJsonRepresentation putHash(CcpJsonRepresentation allHashes, List<String> hashes, String command, String entityId) {
 		for (String hash : hashes) {
 			CcpJsonRepresentation innerJson = allHashes.getInnerJson(hash);
@@ -212,14 +215,15 @@ public class VisAsyncUtils {
 		return allHashes;
 	}
 
-	public static boolean matches(CcpJsonRepresentation recruiterPosition, CcpJsonRepresentation ableResume) {
+	public static boolean matches(CcpJsonRepresentation position, CcpJsonRepresentation resume) {
 		
-		CcpJsonRepresentation positionHash = recruiterPosition.getInnerJson("hash");
+		CcpJsonRepresentation positionHash = position.getInnerJson("hash");
 		
-		CcpJsonRepresentation resumeHash = ableResume.getInnerJson("hash");
-		
+		CcpJsonRepresentation resumeHash = resume.getInnerJson("hash");//{insert: ['a', 'b', 'c'], remove: ['d'] }
+		//TODO REPENSAR PARTE DO SINONIMO
 		List<String> resumeInsert = resumeHash.getAsStringList("insert");
-		
+		//a,b,c,d,e
+		//b,c,d
 		boolean matches = positionHash.itIsTrueThatTheFollowingFields("insert")
 				.ifTheyAreAllArrayValuesThenEachOne().isTextAndItIsContainedAtTheList(resumeInsert);
 		

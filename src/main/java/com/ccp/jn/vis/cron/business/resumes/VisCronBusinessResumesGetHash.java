@@ -75,9 +75,7 @@ public class VisCronBusinessResumesGetHash implements  java.util.function.Functi
 			}
 			hashesToCreate.add(updatedHash);
 		}
-		/*
-		 * TODO PROBLEMA DE COMPETIÇÃO
-		 */
+
 		this.commitAndAudit.execute(hashesToCreate, CcpEntityOperationType.create, new VisEntityHashGrouper());
 
 		this.commitAndAudit.execute(hashesToUpdate, CcpEntityOperationType.update, new VisEntityHashGrouper());
