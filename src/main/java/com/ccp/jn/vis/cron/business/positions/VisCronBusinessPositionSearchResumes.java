@@ -46,7 +46,7 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 		List<CcpJsonRepresentation> positionsWithResumes = this.getPositionsWithResumes(positionsFilteredByRecruiterFunds, recruitersWithResumes);
 		
 		for (CcpJsonRepresentation positionWithResume : positionsWithResumes) {
-			new CcpAsyncProcess().send(positionWithResume, VisTopics.sendResumesToThisPosition, new JnEntityAsyncTask());
+			new CcpAsyncProcess().send(positionWithResume, VisTopics.sendResumesToThisPosition.name(), new JnEntityAsyncTask());
 		}
 		return CcpConstants.EMPTY_JSON;
 	}
