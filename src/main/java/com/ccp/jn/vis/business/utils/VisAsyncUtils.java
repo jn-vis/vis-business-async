@@ -128,7 +128,7 @@ public class VisAsyncUtils {
 	}
 
 	public static List<String> saveEntityValue(CcpJsonRepresentation newValue, JnBaseEntity entity) {
-		List<String> saveEntityValue = saveEntityValue(newValue, entity, CcpConstants.DO_NOTHING);
+		List<String> saveEntityValue = saveEntityValue(newValue, entity, CcpConstants.DO_BY_PASS);
 		return saveEntityValue;
 	}
 	
@@ -136,7 +136,7 @@ public class VisAsyncUtils {
 		
 		VisEntityHashGrouper entityHash = new VisEntityHashGrouper();	
 
-		CcpJsonRepresentation oldValue = entity.getOneById(newValue, CcpConstants.DO_NOTHING);
+		CcpJsonRepresentation oldValue = entity.getOneById(newValue, CcpConstants.DO_BY_PASS);
 		
 		CcpJsonRepresentation oldHash = oldValue.getInnerJson("hash");
 		List<String> incomingHashes = VisAsyncUtils.getHashes(newValue, function).stream().map(x -> entityHash.getId(x)).collect(Collectors.toList());
