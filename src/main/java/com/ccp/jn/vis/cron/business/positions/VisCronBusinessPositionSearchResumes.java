@@ -165,13 +165,13 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 				
 				for (String positionHash : positionHashes) {
 					
-					boolean ignoreThisHash = resumesHahes.isPresent(entityResumeHash.name(), positionHash) == false;
+					boolean ignoreThisHash = resumesHahes.isPresent(entityResumeHash.getEntityName(), positionHash) == false;
 					
 					if(ignoreThisHash) {
 						continue;
 					}
 					
-					CcpJsonRepresentation jsonResumeHash = resumesHahes.get(entityResumeHash.name(), positionHash);
+					CcpJsonRepresentation jsonResumeHash = resumesHahes.get(entityResumeHash.getEntityName(), positionHash);
 				
 					boolean firstPositionHash = allFilteredCandidatesToThisPosition.isEmpty();
 					List<String> candidatesFromThisPositionHash = jsonResumeHash.getAsStringList("email");

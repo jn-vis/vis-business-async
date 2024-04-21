@@ -10,9 +10,9 @@ import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
+import com.ccp.especifications.db.bulk.CcpEntityOperationType;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
 import com.ccp.especifications.db.query.CcpQueryExecutor;
-import com.ccp.especifications.db.utils.CcpEntityOperationType;
 import com.ccp.jn.async.business.JnAsyncBusinessCommitAndAudit;
 import com.jn.commons.entities.base.JnBaseEntity;
 import com.jn.vis.commons.entities.VisEntityPosition;
@@ -94,7 +94,7 @@ public class VisAsyncUtils {
 						.endRangeAndBackToSimplifiedQuery()
 					.endSimplifiedQueryAndBackToRequest()
 				;
-		String[] resourcesNames = new String[] {entity.name()};
+		String[] resourcesNames = new String[] {entity.getEntityName()};
 
 		List<CcpJsonRepresentation> result = queryExecutor.getResultAsList(queryToSearchLastUpdated, resourcesNames);
 		return result;
@@ -116,7 +116,7 @@ public class VisAsyncUtils {
 						.match(VisEntityPosition.Fields.frequency, valueOf)
 					.endSimplifiedQueryAndBackToRequest()
 				;
-		String[] resourcesNames = new String[] {new VisEntityPosition().name()};
+		String[] resourcesNames = new String[] {new VisEntityPosition().getEntityName()};
 
 		List<CcpJsonRepresentation> positions = queryExecutor.getResultAsList(queryToSearchLastUpdatedResumes, resourcesNames);
 		
@@ -125,6 +125,11 @@ public class VisAsyncUtils {
 	
 	public static void disableEntity(CcpJsonRepresentation id) {
 		//TODO RETIRAR HASHES
+	}
+
+	public static List<String> saveEntityValue(CcpJsonRepresentation newValue, JnBaseEntity entity) {
+		List<String> saveEntityValue = saveEntityValue(newValue, entity, CcpConstants.DO_NOTHING);
+		return saveEntityValue;
 	}
 	
 	public static List<String> saveEntityValue(CcpJsonRepresentation newValue, JnBaseEntity entity, Function<CcpJsonRepresentation, CcpJsonRepresentation> function) {

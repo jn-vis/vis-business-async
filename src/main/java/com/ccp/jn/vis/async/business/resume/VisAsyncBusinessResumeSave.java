@@ -22,7 +22,9 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 
 	public CcpJsonRepresentation apply(CcpJsonRepresentation resume) {
 
-		List<String> hashes = VisAsyncUtils.saveEntityValue(resume, new VisEntityResume(), CcpConstants.DO_NOTHING);
+		VisEntityResume entity = new VisEntityResume();
+		
+		List<String> hashes = VisAsyncUtils.saveEntityValue(resume, entity);
 
 		this.sendResumeToPositions(resume, hashes);
 
@@ -82,6 +84,7 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 			boolean doesNotMatch = VisAsyncUtils.matches(position, resume) == false;
 			
 			if(doesNotMatch) {
+				//TODO SALVAR ESSA OCORRENCIA
 				continue;
 			}
 

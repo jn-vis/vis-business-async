@@ -7,9 +7,9 @@ import java.util.Set;
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
+import com.ccp.especifications.db.bulk.CcpEntityOperationType;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
 import com.ccp.especifications.db.query.CcpQueryExecutor;
-import com.ccp.especifications.db.utils.CcpEntityOperationType;
 import com.ccp.jn.async.business.JnAsyncBusinessCommitAndAudit;
 import com.jn.vis.commons.entities.VisEntityResume;
 import com.jn.vis.commons.entities.VisEntityHashGrouper;
@@ -29,7 +29,7 @@ public class VisCronBusinessResumesGetHash implements  java.util.function.Functi
 						.endRangeAndBackToSimplifiedQuery()
 					.endSimplifiedQueryAndBackToRequest()
 				;
-		String[] resourcesNames = new String[] {new VisEntityResume().name()};
+		String[] resourcesNames = new String[] {new VisEntityResume().getEntityName()};
 
 		List<CcpJsonRepresentation> resumes = queryExecutor.getResultAsList(queryToSearchLastUpdatedResumes, resourcesNames, "hash");
 		
