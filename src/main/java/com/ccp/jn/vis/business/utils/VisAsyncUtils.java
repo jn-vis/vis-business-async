@@ -124,10 +124,10 @@ public class VisAsyncUtils {
 	}
 	
 	public static void disableEntity(CcpJsonRepresentation id) {
-		//TODO RETIRAR HASHES
+
 	}
 
-	public static List<String> saveEntityValue(CcpJsonRepresentation newValue, JnBaseEntity entity) {
+	public static List<String> calculateHashesAndSaveEntity(CcpJsonRepresentation newValue, JnBaseEntity entity) {
 		List<String> saveEntityValue = saveEntityValue(newValue, entity, CcpConstants.DO_BY_PASS);
 		return saveEntityValue;
 	}
@@ -225,7 +225,6 @@ public class VisAsyncUtils {
 		CcpJsonRepresentation positionHash = position.getInnerJson("hash");
 		
 		CcpJsonRepresentation resumeHash = resume.getInnerJson("hash");//{insert: ['a', 'b', 'c'], remove: ['d'] }
-		//TODO REPENSAR PARTE DO SINONIMO
 		List<String> resumeInsert = resumeHash.getAsStringList("insert");
 		//a,b,c,d,e
 		//b,c,d

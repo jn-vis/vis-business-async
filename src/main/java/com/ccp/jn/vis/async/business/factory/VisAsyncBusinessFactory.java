@@ -11,6 +11,7 @@ import com.ccp.jn.vis.async.business.positions.VisAsyncBusinessPositionSchedulli
 import com.ccp.jn.vis.async.business.positions.VisAsyncBusinessPositionSendResume;
 import com.ccp.jn.vis.async.business.resume.VisAsyncBusinessResumeInactivate;
 import com.ccp.jn.vis.async.business.resume.VisAsyncBusinessResumeSave;
+import com.ccp.jn.vis.async.business.resume.VisAsyncBusinessResumeSaveFile;
 import com.jn.vis.commons.utils.VisTopics;
 
 class VisAsyncBusinessFactory implements CcpAsyncBusinessFactory {
@@ -23,6 +24,7 @@ class VisAsyncBusinessFactory implements CcpAsyncBusinessFactory {
 		this.map.put(VisTopics.inactivatePosition.name(), new VisAsyncBusinessPositionInactivate());
 		this.map.put(VisTopics.inactivateResume.name(), new VisAsyncBusinessResumeInactivate());
 		this.map.put(VisTopics.savePosition.name(), new VisAsyncBusinessPositionSchedulling());
+		this.map.put(VisTopics.saveResumeFile.name(), new VisAsyncBusinessResumeSaveFile());
 		this.map.put(VisTopics.saveResume.name(), new VisAsyncBusinessResumeSave());
 	}
 

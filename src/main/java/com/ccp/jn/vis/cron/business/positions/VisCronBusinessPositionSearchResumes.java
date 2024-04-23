@@ -12,16 +12,15 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.dao.CcpDao;
 import com.ccp.especifications.db.dao.CcpDaoUnionAll;
-import com.ccp.exceptions.process.CcpAsyncProcess;
+import com.ccp.jn.async.commons.utils.JnAsyncMensageriaSender;
 import com.ccp.jn.vis.business.utils.PositionSendFrequency;
 import com.ccp.jn.vis.business.utils.VisAsyncUtils;
-import com.jn.commons.entities.JnEntityAsyncTask;
 import com.jn.vis.commons.entities.VisEntityBalance;
 import com.jn.vis.commons.entities.VisEntityDeniedViewToCompany;
 import com.jn.vis.commons.entities.VisEntityFees;
-import com.jn.vis.commons.entities.VisEntityResume;
 import com.jn.vis.commons.entities.VisEntityHashGrouper;
 import com.jn.vis.commons.entities.VisEntityPosition;
+import com.jn.vis.commons.entities.VisEntityResume;
 import com.jn.vis.commons.entities.VisEntityResumeNegativeted;
 import com.jn.vis.commons.entities.VisEntityResumeView;
 import com.jn.vis.commons.utils.VisTopics;
@@ -45,9 +44,10 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 		
 		List<CcpJsonRepresentation> positionsWithResumes = this.getPositionsWithResumes(positionsFilteredByRecruiterFunds, recruitersWithResumes);
 		
-		for (CcpJsonRepresentation positionWithResume : positionsWithResumes) {
-			new CcpAsyncProcess().send(positionWithResume, VisTopics.sendResumesToThisPosition.name(), new JnEntityAsyncTask());
-		}
+		JnAsyncMensageriaSender jnAsyncMensageriaSender = new JnAsyncMensageriaSender();
+		
+		jnAsyncMensageriaSender.send(VisTopics.sendResumesToThisPosition, positionsWithResumes);
+		
 		return CcpConstants.EMPTY_JSON;
 	}
 
@@ -88,21 +88,18 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 				boolean inactiveResume = searchResults.isPresent(visEntityResume, searchParameters) == false;
 				
 				if(inactiveResume) {
-					//TODO SALVAR ESSA OCORRENCIA
 					continue;
 				}
 
 				boolean negativetedResume = searchResults.isPresent(visEntityResumeNegativeted, searchParameters);
 				
 				if(negativetedResume) {
-					//TODO SALVAR ESSA OCORRENCIA
 					continue;
 				}
 
 				boolean deniedResume = searchResults.isPresent(visEntityDeniedViewToCompany, searchParameters);
 				
 				if(deniedResume) {
-					//TODO SALVAR ESSA OCORRENCIA
 					continue;
 				}
 				
@@ -135,7 +132,6 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 					.collect(Collectors.toList());
 				
 				if(ableResumesToThisPosition.isEmpty()) {
-					//TODO NOTIFICAÇÃO PARA RECRUTADOR
 					continue;
 				}
 				CcpJsonRepresentation positionWithResume = recruiterPosition.put("resumes", ableResumesToThisPosition);
@@ -206,14 +202,12 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 		return resumesHahes;
 	}
 
-	//TODO HASH DO E-MAIL
 	private List<CcpJsonRepresentation> getPositionsFilteredByRecruiterFunds( CcpJsonRepresentation schedullingPlan, List<CcpJsonRepresentation> schedulledPositions){
-		//TODO FILTRAR APENAS EMAIL + FREQUENCY COM SALDO PARA ENVIO
+
 		List<CcpJsonRepresentation> allBalances = new VisEntityBalance().getManyByIds(schedulledPositions);
 
 		List<CcpJsonRepresentation> balancesNotFound = new ArrayList<CcpJsonRepresentation>(allBalances).stream().filter(balance -> balance.getAsBoolean("_found") == false).collect(Collectors.toList());
 
-		//TODO NOTIFICAÇÃO PARA RECRUTADOR
 		CcpConstants.EMPTY_JSON.put("reason", "balanceNotFound").put("data", balancesNotFound);
 		
 		List<CcpJsonRepresentation> balancesFound = new ArrayList<CcpJsonRepresentation>(allBalances).stream().filter(balance -> balance.getAsBoolean("_found")).collect(Collectors.toList());
@@ -232,7 +226,6 @@ public class VisCronBusinessPositionSearchResumes  implements  java.util.functio
 						.removeKey("_originalQuery").put("fee", fee)
 						.putAll(schedullingPlan))
 				.collect(Collectors.toList());
-		//TODO NOTIFICAÇÃO PARA RECRUTADOR
 		CcpConstants.EMPTY_JSON.put("reason", "insufficientFunds").put("data", insufficientFunds);
 		
 		return balancesAble;

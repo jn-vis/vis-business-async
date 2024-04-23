@@ -11,18 +11,20 @@ public class VisAsyncBusinessPositionSchedulling implements java.util.function.F
 
 	public CcpJsonRepresentation apply(CcpJsonRepresentation position) {
 	
-		Function<CcpJsonRepresentation, CcpJsonRepresentation> function = hash -> hash
-				.put("title", position.getAsString("title"))
-				.renameKey("email", "recruiter")
+		Function<CcpJsonRepresentation, CcpJsonRepresentation> function = hash -> {
+			String title = position.getAsString("title");
+			return hash
+					.renameKey("email", "recruiter")
+					.put("title", title)
+					;
+		}
 				;
-		VisAsyncUtils.saveEntityValue(position, new VisEntityPosition(), function);
+		VisEntityPosition entity = new VisEntityPosition();
+		VisAsyncUtils.saveEntityValue(position, entity, function);
 		return CcpConstants.EMPTY_JSON;
 	}
 
 }
 /*
-	TODO visualizaçoes por recrutador
 	TODO calculo de reputação
-	TODO transação comercial
-	TODO calculo de saldos
 */

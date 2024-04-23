@@ -22,12 +22,12 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 
 	public CcpJsonRepresentation apply(CcpJsonRepresentation resume) {
 
-		VisEntityResume entity = new VisEntityResume();
+		VisEntityResume entityResume = new VisEntityResume();
 		
-		List<String> hashes = VisAsyncUtils.saveEntityValue(resume, entity);
+		List<String> hashes = VisAsyncUtils.calculateHashesAndSaveEntity(resume, entityResume);
 
 		this.sendResumeToPositions(resume, hashes);
-
+		
 		return CcpConstants.EMPTY_JSON;
 	}
 
@@ -61,21 +61,18 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 			boolean inactivePosition = searchResults.isPresent(visEntityPosition, searchParameters) == false;
 			
 			if(inactivePosition) {
-				//TODO SALVAR ESSA OCORRENCIA
 				continue;
 			}
 
 			boolean negativetedResume = searchResults.isPresent(visEntityResumeNegativeted, searchParameters);
 			
 			if(negativetedResume) {
-				//TODO SALVAR ESSA OCORRENCIA
 				continue;
 			}
 
 			boolean deniedResume = searchResults.isPresent(visEntityDeniedViewToCompany, searchParameters);
 			
 			if(deniedResume) {
-				//TODO SALVAR ESSA OCORRENCIA
 				continue;
 			}
 
@@ -84,17 +81,11 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 			boolean doesNotMatch = VisAsyncUtils.matches(position, resume) == false;
 			
 			if(doesNotMatch) {
-				//TODO SALVAR ESSA OCORRENCIA
 				continue;
 			}
 
 			ablePositionsToThisResume.add(position);
 		}
-
-		
-		/*
-		 * TODO sendResumeToThisPosition
-		 */
 	}
 
 }
