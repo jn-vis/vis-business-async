@@ -15,17 +15,20 @@ class GetPcdValues implements Function<CcpJsonRepresentation, List<Boolean>>{
 		boolean pcd = json.getAsBoolean("pcd");
 
 		if(isCandidateJson) {
-			
-			if(pcd) {
+			boolean pcdCandidate = pcd;
+			if(pcdCandidate) {
+				// Candidatos PCD podem competir a vagas normais e a vagas PCD's.
 				return Arrays.asList(true, false);
 			}
+			// Candidatos normais podem competir apenas a vagas normais.
 			return Arrays.asList(false);
 		}
-		
-		if(pcd) {
+		boolean pcdPosition = pcd;
+		// Vagas PCD podem filtrar apenas vagas PCD's.
+		if(pcdPosition) {
 			return Arrays.asList(true);
 		}
-
+		// Vagas normais podem filtrar candidatos PCD's e candidatos normais.
 		return Arrays.asList(true, false);
 	}
 

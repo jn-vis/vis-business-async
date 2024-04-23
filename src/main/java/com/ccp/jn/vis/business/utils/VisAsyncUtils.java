@@ -21,12 +21,11 @@ import com.jn.vis.commons.entities.VisEntityHashGrouper;
 public class VisAsyncUtils {
 
 	public static List<CcpJsonRepresentation> getHashes(CcpJsonRepresentation json, Function<CcpJsonRepresentation, CcpJsonRepresentation> function) {
-
+		// Os ddds entram como string e são convertidos para integer. Vagas e currículos podem anotar mais que um ddd por vez, por isso vem como List.
 		List<Integer> ddds = json.getAsStringList("ddd").stream().map(x -> Integer.valueOf(x)).collect(Collectors.toList());
-		
+		// O resumWord se trata das habilidades se este JSON se tratar de currículo.
+		// O mandatorySkills trata das habilidades se este JSON se tratar de vaga.
 		List<String> resumeWords = json.getAsStringList("resumeWord", "mandatorySkills");
-
-		List<String> synonyms = json.getAsStringList("synonym");
 		
 		List<Integer> disponibilities = json.get(new GetDisponibilityValues());
 
@@ -39,28 +38,25 @@ public class VisAsyncUtils {
 		List<CcpJsonRepresentation> hashes = new ArrayList<>();
 
 		String email = json.getAsString("email");
-		
+		// Todas as futuras possibilidades são gravadas em uma Lista
 		for (Boolean pcd : pcds) {
 			for (Integer disponibility : disponibilities) {// 5 (vaga) = [5, 4, 3, 2, 1, 0] || 6 (candidato) [6, 7, 8, 9
 				for (String seniority : seniorities) {// vaga = [PL, SR] || candidato = 2 anos [JR]
 					for (CcpJsonRepresentation moneyValue : moneyValues) {
 						for (String resumeWord : resumeWords) {
-							for (String synonym : synonyms) {
-								for (Integer ddd : ddds) {
-									CcpJsonRepresentation hash = CcpConstants.EMPTY_JSON
-											.put("disponibility", disponibility)
-											.put("resumeWord", resumeWord)
-											.put("seniority", seniority)
-											.put("synonym", synonym)
-											.put("email", email)
-											.putAll(moneyValue)
-											.put("pcd", pcd)
-											.put("ddd", ddd)
-											;
-									CcpJsonRepresentation apply = function.apply(hash);
-									hashes.add(apply);
+							for (Integer ddd : ddds) {
+								CcpJsonRepresentation hash = CcpConstants.EMPTY_JSON
+										.put("disponibility", disponibility)
+										.put("resumeWord", resumeWord)
+										.put("seniority", seniority)
+										.put("email", email)
+										.putAll(moneyValue)
+										.put("pcd", pcd)
+										.put("ddd", ddd)
+										;
+								CcpJsonRepresentation apply = function.apply(hash);
+								hashes.add(apply);
 
-								}
 							}
 						}
 					}
@@ -139,14 +135,19 @@ public class VisAsyncUtils {
 		CcpJsonRepresentation oldValue = entity.getOneById(newValue, CcpConstants.DO_BY_PASS);
 		
 		CcpJsonRepresentation oldHash = oldValue.getInnerJson("hash");
-		List<String> incomingHashes = VisAsyncUtils.getHashes(newValue, function).stream().map(x -> entityHash.getId(x)).collect(Collectors.toList());
+		List<CcpJsonRepresentation> hashes = VisAsyncUtils.getHashes(newValue, function);
+		// A linha abaixo se refere a hashes que estão "chegando". 
+		List<String> incomingHashes = hashes.stream().map(x -> entityHash.getId(x)).collect(Collectors.toList());
+		// A linha abaixo se refere a hasshes que já estavam presentes.
 		List<String> existentHashes = oldHash.getAsStringList("insert");
-
+		// A linha abaixo se refere a hashes que estavam presentes (hashes para excluir) 
 		List<String> hashesToRemoveIn = new CcpCollectionDecorator(existentHashes).getExclusiveList(incomingHashes);
+		// A linha abaixo se refere a hashes que não estavam presentes e que agora estão presentes (hashes novos).
 		List<String> hashesToInsertIn = new CcpCollectionDecorator(incomingHashes).getExclusiveList(existentHashes);
 
 		CcpJsonRepresentation dataToSave = newValue
 		.put("lastUpdate", System.currentTimeMillis())
+		// Estamos setando um valor nas varáveis insert e remove de um JSON armazenado na propriedade hash de um JSON maior.
 		.putSubKey("hash", "insert", hashesToInsertIn)
 		.putSubKey("hash", "remove", hashesToRemoveIn)
 		;

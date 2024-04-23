@@ -7,7 +7,7 @@ import java.util.function.Function;
 import com.ccp.decorators.CcpJsonRepresentation;
 
 class GetDisponibilityValues implements Function<CcpJsonRepresentation, List<Integer>> {
-
+	
 	public List<Integer> apply(CcpJsonRepresentation json) {
 
 		boolean isCandidateJson = json.containsAllKeys("experience");
@@ -18,7 +18,7 @@ class GetDisponibilityValues implements Function<CcpJsonRepresentation, List<Int
 			
 			int end = json.getAsDoubleNumber("disponibility").intValue();
 			
-			for(int k = 0; k <= end; k--) {
+			for(int k = end; k <= 70; k++) {
 				response.add(k);
 			}
 			
@@ -27,9 +27,9 @@ class GetDisponibilityValues implements Function<CcpJsonRepresentation, List<Int
 		
 		List<Integer> response = new ArrayList<>();
 		
-		int start = json.getAsDoubleNumber("disponibility").intValue();
+		int maxDisponibility = json.getAsDoubleNumber("disponibility").intValue();
 		
-		for(int k = start; k <= 70; k++) {
+		for(int k = maxDisponibility; k >= 0; k--) {
 			response.add(k);
 		}
 		

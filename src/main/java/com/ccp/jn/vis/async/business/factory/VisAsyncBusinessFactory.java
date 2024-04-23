@@ -16,7 +16,8 @@ import com.jn.vis.commons.utils.VisTopics;
 
 class VisAsyncBusinessFactory implements CcpAsyncBusinessFactory {
 	
-	
+	// Essa classe faz a ligação entre as filas e seus consumidores. De um lado você tem o nome da fila 
+	//	do outro você tem a classe responsável pelo tratamento dessa fila.
 	private Map<String, Function<CcpJsonRepresentation, CcpJsonRepresentation>> map = new HashMap<>();
 	
 	public VisAsyncBusinessFactory() {

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.dao.CcpDao;
 import com.ccp.especifications.db.dao.CcpDaoUnionAll;
@@ -23,9 +24,9 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 	public CcpJsonRepresentation apply(CcpJsonRepresentation resume) {
 
 		VisEntityResume entityResume = new VisEntityResume();
-		
+		// Vis.1.1
 		List<String> hashes = VisAsyncUtils.calculateHashesAndSaveEntity(resume, entityResume);
-
+		// Vis.1.3
 		this.sendResumeToPositions(resume, hashes);
 		
 		return CcpConstants.EMPTY_JSON;
@@ -33,14 +34,14 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 
 	private void sendResumeToPositions(CcpJsonRepresentation resume, List<String> hashesToInsertIn) {
 		
-		List<CcpJsonRepresentation> intantlyPositions = VisAsyncUtils.getPositionsBySchedullingFrequency(PositionSendFrequency.minute);
+		List<CcpJsonRepresentation> instantlyPositions = VisAsyncUtils.getPositionsBySchedullingFrequency(PositionSendFrequency.minute);
 		
 		String email = resume.getAsString("email");
 		
-		Set<String> recruiters = new ArrayList<>(intantlyPositions).stream().map(position -> position.getAsString("email")).collect(Collectors.toSet());
+		Set<String> recruiters = new ArrayList<>(instantlyPositions).stream().map(position -> position.getAsString("email")).collect(Collectors.toSet());
 		CcpDao dao = CcpDependencyInjection.getDependency(CcpDao.class);
 		List<CcpJsonRepresentation> allSearchParameters = recruiters.stream().map(recruiter -> CcpConstants.EMPTY_JSON
-				.put("domain",  recruiter.split("@")[1])
+				.put("domain", new CcpStringDecorator(recruiter).email().getProfessionalDomain())
 				.put("recruiter", recruiter)
 				.put("email", email)
 				).collect(Collectors.toList());
@@ -53,6 +54,7 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 				allSearchParameters
 				,visEntityDeniedViewToCompany
 				,visEntityResumeNegativeted
+				,visEntityPosition
 				);
 		List<CcpJsonRepresentation> ablePositionsToThisResume = new ArrayList<>();
 

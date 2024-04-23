@@ -12,7 +12,6 @@ class GetMoneyValues implements Function<CcpJsonRepresentation, List<CcpJsonRepr
 	private final String field;
 	
 	public GetMoneyValues(String field) {
-		super();
 		this.field = field;
 	}
 
@@ -30,22 +29,23 @@ class GetMoneyValues implements Function<CcpJsonRepresentation, List<CcpJsonRepr
 			
 			List<CcpJsonRepresentation> response = new ArrayList<>();
 			
-			int start = json.getAsDoubleNumber(this.field).intValue();
+			int valueGaveByCandidate = json.getAsDoubleNumber(this.field).intValue();
 			
-			for(int k = start; k <= 100000; k += 100) {
-				response.add(CcpConstants.EMPTY_JSON.put("moneyValue", k).put("moneyType", this.field));
+			for(int k = valueGaveByCandidate; k <= 100000; k += 100) {
+				CcpJsonRepresentation put = CcpConstants.EMPTY_JSON.put("moneyValue", k).put("moneyType", this.field);
+				response.add(put);
 			}
 			
 			return response;
 		}
 		
-		
 		List<CcpJsonRepresentation> response = new ArrayList<>();
 		
-		int end = json.getAsDoubleNumber(this.field).intValue();
+		int maxValueFromThisPosition = json.getAsDoubleNumber(this.field).intValue();
 		
-		for(int k = end; k >= 1000; k -= 100) {
-			response.add(CcpConstants.EMPTY_JSON.put("moneyValue", k).put("moneyType", this.field));
+		for(int k = maxValueFromThisPosition; k >= 1000; k -= 100) {
+			CcpJsonRepresentation put = CcpConstants.EMPTY_JSON.put("moneyValue", k).put("moneyType", this.field);
+			response.add(put);
 		}
 		
 		return response;
