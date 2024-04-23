@@ -1,8 +1,0 @@
-A) Retestar o login novamente
-B) Fazer template de teste
-C) Criar massa de teste do VIS
-D) Testar VIS
-E) Ligar front end
-F) Importar dados
-G) Contratar DNS
-H) Fazer deploy

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpConstants;
@@ -25,7 +26,7 @@ import com.jn.vis.commons.entities.VisEntityResumeNegativeted;
 import com.jn.vis.commons.entities.VisEntityResumeView;
 import com.jn.vis.commons.utils.VisTopics;
 
-public class VisCronBusinessPositionSearchResumes  implements  java.util.function.Function<CcpJsonRepresentation, CcpJsonRepresentation> {
+public class VisCronBusinessPositionSearchResumes  implements  Function<CcpJsonRepresentation, CcpJsonRepresentation> {
 
 	public CcpJsonRepresentation apply(CcpJsonRepresentation schedullingPlan) {
 		
