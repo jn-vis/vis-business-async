@@ -111,16 +111,19 @@ public class VisAsyncUtils {
 		return positions;
 	}
 
-	public static List<CcpJsonRepresentation> getPositionsBySchedullingFrequency(PositionSendFrequency valueOf) {
+	public static List<CcpJsonRepresentation> getPositionsBySchedullingFrequency(PositionSendFrequency frequency) {
+		// Injetando dependência do executor de query complexa
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
+		// Linha abaixo se refere a construção de uma query para filtrar vagas pela frequência
 		CcpDbQueryOptions queryToSearchLastUpdatedResumes = 
 				new CcpDbQueryOptions()
 					.startSimplifiedQuery()
-						.match(VisEntityPosition.Fields.frequency, valueOf)
+						.match(VisEntityPosition.Fields.frequency, frequency)
 					.endSimplifiedQueryAndBackToRequest()
 				;
+		// Escolhendo as tabelas para fazer a busca (from)
 		String[] resourcesNames = new String[] {new VisEntityPosition().getEntityName()};
-
+		// Trazendo a lista de resultados para a memória
 		List<CcpJsonRepresentation> positions = queryExecutor.getResultAsList(queryToSearchLastUpdatedResumes, resourcesNames);
 		
 		return positions;

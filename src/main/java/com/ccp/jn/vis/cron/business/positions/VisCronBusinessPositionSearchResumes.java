@@ -18,7 +18,7 @@ import com.ccp.jn.vis.business.utils.PositionSendFrequency;
 import com.ccp.jn.vis.business.utils.VisAsyncUtils;
 import com.jn.vis.commons.entities.VisEntityBalance;
 import com.jn.vis.commons.entities.VisEntityDeniedViewToCompany;
-import com.jn.vis.commons.entities.VisEntityFees;
+import com.jn.vis.commons.entities.VisEntityScheduleSendingResumeFees;
 import com.jn.vis.commons.entities.VisEntityHashGrouper;
 import com.jn.vis.commons.entities.VisEntityPosition;
 import com.jn.vis.commons.entities.VisEntityResume;
@@ -33,7 +33,6 @@ public class VisCronBusinessPositionSearchResumes  implements  Function<CcpJsonR
 		VisAsyncUtils.saveHashes(PositionSendFrequency.hourly, new VisEntityResume());
 
 		VisAsyncUtils.saveHashes(PositionSendFrequency.hourly, new VisEntityPosition());
-
 		
 		List<CcpJsonRepresentation> positionsBySchedullingFrequency = VisAsyncUtils.getPositionsBySchedullingFrequency(schedullingPlan);
 
@@ -204,16 +203,20 @@ public class VisCronBusinessPositionSearchResumes  implements  Function<CcpJsonR
 	}
 
 	private List<CcpJsonRepresentation> getPositionsFilteredByRecruiterFunds( CcpJsonRepresentation schedullingPlan, List<CcpJsonRepresentation> schedulledPositions){
+		// TODO Trocar o nome do recruiter para email
+		List<CcpJsonRepresentation> collect = schedulledPositions
+				.stream().map(scheduledPosition -> scheduledPosition.duplicateValueFromKey("recruiter", "email")).collect(Collectors.toList());
+		List<CcpJsonRepresentation> allBalances = new VisEntityBalance().getManyByIds(collect);
 
-		List<CcpJsonRepresentation> allBalances = new VisEntityBalance().getManyByIds(schedulledPositions);
-
-		List<CcpJsonRepresentation> balancesNotFound = new ArrayList<CcpJsonRepresentation>(allBalances).stream().filter(balance -> balance.getAsBoolean("_found") == false).collect(Collectors.toList());
+		List<CcpJsonRepresentation> balancesNotFound = new ArrayList<CcpJsonRepresentation>(allBalances).stream()
+				.filter(balance -> balance.getAsBoolean("_found") == false).collect(Collectors.toList());
 
 		CcpConstants.EMPTY_JSON.put("reason", "balanceNotFound").put("data", balancesNotFound);
 		
-		List<CcpJsonRepresentation> balancesFound = new ArrayList<CcpJsonRepresentation>(allBalances).stream().filter(balance -> balance.getAsBoolean("_found")).collect(Collectors.toList());
+		List<CcpJsonRepresentation> balancesFound = new ArrayList<CcpJsonRepresentation>(allBalances).stream()
+				.filter(balance -> balance.getAsBoolean("_found")).collect(Collectors.toList());
 		
-		CcpJsonRepresentation jsonFee = new VisEntityFees().getOneById(schedullingPlan);
+		CcpJsonRepresentation jsonFee = new VisEntityScheduleSendingResumeFees().getOneById(schedullingPlan);
 		
 		Double fee = jsonFee.getAsDoubleNumber("fee");
 
