@@ -14,9 +14,10 @@ import com.ccp.especifications.db.bulk.CcpEntityOperationType;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
 import com.ccp.especifications.db.query.CcpQueryExecutor;
 import com.ccp.jn.async.business.JnAsyncBusinessCommitAndAudit;
+import com.ccp.jn.vis.business.utils.hash.GetHashFromJson;
 import com.jn.commons.entities.base.JnBaseEntity;
-import com.jn.vis.commons.entities.VisEntityPosition;
 import com.jn.vis.commons.entities.VisEntityHashGrouper;
+import com.jn.vis.commons.entities.VisEntityPosition;
 
 public class VisAsyncUtils {
 
@@ -27,13 +28,15 @@ public class VisAsyncUtils {
 		// O mandatorySkills trata das habilidades se este JSON se tratar de vaga.
 		List<String> resumeWords = json.getAsStringList("resumeWord", "mandatorySkills");
 		
-		List<Integer> disponibilities = json.get(new GetDisponibilityValues());
-
-		List<CcpJsonRepresentation> moneyValues = getMoneyValues(json);
+		GetHashFromJson hashFromJson = GetHashFromJson.getHashFromJson(json);
 		
-		List<String> seniorities = json.get(new GetSenioritiesValues());
+		List<Integer> disponibilities = json.get(hashFromJson.getDisponibilityValuesFromJson);
 
-		List<Boolean> pcds = json.get(new GetPcdValues());
+		List<CcpJsonRepresentation> moneyValues = getMoneyValues(hashFromJson, json);
+		
+		List<String> seniorities = json.get(hashFromJson.getSenioritiesValuesFromJson);
+
+		List<Boolean> pcds = json.get(hashFromJson.getPcdValuesFromJson);
 		
 		List<CcpJsonRepresentation> hashes = new ArrayList<>();
 
@@ -56,7 +59,6 @@ public class VisAsyncUtils {
 										;
 								CcpJsonRepresentation apply = function.apply(hash);
 								hashes.add(apply);
-
 							}
 						}
 					}
@@ -67,12 +69,17 @@ public class VisAsyncUtils {
 		return hashes;
 	}
 	
-	private static List<CcpJsonRepresentation> getMoneyValues(CcpJsonRepresentation json){
+	private static List<CcpJsonRepresentation> getMoneyValues(GetHashFromJson hashFromJson, CcpJsonRepresentation json){
+		
 		ArrayList<CcpJsonRepresentation> result = new ArrayList<>();
 		
-		result.addAll(new GetMoneyValues("btc").apply(json));
-		result.addAll(new GetMoneyValues("clt").apply(json));
-		result.addAll(new GetMoneyValues("pj").apply(json));
+		List<CcpJsonRepresentation> btcValues = hashFromJson.getBtcValuesFromJson.apply(json);
+		List<CcpJsonRepresentation> cltValues = hashFromJson.getCltValuesFromJson.apply(json);
+		List<CcpJsonRepresentation> pjValues = hashFromJson.getPjValuesFromJson.apply(json);
+
+		result.addAll(btcValues);
+		result.addAll(cltValues);
+		result.addAll(pjValues);
 		
 		return result;
 	}

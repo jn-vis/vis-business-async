@@ -1,4 +1,4 @@
-package com.ccp.jn.vis.business.utils;
+package com.ccp.jn.vis.business.utils.hash.resume;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -7,16 +7,10 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 
-class GetSenioritiesValues implements Function<CcpJsonRepresentation, List<String>> {
+public class GetSenioritiesValuesFromResume implements Function<CcpJsonRepresentation, List<String>> {
 
 	public List<String> apply(CcpJsonRepresentation json) {
 		
-		boolean containsAllKeys = json.containsAllKeys("seniority");
-		
-		if(containsAllKeys) {
-			List<String> seniorities = json.getAsStringList("seniority");
-			return seniorities;
-		}
 		Integer experience = json.getAsIntegerNumber("experience");
 		int currentYear = Calendar.getInstance().get(Calendar.YEAR);
 		int exp = currentYear - experience;

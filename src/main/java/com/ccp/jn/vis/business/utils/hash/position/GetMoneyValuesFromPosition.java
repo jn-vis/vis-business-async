@@ -1,4 +1,4 @@
-package com.ccp.jn.vis.business.utils;
+package com.ccp.jn.vis.business.utils.hash.position;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,11 +7,11 @@ import java.util.function.Function;
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 
-class GetMoneyValues implements Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> {
+public class GetMoneyValuesFromPosition implements Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> {
 
 	private final String field;
 	
-	public GetMoneyValues(String field) {
+	public GetMoneyValuesFromPosition(String field) {
 		this.field = field;
 	}
 
@@ -23,22 +23,6 @@ class GetMoneyValues implements Function<CcpJsonRepresentation, List<CcpJsonRepr
 			return new ArrayList<>();
 		}
 
-		boolean isCandidateJson = json.containsAllKeys("experience");
-		
-		if(isCandidateJson) {
-			
-			List<CcpJsonRepresentation> response = new ArrayList<>();
-			
-			int valueGaveByCandidate = json.getAsDoubleNumber(this.field).intValue();
-			
-			for(int k = valueGaveByCandidate; k <= 100000; k += 100) {
-				CcpJsonRepresentation put = CcpConstants.EMPTY_JSON.put("moneyValue", k).put("moneyType", this.field);
-				response.add(put);
-			}
-			
-			return response;
-		}
-		
 		List<CcpJsonRepresentation> response = new ArrayList<>();
 		
 		int maxValueFromThisPosition = json.getAsDoubleNumber(this.field).intValue();
