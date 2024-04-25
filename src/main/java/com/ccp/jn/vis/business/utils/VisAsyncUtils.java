@@ -2,18 +2,14 @@ package com.ccp.jn.vis.business.utils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpConstants;
-import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
-import com.ccp.especifications.db.bulk.CcpEntityOperationType;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
 import com.ccp.especifications.db.query.CcpQueryExecutor;
-import com.ccp.jn.async.business.JnAsyncBusinessCommitAndAudit;
 import com.ccp.jn.vis.business.utils.hash.GetHashFromJson;
 import com.jn.commons.entities.base.JnBaseEntity;
 import com.jn.vis.commons.entities.VisEntityHashGrouper;
@@ -139,97 +135,17 @@ public class VisAsyncUtils {
 	}
 	
 	public static List<String> saveEntityValue(CcpJsonRepresentation newValue, JnBaseEntity entity, Function<CcpJsonRepresentation, CcpJsonRepresentation> function) {
-		
-		VisEntityHashGrouper entityHash = new VisEntityHashGrouper();	
-
 		CcpJsonRepresentation oldValue = entity.getOneById(newValue, CcpConstants.DO_BY_PASS);
+		List<String> newHashes = VisAsyncUtils.getHashes(oldValue, function).stream().map(x -> new VisEntityHashGrouper().getId(x)).collect(Collectors.toList());
 		
-		CcpJsonRepresentation oldHash = oldValue.getInnerJson("hash");
-		List<CcpJsonRepresentation> hashes = VisAsyncUtils.getHashes(newValue, function);
-		// A linha abaixo se refere a hashes que estão "chegando". 
-		List<String> incomingHashes = hashes.stream().map(x -> entityHash.getId(x)).collect(Collectors.toList());
-		// A linha abaixo se refere a hasshes que já estavam presentes.
-		List<String> existentHashes = oldHash.getAsStringList("insert");
-		// A linha abaixo se refere a hashes que estavam presentes (hashes para excluir) 
-		List<String> hashesToRemoveIn = new CcpCollectionDecorator(existentHashes).getExclusiveList(incomingHashes);
-		// A linha abaixo se refere a hashes que não estavam presentes e que agora estão presentes (hashes novos).
-		List<String> hashesToInsertIn = new CcpCollectionDecorator(incomingHashes).getExclusiveList(existentHashes);
-
 		CcpJsonRepresentation dataToSave = newValue
 		.put("lastUpdate", System.currentTimeMillis())
-		// Estamos setando um valor nas varáveis insert e remove de um JSON armazenado na propriedade hash de um JSON maior.
-		.putSubKey("hash", "insert", hashesToInsertIn)
-		.putSubKey("hash", "remove", hashesToRemoveIn)
 		;
 		entity.createOrUpdate(dataToSave);
 		
-		return hashesToInsertIn;
+		return null;
 	}
 
-
-	public static void saveHashes(PositionSendFrequency frequency, JnBaseEntity entity) {
-		List<CcpJsonRepresentation> lastUpdatedes = VisAsyncUtils.getLastUpdated(entity, frequency);
-		
-		CcpJsonRepresentation allHashes = CcpConstants.EMPTY_JSON;
-		
-		VisEntityHashGrouper entityHash = new VisEntityHashGrouper();
-
-		for (CcpJsonRepresentation lastUpdated : lastUpdatedes) {
-			String entityId = entity.getId(lastUpdated);
-			
-			CcpJsonRepresentation jsonHash = lastUpdated.getInnerJson("hash");
-			List<String> hashesToRemove = jsonHash.getAsStringList("remove");
-			List<String> hashesToInsert = jsonHash.getAsStringList("insert");
-			allHashes = putHash(allHashes, hashesToRemove, "remove", entityId);
-			allHashes = putHash(allHashes, hashesToInsert, "insert", entityId);
-		}
-		
-		Set<String> keySet = allHashes.keySet();
-		String[] array = keySet.toArray(new String[keySet.size()]);
-		List<CcpJsonRepresentation> manyByIds = entityHash.getManyByIds(array);
-		List<CcpJsonRepresentation> hashesToCreate = new ArrayList<>();
-		List<CcpJsonRepresentation> hashesToUpdate = new ArrayList<>();
-		
-		for (CcpJsonRepresentation item : manyByIds) {
-			String hash = item.getAsString("_id");
-			
-			CcpJsonRepresentation hashJson = allHashes.getInnerJson(hash);
-			
-			List<String> hashes = item.getAsCollectionDecorator("hash").getSubCollection(0, 10_000_000).getExclusiveList(new ArrayList<String>());
-			
-			List<String> hashesToRemove = hashJson.getAsStringList("remove");
-			
-			List<String> hashesToInsert = hashJson.getAsStringList("insert");
-			
-			hashes.removeAll(hashesToRemove);
-
-			hashes.addAll(hashesToInsert);
-			
-			CcpJsonRepresentation updatedHash = item.put("hash", hashes);
-			
-			boolean found = item.getAsBoolean("_found");
-			
-			if(found) {
-				hashesToUpdate.add(updatedHash);
-				continue;
-			}
-			hashesToCreate.add(updatedHash);
-		}
-		JnAsyncBusinessCommitAndAudit commitAndAudit = new JnAsyncBusinessCommitAndAudit();
-
-		commitAndAudit.execute(hashesToCreate, CcpEntityOperationType.create, entityHash);
-
-		commitAndAudit.execute(hashesToUpdate, CcpEntityOperationType.update, entityHash);
-	}
-
-	private static CcpJsonRepresentation putHash(CcpJsonRepresentation allHashes, List<String> hashes, String command, String entityId) {
-		for (String hash : hashes) {
-			CcpJsonRepresentation innerJson = allHashes.getInnerJson(hash);
-			innerJson = innerJson.addToList(command, entityId);
-			allHashes = allHashes.put(hash, innerJson);
-		}
-		return allHashes;
-	}
 
 	public static boolean matches(CcpJsonRepresentation position, CcpJsonRepresentation resume) {
 		
