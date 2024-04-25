@@ -4,21 +4,13 @@ import java.util.function.Function;
 
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.jn.vis.business.utils.VisAsyncUtils;
 import com.jn.vis.commons.entities.VisEntityPosition;
 
 public class VisAsyncBusinessPositionSchedulling implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {
 
 	public CcpJsonRepresentation apply(CcpJsonRepresentation position) {
-	
-		Function<CcpJsonRepresentation, CcpJsonRepresentation> function = hash -> {
-			String title = position.getAsString("title");
-			CcpJsonRepresentation renameKey = hash.renameKey("email", "recruiter");
-			CcpJsonRepresentation put = renameKey.put("title", title);
-			return put;
-		};
-		VisEntityPosition entityPosition = new VisEntityPosition();
-		VisAsyncUtils.saveEntityValue(position, entityPosition, function);
+		VisEntityPosition.INSTANCE.createOrUpdate(position);
+		//TODO FALTA TODOS OS OUTROS PASSOS AQUI
 		return CcpConstants.EMPTY_JSON;
 	}
 
