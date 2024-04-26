@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpConstants;
+import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
@@ -15,6 +16,7 @@ import com.ccp.especifications.db.dao.CcpDaoUnionAll;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
 import com.ccp.especifications.db.query.CcpQueryExecutor;
 import com.ccp.jn.async.commons.utils.JnAsyncMensageriaSender;
+import com.ccp.jn.vis.business.resune.sort.PositionResumesSort;
 import com.ccp.jn.vis.business.utils.hash.GetHashFromJson;
 import com.jn.commons.entities.base.JnBaseEntity;
 import com.jn.vis.commons.entities.VisEntityBalance;
@@ -22,6 +24,7 @@ import com.jn.vis.commons.entities.VisEntityDeniedViewToCompany;
 import com.jn.vis.commons.entities.VisEntityHashGrouper;
 import com.jn.vis.commons.entities.VisEntityPosition;
 import com.jn.vis.commons.entities.VisEntityResume;
+import com.jn.vis.commons.entities.VisEntityResumeComment;
 import com.jn.vis.commons.entities.VisEntityResumeNegativeted;
 import com.jn.vis.commons.entities.VisEntityResumeView;
 import com.jn.vis.commons.entities.VisEntityScheduleSendingResumeFees;
@@ -30,60 +33,50 @@ import com.jn.vis.commons.utils.VisTopics;
 public class VisAsyncUtils {
 
 	public static void sendFilteredResumesByEachPositionToEachRecruiter(CcpJsonRepresentation schedullingPlan, Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getResumes) {
+		
 		String frequency = schedullingPlan.getAsString("frequency");
+		
 		PositionSendFrequency valueOf = PositionSendFrequency.valueOf(frequency);
 		
-		CcpJsonRepresentation positionsGroupedByRecruiters = VisAsyncUtils.getPositionsGroupedByRecruiters(valueOf);
+		CcpJsonRepresentation allPositionsGroupedByRecruiters = VisAsyncUtils.getAllPositionsGroupedByRecruiters(valueOf);
 
 		List<CcpJsonRepresentation> resumes = getResumes.apply(schedullingPlan);
 
-		List<CcpJsonRepresentation> positionsWithFilteredResumes = VisAsyncUtils.getPositionsWithFilteredResumes(positionsGroupedByRecruiters, resumes, valueOf);
+		List<CcpJsonRepresentation> allPositionsWithFilteredResumes = VisAsyncUtils.getAllPositionsWithFilteredResumes(allPositionsGroupedByRecruiters, resumes, valueOf);
 
-		JnAsyncMensageriaSender.INSTANCE.send(VisTopics.sendResumesToThisPosition, positionsWithFilteredResumes);
+		JnAsyncMensageriaSender.INSTANCE.send(VisTopics.sendResumesToThisPositions, allPositionsWithFilteredResumes);
 	}
 
-	
-	public static List<String> getHashes(CcpJsonRepresentation json) {
-		// Os ddds entram como string e são convertidos para integer. Vagas e currículos podem anotar mais que um ddd por vez, por isso vem como List.
-		List<Integer> ddds = json.getAsStringList("ddd").stream().map(x -> Integer.valueOf(x)).collect(Collectors.toList());
+	private static List<String> getHashes(CcpJsonRepresentation json) {
 		// O resumWord se trata das habilidades se este JSON se tratar de currículo.
 		// O mandatorySkills trata das habilidades se este JSON se tratar de vaga.
 		List<String> resumeWords = json.getAsStringList("resumeWord", "mandatorySkills");
-		
+
 		GetHashFromJson hashFromJson = GetHashFromJson.getHashFromJson(json);
-		
+
 		List<Integer> disponibilities = json.get(hashFromJson.getDisponibilityValuesFromJson);
 
 		List<CcpJsonRepresentation> moneyValues = getMoneyValues(hashFromJson, json);
-		
-		List<String> seniorities = json.get(hashFromJson.getSenioritiesValuesFromJson);
+
+		String seniority = hashFromJson.getSeniorityValueFromJson.apply(json);
 
 		List<Boolean> pcds = json.get(hashFromJson.getPcdValuesFromJson);
-		
+
 		List<String> hashes = new ArrayList<>();
 		// Todas as futuras possibilidades são gravadas em uma Lista
 		for (Boolean pcd : pcds) {
 			for (Integer disponibility : disponibilities) {// 5 (vaga) = [5, 4, 3, 2, 1, 0] || 6 (candidato) [6, 7, 8, 9
-				for (String seniority : seniorities) {// vaga = [PL, SR] || candidato = 2 anos [JR]
-					for (CcpJsonRepresentation moneyValue : moneyValues) {
-						for (String resumeWord : resumeWords) {
-							for (Integer ddd : ddds) {
-								CcpJsonRepresentation hash = CcpConstants.EMPTY_JSON
-										.put("disponibility", disponibility)
-										.put("resumeWord", resumeWord)
-										.put("seniority", seniority)
-										.putAll(moneyValue)
-										.put("pcd", pcd)
-										.put("ddd", ddd)
-										;
-								String hashValue = VisEntityHashGrouper.INSTANCE.getId(hash);
-								hashes.add(hashValue);
-							}
-						}
+				for (CcpJsonRepresentation moneyValue : moneyValues) {
+					for (String resumeWord : resumeWords) {
+						CcpJsonRepresentation hash = CcpConstants.EMPTY_JSON.put("disponibility", disponibility)
+								.put("resumeWord", resumeWord).put("seniority", seniority).putAll(moneyValue)
+								.put("pcd", pcd);
+						String hashValue = VisEntityHashGrouper.INSTANCE.getId(hash);
+						hashes.add(hashValue);
 					}
 				}
 			}
-		}		
+		}
 
 		return hashes;
 	}
@@ -122,7 +115,7 @@ public class VisAsyncUtils {
 		return result;
 	}
 
-	public static CcpJsonRepresentation getPositionsGroupedByRecruiters(PositionSendFrequency frequency) {
+	private static CcpJsonRepresentation getAllPositionsGroupedByRecruiters(PositionSendFrequency frequency) {
 		// Injetando dependência do executor de query complexa
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
 		// Linha abaixo se refere a construção de uma query para filtrar vagas pela frequência
@@ -134,40 +127,56 @@ public class VisAsyncUtils {
 				;
 		// Escolhendo as tabelas para fazer a busca (from)
 		String[] resourcesNames = new String[] {VisEntityPosition.INSTANCE.getEntityName()};
-
 		CcpJsonRepresentation positionsGroupedByRecruiters = queryExecutor.getMap(queryToSearchLastUpdatedResumes, resourcesNames, "email");
 		return positionsGroupedByRecruiters;
 	}
 
-	public static List<CcpJsonRepresentation> getPositionsWithFilteredResumes(CcpJsonRepresentation positionsGroupedByRecruiters, 
+	private static List<CcpJsonRepresentation> getAllPositionsWithFilteredResumes(CcpJsonRepresentation allPositionsGroupedByRecruiters, 
 			List<CcpJsonRepresentation> resumes, PositionSendFrequency frequency) {
 		
-		List<CcpJsonRepresentation> allSearchParameters = getAllSearchParameters(positionsGroupedByRecruiters, resumes,	frequency);
+		List<CcpJsonRepresentation> allSearchParameters = getAllSearchParameters(allPositionsGroupedByRecruiters, resumes,	frequency);
 
 		CcpDao dao = CcpDependencyInjection.getDependency(CcpDao.class);
+		
 		CcpDaoUnionAll searchResults = dao.unionAll(
 				allSearchParameters
 				,VisEntityResume.INSTANCE
 				,VisEntityBalance.INSTANCE
 				,VisEntityResumeView.INSTANCE
+				,VisEntityResumeComment.INSTANCE
 				,VisEntityResumeNegativeted.INSTANCE
 				,VisEntityDeniedViewToCompany.INSTANCE
 				,VisEntityScheduleSendingResumeFees.INSTANCE
 				);
 		
-		List<CcpJsonRepresentation> positionsWithFilteredResumes = new ArrayList<>();
-
+		CcpJsonRepresentation allPositionsWithFilteredResumes = CcpConstants.EMPTY_JSON;
+		/*
+		 * {
+		 *  "dfbgtlsamd": {
+		 *  
+		 *  	"position": {},
+		 *  	"resumes": [{}, {}, {}]
+		 *  },
+		 * 
+		 *  "sadedfdasdsw": {
+		 *  
+		 *  	"position": {},
+		 *  	"resumes": [{}, {}, {}]
+		 *  },
+		 * }
+		 */
+		
 		for (CcpJsonRepresentation searchParameters : allSearchParameters) {
 
-			boolean inexistingFee = searchResults.isPresent(VisEntityScheduleSendingResumeFees.INSTANCE, searchParameters) == false;
+			boolean feeNotFound = searchResults.isPresent(VisEntityScheduleSendingResumeFees.INSTANCE, searchParameters) == false;
 
-			if(inexistingFee) {
+			if(feeNotFound) {
 				throw new RuntimeException("It is missing the " + VisEntityScheduleSendingResumeFees.class.getSimpleName() + " of frequency " + frequency);
 			}
 			
-			boolean inexistingBalance = searchResults.isPresent(VisEntityBalance.INSTANCE, searchParameters) == false;
+			boolean balanceNotFound = searchResults.isPresent(VisEntityBalance.INSTANCE, searchParameters) == false;
 
-			if(inexistingBalance) {
+			if(balanceNotFound) {
 				continue;
 			}
 
@@ -178,7 +187,7 @@ public class VisAsyncUtils {
 			Double balanceValue = balance.getAsDoubleNumber("balance");
 			
 			String recruiter = searchParameters.getAsString("recruiter");
-			List<CcpJsonRepresentation> positionsGroupedByThisRecruiter = positionsGroupedByRecruiters.getAsJsonList(recruiter);
+			List<CcpJsonRepresentation> positionsGroupedByThisRecruiter = allPositionsGroupedByRecruiters.getAsJsonList(recruiter);
 			int countPositionsGroupedByThisRecruiter = positionsGroupedByThisRecruiter.size();
 			Double totalCostToThisRecruiter = feeValue * countPositionsGroupedByThisRecruiter;
 			
@@ -206,42 +215,38 @@ public class VisAsyncUtils {
 				continue;
 			}
 			
-			CcpJsonRepresentation resume = searchResults.get(VisEntityResume.INSTANCE, searchParameters);
-			
-			boolean thisResumeNeverHasSeenBefore = searchResults.isPresent(VisEntityResumeView.INSTANCE, searchParameters) == false;
-			
-			if(thisResumeNeverHasSeenBefore) {
-				CcpJsonRepresentation positionWithFilteredResumes = getPositionWithFilteredResumes(
-						positionsGroupedByRecruiters, positionsGroupedByThisRecruiter, resume);
-				
-				positionsWithFilteredResumes.add(positionWithFilteredResumes);
-				continue;
-			}
-			
-			CcpJsonRepresentation resumeView = searchResults.get(VisEntityResumeView.INSTANCE, searchParameters);
-			Long resumeLastView = resumeView.getAsLongNumber("lastView");
-			Long resumeLastUpdate = resume.getAsLongNumber("lastUpdate");
-			boolean thisResumeDoesNotChangedSinceTheLastRecruiterView = resumeLastView > resumeLastUpdate;
-			
-			if(thisResumeDoesNotChangedSinceTheLastRecruiterView) {
-				continue;
-			}
-			
-			CcpJsonRepresentation positionWithFilteredResumes = getPositionWithFilteredResumes(
-					positionsGroupedByRecruiters, positionsGroupedByThisRecruiter, resume);
-			
-			positionsWithFilteredResumes.add(positionWithFilteredResumes);
+			allPositionsWithFilteredResumes = getPositionWithFilteredResumes(positionsGroupedByThisRecruiter, 
+					allPositionsGroupedByRecruiters, allPositionsWithFilteredResumes, searchParameters, searchResults);
 		}
 		
-		return positionsWithFilteredResumes;
+	 	CcpJsonRepresentation allPositionsWithFilteredResumesCopy = CcpConstants.EMPTY_JSON.putAll(allPositionsWithFilteredResumes);
+		
+		List<CcpJsonRepresentation> positionsWithSortedResumes = allPositionsWithFilteredResumes.keySet().stream().map(positionId -> getPositionWithSortedResumes(positionId, allPositionsWithFilteredResumesCopy) ).collect(Collectors.toList());
+		return positionsWithSortedResumes;
 	}
-
+	
 	private static CcpJsonRepresentation getPositionWithFilteredResumes(
-			CcpJsonRepresentation positionsGroupedByRecruiters,
-			List<CcpJsonRepresentation> positionsGroupedByThisRecruiter, CcpJsonRepresentation resume) {
+			List<CcpJsonRepresentation> positionsGroupedByThisRecruiter, 
+			CcpJsonRepresentation allPositionsGroupedByRecruiters,
+			CcpJsonRepresentation allPositionsWithFilteredResumes,
+			CcpJsonRepresentation searchParameters,
+			CcpDaoUnionAll searchResults
+			) {
+	
 		CcpJsonRepresentation positionWithFilteredResumes = CcpConstants.EMPTY_JSON;
 		
 		for (CcpJsonRepresentation positionByThisRecruiter : positionsGroupedByThisRecruiter) {
+
+			CcpJsonRepresentation resume = searchResults.get(VisEntityResume.INSTANCE, searchParameters);
+			
+			CcpCollectionDecorator dddsPosition = positionByThisRecruiter.getAsCollectionDecorator("ddd");
+			CcpCollectionDecorator dddsResume = resume.getAsCollectionDecorator("ddd");
+			boolean differentDdds = dddsResume.hasIntersect(dddsPosition.content) == false;
+			
+			if(differentDdds) {
+				continue;
+			}
+			
 			List<String> positionHashes = getHashes(positionByThisRecruiter);
 			List<String> resumeHashes = getHashes(resume);
 			
@@ -251,26 +256,58 @@ public class VisAsyncUtils {
 				continue;
 			}
 			
-			positionWithFilteredResumes = positionWithFilteredResumes
-			.put("position", positionsGroupedByRecruiters)
-			.addToList("resumes", resume)
-			;
+			String positionId = VisEntityPosition.INSTANCE.getId(positionByThisRecruiter);
+			
+			CcpJsonRepresentation emailMessageValuesToSent = allPositionsWithFilteredResumes.getInnerJson(positionId);
+
+			CcpJsonRepresentation resumeView = searchResults.get(VisEntityResumeView.INSTANCE, searchParameters);
+
+			CcpJsonRepresentation resumeComment = searchResults.get(VisEntityResumeComment.INSTANCE, searchParameters);
+	
+			CcpJsonRepresentation resumeWithCommentAndVisualizationDetails = resume.put("resumeComment", resumeComment).put("resumeView", resumeView);
+
+			emailMessageValuesToSent = emailMessageValuesToSent
+					.addToList("resumes", resumeWithCommentAndVisualizationDetails)
+					.put("position", allPositionsGroupedByRecruiters)
+					;
+			
+			allPositionsWithFilteredResumes = allPositionsWithFilteredResumes.put(positionId, emailMessageValuesToSent);
 		}
 		return positionWithFilteredResumes;
 	}
 
+	private static CcpJsonRepresentation getPositionWithSortedResumes(String positionId, CcpJsonRepresentation allPositionsWithFilteredResumes) {
+		
+		CcpJsonRepresentation positionWithResumes = allPositionsWithFilteredResumes.getInnerJson(positionId);
+		
+		List<CcpJsonRepresentation> resumes = positionWithResumes.getAsJsonList("resumes");
+		
+		boolean singleResume = resumes.size() <= 1;
+		
+		if(singleResume) {
+			return positionWithResumes;
+		}
+		
+		CcpJsonRepresentation position = positionWithResumes.getInnerJson("position");
+		PositionResumesSort positionResumesSort = new PositionResumesSort(position);
+		resumes.sort(positionResumesSort);
+		CcpJsonRepresentation put = CcpConstants.EMPTY_JSON.putAll(positionWithResumes).put("resumes", resumes);
+		return put;
+	}
+	
+
 	private static List<CcpJsonRepresentation> getAllSearchParameters(
-			CcpJsonRepresentation positionsGroupedByRecruiters, List<CcpJsonRepresentation> resumes, PositionSendFrequency frequency) {
+			CcpJsonRepresentation allPositionsGroupedByRecruiters, List<CcpJsonRepresentation> resumes, PositionSendFrequency frequency) {
 		List<CcpJsonRepresentation> allSearchParameters = new ArrayList<>();
 		
-		Set<String> recruiters = positionsGroupedByRecruiters.keySet();
+		Set<String> recruiters = allPositionsGroupedByRecruiters.keySet();
 		for (String recruiter : recruiters) {
 			for (CcpJsonRepresentation resume : resumes) {
-				String professionalDomain = new CcpStringDecorator(recruiter).email().getProfessionalDomain();
+				String recruiterDomain = new CcpStringDecorator(recruiter).email().getProfessionalDomain();
 				String email = resume.getAsString("email");
 				
 				CcpJsonRepresentation searchParameters = CcpConstants.EMPTY_JSON
-						.put("domain", professionalDomain)
+						.put("domain", recruiterDomain)
 						.put("recruiter", recruiter)
 						.put("frequency", frequency)
 						.put("owner", recruiter)
@@ -281,40 +318,8 @@ public class VisAsyncUtils {
 		}
 		return allSearchParameters;
 	}
-	public static List<CcpJsonRepresentation> getPositionsBySchedullingFrequency(PositionSendFrequency frequency) {
-		// Injetando dependência do executor de query complexa
-		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
-		// Linha abaixo se refere a construção de uma query para filtrar vagas pela frequência
-		CcpDbQueryOptions queryToSearchLastUpdatedResumes = 
-				new CcpDbQueryOptions()
-					.startSimplifiedQuery()
-						.match(VisEntityPosition.Fields.frequency, frequency)
-					.endSimplifiedQueryAndBackToRequest()
-				;
-		// Escolhendo as tabelas para fazer a busca (from)
-		String[] resourcesNames = new String[] {VisEntityPosition.INSTANCE.getEntityName()};
-		// Trazendo a lista de resultados para a memória
-		List<CcpJsonRepresentation> positions = queryExecutor.getResultAsList(queryToSearchLastUpdatedResumes, resourcesNames);
-		
-		return positions;
-	}
 
 	public static void disableEntity(CcpJsonRepresentation id) {
 
 	}
-
-	public static boolean matches(CcpJsonRepresentation position, CcpJsonRepresentation resume) {
-		
-		CcpJsonRepresentation positionHash = position.getInnerJson("hash");
-		
-		CcpJsonRepresentation resumeHash = resume.getInnerJson("hash");//{insert: ['a', 'b', 'c'], remove: ['d'] }
-		List<String> resumeInsert = resumeHash.getAsStringList("insert");
-		//a,b,c,d,e
-		//b,c,d
-		boolean matches = positionHash.itIsTrueThatTheFollowingFields("insert")
-				.ifTheyAreAllArrayValuesThenEachOne().isTextAndItIsContainedAtTheList(resumeInsert);
-		
-		return matches;
-	}
-
 }
