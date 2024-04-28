@@ -1,6 +1,7 @@
 package com.ccp.vis.async.commons;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -16,7 +17,6 @@ import com.ccp.especifications.db.dao.CcpDaoUnionAll;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
 import com.ccp.especifications.db.query.CcpQueryExecutor;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
-import com.ccp.vis.async.commons.hash.GetValuesFromJson;
 import com.ccp.vis.async.commons.sort.resumes.PositionResumesSort;
 import com.jn.commons.entities.base.JnBaseEntity;
 import com.jn.vis.commons.entities.VisEntityBalance;
@@ -44,23 +44,53 @@ public class VisAsyncUtils {
 
 		List<CcpJsonRepresentation> allPositionsWithFilteredResumes = VisAsyncUtils.getAllPositionsWithFilteredResumes(allPositionsGroupedByRecruiters, resumes, valueOf);
 
-		JnAsyncMensageriaSender.INSTANCE.send(VisAsyncBusiness.sendResumesToThisPositions, allPositionsWithFilteredResumes);
+		List<CcpJsonRepresentation> allPositionsWithFilteredResumesAndStatis = allPositionsWithFilteredResumes.stream().map(positionsWithFilteredResumes -> getStatisToThisPosition(positionsWithFilteredResumes)).collect(Collectors.toList());
+		
+		JnAsyncMensageriaSender.INSTANCE.send(VisAsyncBusiness.sendResumesToThisPositions, allPositionsWithFilteredResumesAndStatis);
 	}
 
+	private static CcpJsonRepresentation getStatisToThisPosition(CcpJsonRepresentation positionsWithFilteredResumes) {
+
+		List<CcpJsonRepresentation> resumes = positionsWithFilteredResumes.getAsJsonList("resumes");
+		List<String> fields = Arrays.asList("experience", "btc", "pj", "clt", "disponibility");
+		
+		for (String field : fields) {
+			int total = 0;
+			double sum = 0;
+			for (CcpJsonRepresentation resume : resumes) {
+				boolean fieldIsMissing = resume.containsAllKeys(field) == false;
+				if(fieldIsMissing) {
+					continue;
+				}
+				Double asDoubleNumber = resume.getAsDoubleNumber(field);
+				sum += asDoubleNumber;
+				total++;
+			}	
+			
+			boolean hasAtLeastOneResume = total > 0;
+			if(hasAtLeastOneResume) {
+				double avg = sum / total;
+				positionsWithFilteredResumes = positionsWithFilteredResumes.putSubKey("statis", field, avg);
+			}
+		}
+		int resumesSize = resumes.size();
+		positionsWithFilteredResumes = positionsWithFilteredResumes.putSubKey("statis", "resumes", resumesSize);
+		return positionsWithFilteredResumes;
+	}
+	
 	private static List<String> getHashes(CcpJsonRepresentation json) {
 		// O resumWord se trata das habilidades se este JSON se tratar de currículo.
 		// O mandatorySkills trata das habilidades se este JSON se tratar de vaga.
 		List<String> resumeWords = json.getAsStringList("resumeWord", "mandatorySkills");
 
-		GetValuesFromJson hashFromJson = GetValuesFromJson.getHashFromJson(json);
+		String enumsType = json.containsKey("experience") ? "resume" : "position";
+		List<Integer> disponibilities = json.get(GetDisponibilityValuesFromJson.valueOf(enumsType));
 
-		List<Integer> disponibilities = json.get(hashFromJson.getDisponibilityValuesFromJson);
+		List<CcpJsonRepresentation> moneyValues = getMoneyValues(enumsType, json);
 
-		List<CcpJsonRepresentation> moneyValues = getMoneyValues(hashFromJson, json);
+		String seniority = json.get(GetSeniorityValueFromJson.valueOf(enumsType));
 
-		String seniority = hashFromJson.getSeniorityValueFromJson.apply(json);
-
-		List<Boolean> pcds = json.get(hashFromJson.getPcdValuesFromJson);
+		List<Boolean> pcds = json.get(GetPcdValuesFromJson.valueOf(enumsType));;
 
 		List<String> hashes = new ArrayList<>();
 		// Todas as futuras possibilidades são gravadas em uma Lista
@@ -77,17 +107,18 @@ public class VisAsyncUtils {
 				}
 			}
 		}
-
 		return hashes;
 	}
 	
-	private static List<CcpJsonRepresentation> getMoneyValues(GetValuesFromJson hashFromJson, CcpJsonRepresentation json){
+	private static List<CcpJsonRepresentation> getMoneyValues(String enumsType, CcpJsonRepresentation json){
 		
 		ArrayList<CcpJsonRepresentation> result = new ArrayList<>();
 		
-		List<CcpJsonRepresentation> btcValues = hashFromJson.getBtcValuesFromJson.apply(json);
-		List<CcpJsonRepresentation> cltValues = hashFromJson.getCltValuesFromJson.apply(json);
-		List<CcpJsonRepresentation> pjValues = hashFromJson.getPjValuesFromJson.apply(json);
+		GetMoneyValuesFromJson valueOf = GetMoneyValuesFromJson.valueOf(enumsType);
+		
+		List<CcpJsonRepresentation> btcValues = valueOf.apply(json, "btc");
+		List<CcpJsonRepresentation> cltValues = valueOf.apply(json, "clt");
+		List<CcpJsonRepresentation> pjValues = valueOf.apply(json, "pj");
 
 		result.addAll(btcValues);
 		result.addAll(cltValues);

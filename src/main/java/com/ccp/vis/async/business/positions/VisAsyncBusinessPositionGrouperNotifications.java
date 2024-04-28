@@ -2,6 +2,7 @@ package com.ccp.vis.async.business.positions;
 
 import java.util.function.Function;
 
+import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 
 public class VisAsyncBusinessPositionGrouperNotifications implements Function<CcpJsonRepresentation, CcpJsonRepresentation>{
@@ -13,8 +14,7 @@ public class VisAsyncBusinessPositionGrouperNotifications implements Function<Cc
 	}
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation t) {
-		// TODO Auto-generated method stub
-		return null;
+		return CcpConstants.EMPTY_JSON;
 	}
 
 }

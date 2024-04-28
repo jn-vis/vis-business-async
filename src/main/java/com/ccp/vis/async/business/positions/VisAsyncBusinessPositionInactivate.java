@@ -1,5 +1,6 @@
 package com.ccp.vis.async.business.positions;
 
+import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 
 public class VisAsyncBusinessPositionInactivate  implements  java.util.function.Function<CcpJsonRepresentation, CcpJsonRepresentation> {
@@ -11,7 +12,7 @@ public class VisAsyncBusinessPositionInactivate  implements  java.util.function.
 	public static final VisAsyncBusinessPositionInactivate INSTANCE = new VisAsyncBusinessPositionInactivate();
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
-		return null;
+		return CcpConstants.EMPTY_JSON;
 	}
 
 }
