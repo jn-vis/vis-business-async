@@ -13,7 +13,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.crud.CcpCrud;
-import com.ccp.especifications.db.crud.CcpDaoUnionAll;
+import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
 import com.ccp.especifications.db.query.CcpQueryExecutor;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
@@ -169,7 +169,7 @@ public class VisAsyncUtils {
 
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		
-		CcpDaoUnionAll searchResults = crud.unionAll(
+		CcpSelectUnionAll searchResults = crud.unionAll(
 				allSearchParameters
 				,VisEntityResume.INSTANCE
 				,VisEntityBalance.INSTANCE
@@ -261,7 +261,7 @@ public class VisAsyncUtils {
 			CcpJsonRepresentation allPositionsGroupedByRecruiters,
 			CcpJsonRepresentation allPositionsWithFilteredResumes,
 			CcpJsonRepresentation searchParameters,
-			CcpDaoUnionAll searchResults
+			CcpSelectUnionAll searchResults
 			) {
 	
 		CcpJsonRepresentation positionWithFilteredResumes = CcpConstants.EMPTY_JSON;
