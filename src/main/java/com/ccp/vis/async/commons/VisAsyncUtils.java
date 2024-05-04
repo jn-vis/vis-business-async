@@ -12,8 +12,8 @@ import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
-import com.ccp.especifications.db.dao.CcpDao;
-import com.ccp.especifications.db.dao.CcpDaoUnionAll;
+import com.ccp.especifications.db.crud.CcpCrud;
+import com.ccp.especifications.db.crud.CcpDaoUnionAll;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
 import com.ccp.especifications.db.query.CcpQueryExecutor;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
@@ -167,9 +167,9 @@ public class VisAsyncUtils {
 		
 		List<CcpJsonRepresentation> allSearchParameters = getAllSearchParameters(allPositionsGroupedByRecruiters, resumes,	frequency);
 
-		CcpDao dao = CcpDependencyInjection.getDependency(CcpDao.class);
+		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		
-		CcpDaoUnionAll searchResults = dao.unionAll(
+		CcpDaoUnionAll searchResults = crud.unionAll(
 				allSearchParameters
 				,VisEntityResume.INSTANCE
 				,VisEntityBalance.INSTANCE
