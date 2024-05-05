@@ -211,10 +211,10 @@ public class VisAsyncUtils {
 				continue;
 			}
 
-			CcpJsonRepresentation fee = searchResults.get(VisEntityScheduleSendingResumeFees.INSTANCE);
+			CcpJsonRepresentation fee = searchResults.getEntityRow(VisEntityScheduleSendingResumeFees.INSTANCE, searchParameters);
 			Double feeValue = fee.getAsDoubleNumber("fee");
 			
-			CcpJsonRepresentation balance = searchResults.get(VisEntityBalance.INSTANCE);
+			CcpJsonRepresentation balance = searchResults.getEntityRow(VisEntityBalance.INSTANCE, searchParameters);
 			Double balanceValue = balance.getAsDoubleNumber("balance");
 			
 			String recruiter = searchParameters.getAsString("recruiter");
@@ -268,7 +268,7 @@ public class VisAsyncUtils {
 		
 		for (CcpJsonRepresentation positionByThisRecruiter : positionsGroupedByThisRecruiter) {
 
-			CcpJsonRepresentation resume = searchResults.get(VisEntityResume.INSTANCE, searchParameters);
+			CcpJsonRepresentation resume = searchResults.getEntityRow(VisEntityResume.INSTANCE, searchParameters);
 			
 			CcpCollectionDecorator dddsPosition = positionByThisRecruiter.getAsCollectionDecorator("ddd");
 			CcpCollectionDecorator dddsResume = resume.getAsCollectionDecorator("ddd");
@@ -291,9 +291,9 @@ public class VisAsyncUtils {
 			
 			CcpJsonRepresentation emailMessageValuesToSent = allPositionsWithFilteredResumes.getInnerJson(positionId);
 
-			CcpJsonRepresentation resumeView = searchResults.get(VisEntityResumeView.INSTANCE, searchParameters);
+			CcpJsonRepresentation resumeView = searchResults.getEntityRow(VisEntityResumeView.INSTANCE, searchParameters);
 
-			CcpJsonRepresentation resumeComment = searchResults.get(VisEntityResumeComment.INSTANCE, searchParameters);
+			CcpJsonRepresentation resumeComment = searchResults.getEntityRow(VisEntityResumeComment.INSTANCE, searchParameters);
 	
 			CcpJsonRepresentation resumeWithCommentAndVisualizationDetails = resume.put("resumeComment", resumeComment).put("resumeView", resumeView);
 
