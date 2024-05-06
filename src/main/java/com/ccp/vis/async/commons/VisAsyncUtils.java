@@ -211,10 +211,10 @@ public class VisAsyncUtils {
 				continue;
 			}
 
-			CcpJsonRepresentation fee = searchResults.getEntityRow(VisEntityScheduleSendingResumeFees.INSTANCE, searchParameters);
+			CcpJsonRepresentation fee = searchResults.getRequiredEntityRow(VisEntityScheduleSendingResumeFees.INSTANCE, searchParameters);
 			Double feeValue = fee.getAsDoubleNumber("fee");
 			
-			CcpJsonRepresentation balance = searchResults.getEntityRow(VisEntityBalance.INSTANCE, searchParameters);
+			CcpJsonRepresentation balance = searchResults.getRequiredEntityRow(VisEntityBalance.INSTANCE, searchParameters);
 			Double balanceValue = balance.getAsDoubleNumber("balance");
 			
 			String recruiter = searchParameters.getAsString("recruiter");
@@ -268,7 +268,7 @@ public class VisAsyncUtils {
 		
 		for (CcpJsonRepresentation positionByThisRecruiter : positionsGroupedByThisRecruiter) {
 
-			CcpJsonRepresentation resume = searchResults.getEntityRow(VisEntityResume.INSTANCE, searchParameters);
+			CcpJsonRepresentation resume = searchResults.getRequiredEntityRow(VisEntityResume.INSTANCE, searchParameters);
 			
 			CcpCollectionDecorator dddsPosition = positionByThisRecruiter.getAsCollectionDecorator("ddd");
 			CcpCollectionDecorator dddsResume = resume.getAsCollectionDecorator("ddd");
