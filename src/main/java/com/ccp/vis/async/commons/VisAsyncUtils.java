@@ -334,7 +334,9 @@ public class VisAsyncUtils {
 		Set<String> recruiters = allPositionsGroupedByRecruiters.keySet();
 		for (String recruiter : recruiters) {
 			for (CcpJsonRepresentation resume : resumes) {
-				String recruiterDomain = new CcpStringDecorator(recruiter).email().getProfessionalDomain();
+//				String recruiterDomain = new CcpStringDecorator(recruiter).email().getProfessionalDomain();
+				//TODO CLASSIFICAR E-MAILS PROFISSIONAIS E NAO PROFISSIONAIS
+				String recruiterDomain = "";
 				String email = resume.getAsString("email");
 				
 				CcpJsonRepresentation searchParameters = CcpConstants.EMPTY_JSON
