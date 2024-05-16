@@ -15,6 +15,7 @@ import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
 import com.ccp.especifications.db.query.CcpQueryExecutor;
+import com.ccp.especifications.file.bucket.CcpFileBucket;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
 import com.ccp.vis.async.commons.sort.resumes.PositionResumesSort;
 import com.jn.commons.entities.base.JnBaseEntity;
@@ -28,6 +29,7 @@ import com.jn.vis.commons.entities.VisEntityResumeNegativeted;
 import com.jn.vis.commons.entities.VisEntityResumeView;
 import com.jn.vis.commons.entities.VisEntityScheduleSendingResumeFees;
 import com.jn.vis.commons.utils.VisAsyncBusiness;
+import com.jn.vis.commons.utils.VisCommonsUtils;
 
 public class VisAsyncUtils {
 
@@ -350,8 +352,14 @@ public class VisAsyncUtils {
 		}
 		return allSearchParameters;
 	}
-
-	public static void disableEntity(CcpJsonRepresentation id) {
-
+	
+	
+	public static void saveResume(CcpJsonRepresentation resume, String propertyName, String fileName) {
+		String bucketFolderResume = VisCommonsUtils.getBucketFolderResume(resume);
+		String tenant = VisCommonsUtils.getTenant();
+		CcpFileBucket bucket = CcpDependencyInjection.getDependency(CcpFileBucket.class);
+		String propertyValue = resume.getAsString(propertyName);
+		bucket.save(tenant, bucketFolderResume, fileName, propertyValue);
 	}
+
 }
