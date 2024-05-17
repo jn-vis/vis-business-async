@@ -11,6 +11,7 @@ import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
+import com.ccp.especifications.cache.CcpCacheDecorator;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
@@ -19,6 +20,7 @@ import com.ccp.especifications.file.bucket.CcpFileBucket;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
 import com.ccp.vis.async.commons.sort.resumes.PositionResumesSort;
 import com.jn.commons.entities.base.JnBaseEntity;
+import com.jn.vis.commons.cache.tasks.ReadSkillsFromDataBase;
 import com.jn.vis.commons.entities.VisEntityBalance;
 import com.jn.vis.commons.entities.VisEntityDeniedViewToCompany;
 import com.jn.vis.commons.entities.VisEntityHashGrouper;
@@ -132,7 +134,7 @@ public class VisAsyncUtils {
 		
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
 		CcpDbQueryOptions queryToSearchLastUpdated = 
-				new CcpDbQueryOptions()
+				CcpDbQueryOptions.INSTANCE
 					.startSimplifiedQuery()
 						.startRange()
 							.startFieldRange("lastUpdate")
@@ -152,7 +154,7 @@ public class VisAsyncUtils {
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
 		// Linha abaixo se refere a construção de uma query para filtrar vagas pela frequência
 		CcpDbQueryOptions queryToSearchLastUpdatedResumes = 
-				new CcpDbQueryOptions()
+				CcpDbQueryOptions.INSTANCE
 					.startSimplifiedQuery()
 						.match(VisEntityPosition.Fields.frequency, frequency)
 					.endSimplifiedQueryAndBackToRequest()
@@ -355,11 +357,52 @@ public class VisAsyncUtils {
 	
 	
 	public static void saveResume(CcpJsonRepresentation resume, String propertyName, String fileName) {
+		String email = resume.getAsString("email");
+		String propertyValue = resume.getAsString(propertyName);
+		CcpCacheDecorator resumeCache = VisCommonsUtils.getResumeCache(email, fileName);
+		resumeCache.put(propertyValue, 86400);
 		String bucketFolderResume = VisCommonsUtils.getBucketFolderResume(resume);
 		String tenant = VisCommonsUtils.getTenant();
 		CcpFileBucket bucket = CcpDependencyInjection.getDependency(CcpFileBucket.class);
-		String propertyValue = resume.getAsString(propertyName);
 		bucket.save(tenant, bucketFolderResume, fileName, propertyValue);
+	}
+	
+	public static CcpJsonRepresentation getResumeWithSkills(CcpJsonRepresentation resume) {
+		CcpCacheDecorator cache = new CcpCacheDecorator("skills");
+		List<CcpJsonRepresentation> resultAsList = cache.get(ReadSkillsFromDataBase.INSTANCE, 86400);
+		
+		String resumeText = resume.getAsString("resumeText");
+		List<CcpJsonRepresentation> skills = new ArrayList<>();
+		
+		for (CcpJsonRepresentation skill : resultAsList) {
+		
+			String skillName = skill.getAsString("skill");
+			
+			boolean skillNotFoundInResume = resumeText.toUpperCase().contains(skillName.toUpperCase()) == false;
+			
+			if(skillNotFoundInResume) {
+				continue;
+			}
+			
+			List<CcpJsonRepresentation> prerequistes = skill.getAsStringList("prerequiste").stream().map(x -> CcpConstants.EMPTY_JSON.put("name", x).put("type", "prerequiste")).collect(Collectors.toList());
+			List<CcpJsonRepresentation> synonyms = skill.getAsStringList("synonym").stream().map(x -> CcpConstants.EMPTY_JSON.put("name", x).put("type", "synonym")).collect(Collectors.toList());
+			skills.addAll(prerequistes);
+			skills.addAll(synonyms);
+			CcpJsonRepresentation mainSkill = CcpConstants.EMPTY_JSON.put("name", skillName).put("type", "main");
+			skills.add(mainSkill);
+		}
+		
+		CcpJsonRepresentation resumeWithSkills = resume.put("skills", skills);
+		return resumeWithSkills;
+	}
+	
+	public static void removeFromCache(CcpJsonRepresentation resume, String key) {
+		
+		String email = resume.getAsString("email");
+		
+		CcpCacheDecorator resumeCache = VisCommonsUtils.getResumeCache(email, key);
+		
+		resumeCache.delete();
 	}
 
 }

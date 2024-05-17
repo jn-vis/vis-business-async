@@ -11,17 +11,19 @@ import com.ccp.vis.async.commons.VisAsyncUtils;
 
 public class VisAsyncBusinessResumeSendToRecruiters implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {
 	
-	private VisAsyncBusinessResumeSendToRecruiters() {
-		
-	}
+	private VisAsyncBusinessResumeSendToRecruiters() {}
 	
 	public static final VisAsyncBusinessResumeSendToRecruiters INSTANCE = new VisAsyncBusinessResumeSendToRecruiters();
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation resume) {
-		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> function = x -> Arrays.asList(resume);
+		
+		CcpJsonRepresentation resumeWithSkills = VisAsyncUtils.getResumeWithSkills(resume);
+		
+		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> function = x -> Arrays.asList(resumeWithSkills);
 		
 		VisAsyncUtils.sendFilteredResumesByEachPositionToEachRecruiter(CcpConstants.EMPTY_JSON.put("frequency", ResumeSendFrequencyOptions.minute), function);
 		
 		return CcpConstants.EMPTY_JSON;
 	}
+
 }
