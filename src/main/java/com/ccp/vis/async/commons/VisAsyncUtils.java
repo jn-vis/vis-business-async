@@ -396,13 +396,5 @@ public class VisAsyncUtils {
 		return resumeWithSkills;
 	}
 	
-	public static void removeFromCache(CcpJsonRepresentation resume, String key) {
-		
-		String email = resume.getAsString("email");
-		
-		CcpCacheDecorator resumeCache = VisCommonsUtils.getResumeCache(email, key);
-		
-		resumeCache.delete();
-	}
 
 }
