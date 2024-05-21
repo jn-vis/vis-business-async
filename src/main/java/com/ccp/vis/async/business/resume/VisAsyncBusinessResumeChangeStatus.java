@@ -3,7 +3,7 @@ package com.ccp.vis.async.business.resume;
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.jn.async.actions.TransferRecordBetweenEntities;
+import com.ccp.jn.async.actions.TransferRecordToReverseEntity;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 import com.jn.vis.commons.entities.VisEntityResume;
 
@@ -16,9 +16,12 @@ public class VisAsyncBusinessResumeChangeStatus  implements  java.util.function.
 	
 	@SuppressWarnings("unchecked")
 	public CcpJsonRepresentation apply(CcpJsonRepresentation resume) {
-		CcpEntity mirrorEntity = VisEntityResume.INSTANCE.getMirrorEntity();
-		TransferRecordBetweenEntities tryToChangeResumeStatusToActive = new TransferRecordBetweenEntities(VisEntityResume.INSTANCE);
-		TransferRecordBetweenEntities tryToChangeResumeStatusToInactive = new TransferRecordBetweenEntities(mirrorEntity);
+		
+		VisEntityResume activeResume = VisEntityResume.INSTANCE;
+		CcpEntity inactiveResumeEntity = activeResume.getMirrorEntity();
+		VisAsyncBusinessResumeSendToRecruiters sendResumeToRecruiters = VisAsyncBusinessResumeSendToRecruiters.INSTANCE;
+		TransferRecordToReverseEntity tryToChangeResumeStatusToInactive = new TransferRecordToReverseEntity(activeResume);
+		TransferRecordToReverseEntity tryToChangeResumeStatusToActive = new TransferRecordToReverseEntity(inactiveResumeEntity, sendResumeToRecruiters);
 
 		JnAsyncCommitAndAudit.INSTANCE.
 		executeSelectUnionAllThenExecuteBulkOperation(

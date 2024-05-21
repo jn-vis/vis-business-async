@@ -2,7 +2,6 @@ package com.ccp.vis.async.business.resume;
 
 import java.util.function.Function;
 
-import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.vis.async.commons.VisAsyncUtils;
 
@@ -15,7 +14,7 @@ public class VisAsyncBusinessResumeBucketSave implements  Function<CcpJsonRepres
 	public CcpJsonRepresentation apply(CcpJsonRepresentation resume) {
 		VisAsyncUtils.saveResume(resume, "resumeBase64", "file");
 		VisAsyncUtils.saveResume(resume, "resumeText", "text");
-		return CcpConstants.EMPTY_JSON;
+		return resume;
 	}
 
 }
