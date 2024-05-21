@@ -14,7 +14,7 @@ import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeBucketSave;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeChangeStatus;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeDelete;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeGrouperNotifications;
-import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeSendToRecruiters;
+import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeSave;
 import com.jn.vis.commons.utils.VisAsyncBusiness;
 
 class VisAsyncBusinessFactory implements CcpAsyncBusinessFactory {
@@ -28,7 +28,7 @@ class VisAsyncBusinessFactory implements CcpAsyncBusinessFactory {
 		this.map.put(VisAsyncBusiness.positionGrouperNotifications.name(), VisAsyncBusinessPositionGrouperNotifications.INSTANCE);
 		this.map.put(VisAsyncBusiness.resumeGrouperNotifications.name(), VisAsyncBusinessResumeGrouperNotifications.INSTANCE);
 		this.map.put(VisAsyncBusiness.sendResumesToThisPositions.name(), VisAsyncBusinessPositionSearchResumes.INSTANCE);
-		this.map.put(VisAsyncBusiness.sendResumeToRecruiters.name(), VisAsyncBusinessResumeSendToRecruiters.INSTANCE);
+		this.map.put(VisAsyncBusiness.sendResumeToRecruiters.name(), VisAsyncBusinessResumeSave.INSTANCE);
 		this.map.put(VisAsyncBusiness.inactivatePosition.name(), VisAsyncBusinessPositionInactivate.INSTANCE);
 		this.map.put(VisAsyncBusiness.changeResumeStatus.name(),VisAsyncBusinessResumeChangeStatus.INSTANCE);
 		this.map.put(VisAsyncBusiness.resumeBucketGet.name(), VisAsyncBusinessResumeBucketGet.INSTANCE);

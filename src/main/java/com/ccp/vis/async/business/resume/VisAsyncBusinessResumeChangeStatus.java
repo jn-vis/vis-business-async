@@ -19,7 +19,7 @@ public class VisAsyncBusinessResumeChangeStatus  implements  java.util.function.
 		
 		VisEntityResume activeResume = VisEntityResume.INSTANCE;
 		CcpEntity inactiveResumeEntity = activeResume.getMirrorEntity();
-		VisAsyncBusinessResumeSendToRecruiters sendResumeToRecruiters = VisAsyncBusinessResumeSendToRecruiters.INSTANCE;
+		VisAsyncBusinessResumeSave sendResumeToRecruiters = VisAsyncBusinessResumeSave.INSTANCE;
 		TransferRecordToReverseEntity tryToChangeResumeStatusToInactive = new TransferRecordToReverseEntity(activeResume);
 		TransferRecordToReverseEntity tryToChangeResumeStatusToActive = new TransferRecordToReverseEntity(inactiveResumeEntity, sendResumeToRecruiters);
 
