@@ -202,13 +202,13 @@ public class VisAsyncUtils {
 		
 		for (CcpJsonRepresentation searchParameters : allSearchParameters) {
 
-			boolean feeNotFound = searchResults.isPresent(VisEntityScheduleSendingResumeFees.INSTANCE, searchParameters) == false;
+			boolean feeNotFound = VisEntityScheduleSendingResumeFees.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters) == false;
 
 			if(feeNotFound) {
 				throw new RuntimeException("It is missing the " + VisEntityScheduleSendingResumeFees.class.getSimpleName() + " of frequency " + frequency);
 			}
 			
-			boolean balanceNotFound = searchResults.isPresent(VisEntityBalance.INSTANCE, searchParameters) == false;
+			boolean balanceNotFound = VisEntityBalance.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters) == false;
 
 			if(balanceNotFound) {
 				continue;
@@ -231,19 +231,19 @@ public class VisAsyncUtils {
 				continue;
 			}
 
-			boolean inactiveResume = searchResults.isPresent(VisEntityResume.INSTANCE, searchParameters) == false;
+			boolean inactiveResume = VisEntityResume.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters) == false;
 			
 			if(inactiveResume) {
 				continue;
 			}
 
-			boolean negativetedResume = searchResults.isPresent(VisEntityResumeNegativeted.INSTANCE, searchParameters);
+			boolean negativetedResume = VisEntityResumeNegativeted.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters);
 			
 			if(negativetedResume) {
 				continue;
 			}
 
-			boolean deniedResume = searchResults.isPresent(VisEntityDeniedViewToCompany.INSTANCE, searchParameters);
+			boolean deniedResume = VisEntityDeniedViewToCompany.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters);
 			
 			if(deniedResume) {
 				continue;
@@ -294,9 +294,9 @@ public class VisAsyncUtils {
 			
 			CcpJsonRepresentation emailMessageValuesToSent = allPositionsWithFilteredResumes.getInnerJson(positionId);
 
-			CcpJsonRepresentation resumeView = searchResults.getEntityRow(VisEntityResumeView.INSTANCE, searchParameters);
+			CcpJsonRepresentation resumeView = VisEntityResumeView.INSTANCE.getRecordFromUnionAll(searchResults, searchParameters);
 
-			CcpJsonRepresentation resumeComment = searchResults.getEntityRow(VisEntityResumeComment.INSTANCE, searchParameters);
+			CcpJsonRepresentation resumeComment = VisEntityResumeComment.INSTANCE.getRecordFromUnionAll(searchResults, searchParameters);
 	
 			CcpJsonRepresentation resumeWithCommentAndVisualizationDetails = resume.put("resumeComment", resumeComment).put("resumeView", resumeView);
 
