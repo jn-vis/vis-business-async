@@ -1,5 +1,7 @@
 package com.ccp.vis.async.business.resume;
 
+import java.util.function.Function;
+
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpEntityOperationType;
@@ -8,7 +10,7 @@ import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 import com.jn.vis.commons.entities.VisEntityResume;
 import com.jn.vis.commons.utils.VisCommonsUtils;
 
-public class VisAsyncBusinessResumeDelete implements  java.util.function.Function<CcpJsonRepresentation, CcpJsonRepresentation>{
+public class VisAsyncBusinessResumeDelete implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
 	public static final VisAsyncBusinessResumeDelete INSTANCE = new VisAsyncBusinessResumeDelete();
 

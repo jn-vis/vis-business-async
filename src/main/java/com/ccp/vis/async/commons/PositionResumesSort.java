@@ -1,4 +1,4 @@
-package com.ccp.vis.async.commons.sort.resumes;
+package com.ccp.vis.async.commons;
 
 import java.util.ArrayList;
 import java.util.Comparator;

@@ -16,9 +16,11 @@ import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
 import com.ccp.especifications.db.query.CcpQueryExecutor;
+import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.file.bucket.CcpFileBucket;
+import com.ccp.jn.async.actions.TransferRecordToReverseEntity;
+import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
-import com.ccp.vis.async.commons.sort.resumes.PositionResumesSort;
 import com.jn.commons.entities.base.JnBaseEntity;
 import com.jn.vis.commons.cache.tasks.ReadSkillsFromDataBase;
 import com.jn.vis.commons.entities.VisEntityBalance;
@@ -49,7 +51,7 @@ public class VisAsyncUtils {
 
 		List<CcpJsonRepresentation> allPositionsWithFilteredResumesAndStatis = allPositionsWithFilteredResumes.stream().map(positionsWithFilteredResumes -> getStatisToThisPosition(positionsWithFilteredResumes)).collect(Collectors.toList());
 		
-		JnAsyncMensageriaSender.INSTANCE.send(VisAsyncBusiness.sendResumesToThisPositions, allPositionsWithFilteredResumesAndStatis);
+		JnAsyncMensageriaSender.INSTANCE.send(VisAsyncBusiness.positionReceivingResumes, allPositionsWithFilteredResumesAndStatis);
 	}
 
 	private static CcpJsonRepresentation getStatisToThisPosition(CcpJsonRepresentation positionsWithFilteredResumes) {
@@ -104,7 +106,7 @@ public class VisAsyncUtils {
 						CcpJsonRepresentation hash = CcpConstants.EMPTY_JSON.put("disponibility", disponibility)
 								.put("resumeWord", resumeWord).put("seniority", seniority).putAll(moneyValue)
 								.put("pcd", pcd);
-						String hashValue = VisEntityHashGrouper.INSTANCE.getId(hash);
+						String hashValue = VisEntityHashGrouper.INSTANCE.calculateId(hash);
 						hashes.add(hashValue);
 					}
 				}
@@ -290,7 +292,7 @@ public class VisAsyncUtils {
 				continue;
 			}
 			
-			String positionId = VisEntityPosition.INSTANCE.getId(positionByThisRecruiter);
+			String positionId = VisEntityPosition.INSTANCE.calculateId(positionByThisRecruiter);
 			
 			CcpJsonRepresentation emailMessageValuesToSent = allPositionsWithFilteredResumes.getInnerJson(positionId);
 
@@ -396,5 +398,19 @@ public class VisAsyncUtils {
 		return resumeWithSkills;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static void changeStatus(CcpJsonRepresentation json, CcpEntity activeEntity,
+			Function<CcpJsonRepresentation, CcpJsonRepresentation> actionPosActivate) {
+		CcpEntity inactiveResumeEntity = activeEntity.getMirrorEntity();
+		TransferRecordToReverseEntity tryToChangeStatusToInactive = new TransferRecordToReverseEntity(activeEntity);
+		TransferRecordToReverseEntity tryToChangeStatusToActive = new TransferRecordToReverseEntity(inactiveResumeEntity, actionPosActivate);
+
+		JnAsyncCommitAndAudit.INSTANCE.
+		executeSelectUnionAllThenExecuteBulkOperation(
+				json 
+				, tryToChangeStatusToActive
+				, tryToChangeStatusToInactive
+				);
+	}
 
 }

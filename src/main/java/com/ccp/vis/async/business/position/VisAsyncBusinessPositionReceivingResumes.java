@@ -1,4 +1,4 @@
-package com.ccp.vis.async.business.positions;
+package com.ccp.vis.async.business.position;
 
 import java.util.List;
 import java.util.function.Function;
@@ -9,13 +9,13 @@ import com.ccp.vis.async.commons.ResumeSendFrequencyOptions;
 import com.ccp.vis.async.commons.VisAsyncUtils;
 import com.jn.vis.commons.entities.VisEntityResume;
 
-public class VisAsyncBusinessPositionSearchResumes  implements  Function<CcpJsonRepresentation, CcpJsonRepresentation> {
+public class VisAsyncBusinessPositionReceivingResumes  implements  Function<CcpJsonRepresentation, CcpJsonRepresentation> {
 
-	private VisAsyncBusinessPositionSearchResumes() {
+	private VisAsyncBusinessPositionReceivingResumes() {
 		
 	}
 	
-	public static final VisAsyncBusinessPositionSearchResumes INSTANCE = new VisAsyncBusinessPositionSearchResumes();
+	public static final VisAsyncBusinessPositionReceivingResumes INSTANCE = new VisAsyncBusinessPositionReceivingResumes();
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation schedullingPlan) {
 

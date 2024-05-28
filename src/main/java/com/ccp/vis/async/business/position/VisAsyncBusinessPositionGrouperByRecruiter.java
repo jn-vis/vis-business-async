@@ -1,4 +1,4 @@
-package com.ccp.vis.async.business.resume;
+package com.ccp.vis.async.business.position;
 
 import java.util.function.Function;
 

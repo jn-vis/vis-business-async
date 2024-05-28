@@ -4,6 +4,7 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
+import com.ccp.vis.async.commons.VisAsyncBusinessResumeSendToRecruiters;
 import com.ccp.vis.async.commons.VisAsyncUtils;
 import com.jn.vis.commons.entities.VisEntityResume;
 

@@ -1,4 +1,4 @@
-package com.ccp.vis.async.commons.sort.resumes;
+package com.ccp.vis.async.commons;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 

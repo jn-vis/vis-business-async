@@ -1,9 +1,11 @@
-package com.ccp.vis.async.business.resume;
+package com.ccp.vis.async.business.position;
 
 import java.util.function.Function;
 
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.vis.async.commons.VisAsyncUtils;
+import com.jn.vis.commons.entities.VisEntityPosition;
 
 public class VisAsyncBusinessPositionChangeStatus implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
@@ -12,7 +14,9 @@ public class VisAsyncBusinessPositionChangeStatus implements  Function<CcpJsonRe
 	public static final VisAsyncBusinessPositionChangeStatus INSTANCE = new VisAsyncBusinessPositionChangeStatus();
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
-		return CcpConstants.EMPTY_JSON;
+		//TODO ação pós reativar vaga???
+		VisAsyncUtils.changeStatus(json,  VisEntityPosition.INSTANCE, CcpConstants.DO_BY_PASS);
+		return json;
 	}
 
 }

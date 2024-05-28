@@ -1,9 +1,11 @@
 package com.ccp.vis.async.business.resume;
 
+import java.util.function.Function;
+
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 
-public class VisAsyncBusinessResumeBucketGet implements  java.util.function.Function<CcpJsonRepresentation, CcpJsonRepresentation>{
+public class VisAsyncBusinessResumeBucketGet implements Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
 	
 	private VisAsyncBusinessResumeBucketGet() {

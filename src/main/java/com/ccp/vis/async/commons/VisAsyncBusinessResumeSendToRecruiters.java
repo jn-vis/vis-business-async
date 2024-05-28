@@ -1,4 +1,4 @@
-package com.ccp.vis.async.business.resume;
+package com.ccp.vis.async.commons;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,8 +6,6 @@ import java.util.function.Function;
 
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.vis.async.commons.ResumeSendFrequencyOptions;
-import com.ccp.vis.async.commons.VisAsyncUtils;
 
 public class VisAsyncBusinessResumeSendToRecruiters implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {
 	
