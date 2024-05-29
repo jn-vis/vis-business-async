@@ -2,7 +2,6 @@ package com.ccp.vis.async.business.resume;
 
 import java.util.function.Function;
 
-import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpEntityOperationType;
 import com.ccp.especifications.file.bucket.CcpFileBucketOperation;
@@ -16,19 +15,19 @@ public class VisAsyncBusinessResumeDelete implements  Function<CcpJsonRepresenta
 
 	private VisAsyncBusinessResumeDelete() {}
 	
-	public CcpJsonRepresentation apply(CcpJsonRepresentation resume) {
+	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 
-		VisCommonsUtils.removeFromCache(resume, "text", "file");
+		VisCommonsUtils.removeFromCache(json, "text", "file");
 
 		String tentant = VisCommonsUtils.getTenant();
 
-		String folder = VisCommonsUtils.getBucketFolderResume(resume);
+		String folder = VisCommonsUtils.getBucketFolderResume(json);
 		
 		CcpFileBucketOperation.delete.execute(tentant, folder, "text", "file");
 
-		JnAsyncCommitAndAudit.INSTANCE.executeBulk(resume, VisEntityResume.INSTANCE, CcpEntityOperationType.delete);
+		JnAsyncCommitAndAudit.INSTANCE.executeBulk(json, VisEntityResume.INSTANCE, CcpEntityOperationType.delete);
 		
-		return CcpConstants.EMPTY_JSON;
+		return json;
 	}
 
 

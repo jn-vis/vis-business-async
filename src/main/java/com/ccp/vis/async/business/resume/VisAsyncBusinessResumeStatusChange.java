@@ -6,11 +6,11 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.vis.async.commons.VisAsyncUtils;
 import com.jn.vis.commons.entities.VisEntityResume;
 
-public class VisAsyncBusinessResumeChangeStatus  implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {
+public class VisAsyncBusinessResumeStatusChange  implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {
 
-	private VisAsyncBusinessResumeChangeStatus() {}
+	private VisAsyncBusinessResumeStatusChange() {}
 	
-	public static final VisAsyncBusinessResumeChangeStatus INSTANCE = new VisAsyncBusinessResumeChangeStatus();
+	public static final VisAsyncBusinessResumeStatusChange INSTANCE = new VisAsyncBusinessResumeStatusChange();
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 		

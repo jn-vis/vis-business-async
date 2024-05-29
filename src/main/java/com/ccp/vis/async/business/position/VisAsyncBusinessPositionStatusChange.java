@@ -7,11 +7,11 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.vis.async.commons.VisAsyncUtils;
 import com.jn.vis.commons.entities.VisEntityPosition;
 
-public class VisAsyncBusinessPositionChangeStatus implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
+public class VisAsyncBusinessPositionStatusChange implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
-	private VisAsyncBusinessPositionChangeStatus() {}
+	private VisAsyncBusinessPositionStatusChange() {}
 	
-	public static final VisAsyncBusinessPositionChangeStatus INSTANCE = new VisAsyncBusinessPositionChangeStatus();
+	public static final VisAsyncBusinessPositionStatusChange INSTANCE = new VisAsyncBusinessPositionStatusChange();
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 		//TODO ação pós reativar vaga???

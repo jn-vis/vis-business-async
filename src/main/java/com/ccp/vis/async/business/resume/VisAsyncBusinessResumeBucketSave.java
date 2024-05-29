@@ -11,10 +11,10 @@ public class VisAsyncBusinessResumeBucketSave implements  Function<CcpJsonRepres
 
 	private VisAsyncBusinessResumeBucketSave() {}
 	
-	public CcpJsonRepresentation apply(CcpJsonRepresentation resume) {
-		VisAsyncUtils.saveResume(resume, "resumeBase64", "file");
-		VisAsyncUtils.saveResume(resume, "resumeText", "text");
-		return resume;
+	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
+		VisAsyncUtils.saveResume(json, "resumeBase64", "file");
+		VisAsyncUtils.saveResume(json, "resumeText", "text");
+		return json;
 	}
 
 }
