@@ -2,6 +2,7 @@ package com.ccp.vis.async.commons;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -37,21 +38,23 @@ import com.jn.vis.commons.utils.VisCommonsUtils;
 
 public class VisAsyncUtils {
 
-	public static void sendFilteredResumesByEachPositionToEachRecruiter(CcpJsonRepresentation schedullingPlan, Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getResumes) {
+	public static List<CcpJsonRepresentation> sendFilteredAndSortedResumesAndTheirStatisByEachPositionToEachRecruiter(CcpJsonRepresentation schedullingPlan, Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getResumes, Function<String, CcpJsonRepresentation> getPositions) {
 		
 		String frequency = schedullingPlan.getAsString("frequency");
 		
-		ResumeSendFrequencyOptions valueOf = ResumeSendFrequencyOptions.valueOf(frequency);
-		
-		CcpJsonRepresentation allPositionsGroupedByRecruiters = VisAsyncUtils.getAllPositionsGroupedByRecruiters(valueOf);
+		CcpJsonRepresentation allPositionsGroupedByRecruiters = getPositions.apply(frequency);
 
 		List<CcpJsonRepresentation> resumes = getResumes.apply(schedullingPlan);
 
-		List<CcpJsonRepresentation> allPositionsWithFilteredResumes = VisAsyncUtils.getAllPositionsWithFilteredResumes(allPositionsGroupedByRecruiters, resumes, valueOf);
+		ResumeSendFrequencyOptions valueOf = ResumeSendFrequencyOptions.valueOf(frequency);
 
-		List<CcpJsonRepresentation> allPositionsWithFilteredResumesAndStatis = allPositionsWithFilteredResumes.stream().map(positionsWithFilteredResumes -> getStatisToThisPosition(positionsWithFilteredResumes)).collect(Collectors.toList());
+		List<CcpJsonRepresentation> allPositionsWithFilteredResumesAndTheirStatis = VisAsyncUtils.getAllPositionsWithFilteredAndSortedResumesAndTheirStatis(allPositionsGroupedByRecruiters, resumes, valueOf);
+
+		List<CcpJsonRepresentation> allPositionsWithFilteredAndSortedResumesAndStatis = allPositionsWithFilteredResumesAndTheirStatis.stream().map(positionsWithFilteredResumes -> getStatisToThisPosition(positionsWithFilteredResumes)).collect(Collectors.toList());
 		
-		JnAsyncMensageriaSender.INSTANCE.send(VisAsyncBusiness.positionReceivingResumes, allPositionsWithFilteredResumesAndStatis);
+		JnAsyncMensageriaSender.INSTANCE.send(VisAsyncBusiness.positionResumesSend, allPositionsWithFilteredAndSortedResumesAndStatis);
+		
+		return allPositionsWithFilteredAndSortedResumesAndStatis;
 	}
 
 	private static CcpJsonRepresentation getStatisToThisPosition(CcpJsonRepresentation positionsWithFilteredResumes) {
@@ -151,7 +154,7 @@ public class VisAsyncUtils {
 		return result;
 	}
 
-	private static CcpJsonRepresentation getAllPositionsGroupedByRecruiters(ResumeSendFrequencyOptions frequency) {
+	public static CcpJsonRepresentation getAllPositionsGroupedByRecruiters(ResumeSendFrequencyOptions frequency) {
 		// Injetando dependência do executor de query complexa
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
 		// Linha abaixo se refere a construção de uma query para filtrar vagas pela frequência
@@ -167,7 +170,7 @@ public class VisAsyncUtils {
 		return positionsGroupedByRecruiters;
 	}
 
-	private static List<CcpJsonRepresentation> getAllPositionsWithFilteredResumes(CcpJsonRepresentation allPositionsGroupedByRecruiters, 
+	private static List<CcpJsonRepresentation> getAllPositionsWithFilteredAndSortedResumesAndTheirStatis(CcpJsonRepresentation allPositionsGroupedByRecruiters, 
 			List<CcpJsonRepresentation> resumes, ResumeSendFrequencyOptions frequency) {
 		
 		List<CcpJsonRepresentation> allSearchParameters = getAllSearchParameters(allPositionsGroupedByRecruiters, resumes,	frequency);
@@ -186,21 +189,6 @@ public class VisAsyncUtils {
 				);
 		
 		CcpJsonRepresentation allPositionsWithFilteredResumes = CcpConstants.EMPTY_JSON;
-		/*
-		 * {
-		 *  "dfbgtlsamd": {
-		 *  
-		 *  	"position": {},
-		 *  	"resumes": [{}, {}, {}]
-		 *  },
-		 * 
-		 *  "sadedfdasdsw": {
-		 *  
-		 *  	"position": {},
-		 *  	"resumes": [{}, {}, {}]
-		 *  },
-		 * }
-		 */
 		
 		for (CcpJsonRepresentation searchParameters : allSearchParameters) {
 
@@ -411,6 +399,25 @@ public class VisAsyncUtils {
 				, tryToChangeStatusToActive
 				, tryToChangeStatusToInactive
 				);
+	}
+	public static void groupPositionsByRecruiters(Collection<String> allValidLogins) {
+		CcpDbQueryOptions query = CcpDbQueryOptions.INSTANCE
+				.startQuery()
+					.startBool()
+						.startMust()
+							.terms(VisEntityPosition.Fields.email, allValidLogins)
+						.endMustAndBackToBool()
+					.endBoolAndBackToQuery()
+				.endQueryAndBackToRequest()
+				.addAscSorting("position.timestamp")
+		;
+		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
+		String entityName = VisEntityPosition.INSTANCE.getEntityName();
+		String[] resourcesNames = new String[]{entityName};
+		
+		PositionsGroupedByRecruiters positionsGroupedByRecruiters = new PositionsGroupedByRecruiters();
+		queryExecutor.consumeQueryResult(query, resourcesNames, entityName, 10000, positionsGroupedByRecruiters, resourcesNames);
+		positionsGroupedByRecruiters.saveAllPositionsGroupedByRecruiters();
 	}
 
 }

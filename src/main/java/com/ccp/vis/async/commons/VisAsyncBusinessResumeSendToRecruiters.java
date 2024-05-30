@@ -15,9 +15,11 @@ public class VisAsyncBusinessResumeSendToRecruiters implements Function<CcpJsonR
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation resumeWithSkills) {
 		
-		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> function = x -> Arrays.asList(resumeWithSkills);
+		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getSavingResume = x -> Arrays.asList(resumeWithSkills);
 		
-		VisAsyncUtils.sendFilteredResumesByEachPositionToEachRecruiter(CcpConstants.EMPTY_JSON.put("frequency", ResumeSendFrequencyOptions.minute), function);
+		Function<String, CcpJsonRepresentation> getLastUpdatedPositions = frequency -> VisAsyncUtils.getAllPositionsGroupedByRecruiters(ResumeSendFrequencyOptions.valueOf(frequency));
+		
+		VisAsyncUtils.sendFilteredAndSortedResumesAndTheirStatisByEachPositionToEachRecruiter(CcpConstants.EMPTY_JSON.put("frequency", ResumeSendFrequencyOptions.minute), getSavingResume, getLastUpdatedPositions);
 		
 		return resumeWithSkills;
 	}
