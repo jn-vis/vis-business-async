@@ -5,7 +5,8 @@ public enum ResumeSendFrequencyOptions {
 	hourly(1),
 	daily(24),
 	weekly(168),
-	montly(720)
+	yearly(8766),
+	montly(730.5),
 	;
 	public final double hours;
 

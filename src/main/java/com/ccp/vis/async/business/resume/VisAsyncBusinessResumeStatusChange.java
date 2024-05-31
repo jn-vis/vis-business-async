@@ -2,9 +2,10 @@ package com.ccp.vis.async.business.resume;
 
 import java.util.function.Function;
 
+import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.vis.async.commons.VisAsyncUtils;
-import com.jn.vis.commons.entities.VisEntityResume;
+import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
+import com.jn.vis.commons.entities.VisEntityResumeOpinion;
 
 public class VisAsyncBusinessResumeStatusChange  implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {
 
@@ -14,7 +15,7 @@ public class VisAsyncBusinessResumeStatusChange  implements Function<CcpJsonRepr
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 		
-		VisAsyncUtils.changeStatus(json,  VisEntityResume.INSTANCE, VisAsyncBusinessResumeSave.INSTANCE);
+		JnAsyncCommitAndAudit.INSTANCE.executeSelectUnionAllThenSaveInTheMainAndMirrorEntities(json, VisEntityResumeOpinion.INSTANCE, CcpConstants.DO_NOTHING);
 
 		return json;
 	}

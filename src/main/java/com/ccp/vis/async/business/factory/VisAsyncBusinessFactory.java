@@ -10,12 +10,14 @@ import com.ccp.vis.async.business.position.VisAsyncBusinessPositionResumesReceiv
 import com.ccp.vis.async.business.position.VisAsyncBusinessPositionResumesSend;
 import com.ccp.vis.async.business.position.VisAsyncBusinessPositionSave;
 import com.ccp.vis.async.business.position.VisAsyncBusinessPositionStatusChange;
+import com.ccp.vis.async.business.recruiter.VisAsyncBusinessGroupResumeViewsByRecruiter;
+import com.ccp.vis.async.business.recruiter.VisAsyncBusinessGroupResumesOpinionsByRecruiter;
 import com.ccp.vis.async.business.recruiter.VisAsyncBusinessRecruiterReceivingResumes;
-import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeBucketGet;
+import com.ccp.vis.async.business.resume.VisAsyncBusinessGroupResumeViewsByResume;
+import com.ccp.vis.async.business.resume.VisAsyncBusinessGroupResumesOpinionsByResume;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeBucketSave;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeDelete;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeOpinionChange;
-import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeOpinionSave;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeSave;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeStatusChange;
 import com.ccp.vis.async.business.skills.VisAsyncBusinessSkillsSuggest;
@@ -30,15 +32,19 @@ class VisAsyncBusinessFactory implements CcpAsyncBusinessFactory {
 	
 	private VisAsyncBusinessFactory() {
 		
+		this.map.put(VisAsyncBusiness.groupResumesOpinionsByResume.name(), VisAsyncBusinessGroupResumesOpinionsByResume.INSTANCE);
+		this.map.put(VisAsyncBusiness.groupResumeViewsByResume.name(), VisAsyncBusinessGroupResumeViewsByResume.INSTANCE);
 		this.map.put(VisAsyncBusiness.resumeOpinionChange.name(), VisAsyncBusinessResumeOpinionChange.INSTANCE);
 		this.map.put(VisAsyncBusiness.resumeStatusChange.name(),VisAsyncBusinessResumeStatusChange.INSTANCE);
-		this.map.put(VisAsyncBusiness.resumeOpinionSave.name(), VisAsyncBusinessResumeOpinionSave.INSTANCE);
 		this.map.put(VisAsyncBusiness.resumeBucketSave.name(), VisAsyncBusinessResumeBucketSave.INSTANCE);
-		this.map.put(VisAsyncBusiness.resumeBucketGet.name(), VisAsyncBusinessResumeBucketGet.INSTANCE);
 		this.map.put(VisAsyncBusiness.resumeDelete.name(), VisAsyncBusinessResumeDelete.INSTANCE);
+		this.map.put(VisAsyncBusiness.resumeSave.name(), VisAsyncBusinessResumeSave.INSTANCE);
+		this.map.put(VisAsyncBusiness.resumeSave.name(), VisAsyncBusinessResumeSave.INSTANCE);
 		this.map.put(VisAsyncBusiness.resumeSave.name(), VisAsyncBusinessResumeSave.INSTANCE);
 
 		this.map.put(VisAsyncBusiness.positionResumesReceivingByFrequency.name(), VisAsyncBusinessPositionResumesReceivingByFrequency.INSTANCE);
+		this.map.put(VisAsyncBusiness.groupResumesOpinionsByRecruiter.name(), VisAsyncBusinessGroupResumesOpinionsByRecruiter.INSTANCE);
+		this.map.put(VisAsyncBusiness.groupResumeViewsByRecruiter.name(), VisAsyncBusinessGroupResumeViewsByRecruiter.INSTANCE);
 		this.map.put(VisAsyncBusiness.positionStatusChange.name(), VisAsyncBusinessPositionStatusChange.INSTANCE);
 		this.map.put(VisAsyncBusiness.positionResumesSend.name(), VisAsyncBusinessPositionResumesSend.INSTANCE);
 		this.map.put(VisAsyncBusiness.positionSave.name(), VisAsyncBusinessPositionSave.INSTANCE);

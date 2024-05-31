@@ -9,22 +9,22 @@ import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpEntityOperationType;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
-import com.jn.vis.commons.entities.VisEntityPositionsByRecruiter;
+import com.jn.vis.commons.entities.VisEntityGroupPositionsByRecruiter;
 
 public class PositionsGroupedByRecruiters implements Consumer<CcpJsonRepresentation>{
 	
 	private CcpJsonRepresentation positionsGroupedByRecruiters = CcpConstants.EMPTY_JSON;
 
 	public void accept(CcpJsonRepresentation position) {
-		String name2 = VisEntityPositionsByRecruiter.Fields.email.name();
+		String name2 = VisEntityGroupPositionsByRecruiter.Fields.email.name();
 		String email = position.getAsString(name2);
 		this.positionsGroupedByRecruiters = this.positionsGroupedByRecruiters.addToList(email, position);
 	}
 	
 	
 	public void saveAllPositionsGroupedByRecruiters(){
-		String name2 = VisEntityPositionsByRecruiter.Fields.email.name();
-		String name = VisEntityPositionsByRecruiter.Fields.position.name();
+		String name2 = VisEntityGroupPositionsByRecruiter.Fields.email.name();
+		String name = VisEntityGroupPositionsByRecruiter.Fields.position.name();
 		Set<String> emails = this.positionsGroupedByRecruiters.keySet();
 		List<CcpJsonRepresentation> result = new ArrayList<>();
 		for (String email : emails) {
@@ -33,7 +33,7 @@ public class PositionsGroupedByRecruiters implements Consumer<CcpJsonRepresentat
 			result.add(put);
 		}
 
-		JnAsyncCommitAndAudit.INSTANCE.executeBulk(result, CcpEntityOperationType.create, VisEntityPositionsByRecruiter.INSTANCE);
+		JnAsyncCommitAndAudit.INSTANCE.executeBulk(result, CcpEntityOperationType.create, VisEntityGroupPositionsByRecruiter.INSTANCE);
 	}
 
 }

@@ -29,14 +29,14 @@ import com.jn.vis.commons.entities.VisEntityDeniedViewToCompany;
 import com.jn.vis.commons.entities.VisEntityHashGrouper;
 import com.jn.vis.commons.entities.VisEntityPosition;
 import com.jn.vis.commons.entities.VisEntityResume;
-import com.jn.vis.commons.entities.VisEntityResumeComment;
-import com.jn.vis.commons.entities.VisEntityResumeNegativeted;
+import com.jn.vis.commons.entities.VisEntityResumeOpinion;
 import com.jn.vis.commons.entities.VisEntityResumeView;
 import com.jn.vis.commons.entities.VisEntityScheduleSendingResumeFees;
 import com.jn.vis.commons.utils.VisAsyncBusiness;
 import com.jn.vis.commons.utils.VisCommonsUtils;
 
 public class VisAsyncUtils {
+	//TODO BOTAR EM FILA SEPARANDO AS VAGAS EM LOTE DE RECRUTADORES NAO REPETIDOS
 
 	public static List<CcpJsonRepresentation> sendFilteredAndSortedResumesAndTheirStatisByEachPositionToEachRecruiter(CcpJsonRepresentation schedullingPlan, Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getResumes, Function<String, CcpJsonRepresentation> getPositions) {
 		
@@ -138,6 +138,7 @@ public class VisAsyncUtils {
 	public static List<CcpJsonRepresentation> getLastUpdated(JnBaseEntity entity, ResumeSendFrequencyOptions valueOf) {
 		
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
+		
 		CcpDbQueryOptions queryToSearchLastUpdated = 
 				CcpDbQueryOptions.INSTANCE
 					.startSimplifiedQuery()
@@ -151,6 +152,7 @@ public class VisAsyncUtils {
 		String[] resourcesNames = new String[] {entity.getEntityName()};
 
 		List<CcpJsonRepresentation> result = queryExecutor.getResultAsList(queryToSearchLastUpdated, resourcesNames);
+		
 		return result;
 	}
 
@@ -161,7 +163,7 @@ public class VisAsyncUtils {
 		CcpDbQueryOptions queryToSearchLastUpdatedResumes = 
 				CcpDbQueryOptions.INSTANCE
 					.startSimplifiedQuery()
-						.match(VisEntityPosition.Fields.frequency, frequency)
+						.match(VisEntityPosition.Fields.frequency, frequency.name())
 					.endSimplifiedQueryAndBackToRequest()
 				;
 		// Escolhendo as tabelas para fazer a busca (from)
@@ -170,8 +172,10 @@ public class VisAsyncUtils {
 		return positionsGroupedByRecruiters;
 	}
 
-	private static List<CcpJsonRepresentation> getAllPositionsWithFilteredAndSortedResumesAndTheirStatis(CcpJsonRepresentation allPositionsGroupedByRecruiters, 
-			List<CcpJsonRepresentation> resumes, ResumeSendFrequencyOptions frequency) {
+	private static List<CcpJsonRepresentation> getAllPositionsWithFilteredAndSortedResumesAndTheirStatis(
+			CcpJsonRepresentation allPositionsGroupedByRecruiters, 
+			List<CcpJsonRepresentation> resumes, 
+			ResumeSendFrequencyOptions frequency) {
 		
 		List<CcpJsonRepresentation> allSearchParameters = getAllSearchParameters(allPositionsGroupedByRecruiters, resumes,	frequency);
 
@@ -182,10 +186,10 @@ public class VisAsyncUtils {
 				,VisEntityResume.INSTANCE
 				,VisEntityBalance.INSTANCE
 				,VisEntityResumeView.INSTANCE
-				,VisEntityResumeComment.INSTANCE
-				,VisEntityResumeNegativeted.INSTANCE
+				,VisEntityResumeOpinion.INSTANCE
 				,VisEntityDeniedViewToCompany.INSTANCE
 				,VisEntityScheduleSendingResumeFees.INSTANCE
+				,VisEntityResumeOpinion.INSTANCE.getMirrorEntity()
 				);
 		
 		CcpJsonRepresentation allPositionsWithFilteredResumes = CcpConstants.EMPTY_JSON;
@@ -220,14 +224,14 @@ public class VisAsyncUtils {
 			if(insuficientFunds) {
 				continue;
 			}
-
+			//TODO NOTIFICAR CANDIDATO DAQUILO QUE ELE PERDEU POR SEU CURRICULO ESTAR INATIVO
 			boolean inactiveResume = VisEntityResume.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters) == false;
 			
 			if(inactiveResume) {
 				continue;
 			}
 
-			boolean negativetedResume = VisEntityResumeNegativeted.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters);
+			boolean negativetedResume = VisEntityResumeOpinion.INSTANCE.getMirrorEntity().isPresentInThisUnionAll(searchResults, searchParameters);
 			
 			if(negativetedResume) {
 				continue;
@@ -286,9 +290,10 @@ public class VisAsyncUtils {
 
 			CcpJsonRepresentation resumeView = VisEntityResumeView.INSTANCE.getRecordFromUnionAll(searchResults, searchParameters);
 
-			CcpJsonRepresentation resumeComment = VisEntityResumeComment.INSTANCE.getRecordFromUnionAll(searchResults, searchParameters);
+			CcpJsonRepresentation resumeComment = VisEntityResumeOpinion.INSTANCE.getRecordFromUnionAll(searchResults, searchParameters);
 	
-			CcpJsonRepresentation resumeWithCommentAndVisualizationDetails = resume.put("resumeComment", resumeComment).put("resumeView", resumeView);
+			CcpJsonRepresentation resumeWithCommentAndVisualizationDetails = resume
+					.put("resumeComment", resumeComment).put("resumeView", resumeView);
 
 			emailMessageValuesToSent = emailMessageValuesToSent
 					.addToList("resumes", resumeWithCommentAndVisualizationDetails)
@@ -328,7 +333,7 @@ public class VisAsyncUtils {
 		for (String recruiter : recruiters) {
 			for (CcpJsonRepresentation resume : resumes) {
 //				String recruiterDomain = new CcpStringDecorator(recruiter).email().getProfessionalDomain();
-				//TODO CLASSIFICAR E-MAILS PROFISSIONAIS E NAO PROFISSIONAIS
+				//FIXME CLASSIFICAR E-MAILS PROFISSIONAIS E NAO PROFISSIONAIS
 				String recruiterDomain = "";
 				String email = resume.getAsString("email");
 				
@@ -388,10 +393,12 @@ public class VisAsyncUtils {
 	
 	@SuppressWarnings("unchecked")
 	public static void changeStatus(CcpJsonRepresentation json, CcpEntity activeEntity,
-			Function<CcpJsonRepresentation, CcpJsonRepresentation> actionPosActivate) {
+			Function<CcpJsonRepresentation, CcpJsonRepresentation> actionPosActivate,
+			Function<CcpJsonRepresentation, CcpJsonRepresentation> actionPosInactivate
+			) {
 		CcpEntity inactiveResumeEntity = activeEntity.getMirrorEntity();
-		TransferRecordToReverseEntity tryToChangeStatusToInactive = new TransferRecordToReverseEntity(activeEntity);
-		TransferRecordToReverseEntity tryToChangeStatusToActive = new TransferRecordToReverseEntity(inactiveResumeEntity, actionPosActivate);
+		TransferRecordToReverseEntity tryToChangeStatusToActive = new TransferRecordToReverseEntity(inactiveResumeEntity, CcpConstants.DO_NOTHING, CcpConstants.DO_NOTHING);
+		TransferRecordToReverseEntity tryToChangeStatusToInactive = new TransferRecordToReverseEntity(activeEntity, actionPosInactivate, actionPosActivate);
 
 		JnAsyncCommitAndAudit.INSTANCE.
 		executeSelectUnionAllThenExecuteBulkOperation(
@@ -400,7 +407,9 @@ public class VisAsyncUtils {
 				, tryToChangeStatusToInactive
 				);
 	}
-	public static void groupPositionsByRecruiters(Collection<String> allValidLogins) {
+	
+	
+	public static CcpJsonRepresentation groupPositionsByRecruiters(CcpJsonRepresentation json, Function<VisEntityPosition, CcpEntity> getEntity, Collection<String> allValidLogins) {
 		CcpDbQueryOptions query = CcpDbQueryOptions.INSTANCE
 				.startQuery()
 					.startBool()
@@ -412,12 +421,14 @@ public class VisAsyncUtils {
 				.addAscSorting("position.timestamp")
 		;
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
-		String entityName = VisEntityPosition.INSTANCE.getEntityName();
+		CcpEntity apply = getEntity.apply(VisEntityPosition.INSTANCE);
+		String entityName = apply.getEntityName();
 		String[] resourcesNames = new String[]{entityName};
 		
 		PositionsGroupedByRecruiters positionsGroupedByRecruiters = new PositionsGroupedByRecruiters();
 		queryExecutor.consumeQueryResult(query, resourcesNames, entityName, 10000, positionsGroupedByRecruiters, resourcesNames);
 		positionsGroupedByRecruiters.saveAllPositionsGroupedByRecruiters();
+		return json;
 	}
 
 }
