@@ -6,6 +6,7 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.async.business.factory.CcpAsyncBusinessFactory;
+import com.ccp.vis.async.business.general.VisAsyncBusinessGetRecentLoggedUsers;
 import com.ccp.vis.async.business.position.VisAsyncBusinessPositionResumesReceivingByFrequency;
 import com.ccp.vis.async.business.position.VisAsyncBusinessPositionResumesSend;
 import com.ccp.vis.async.business.position.VisAsyncBusinessPositionSave;
@@ -13,11 +14,13 @@ import com.ccp.vis.async.business.position.VisAsyncBusinessPositionStatusChange;
 import com.ccp.vis.async.business.recruiter.VisAsyncBusinessGroupResumeViewsByRecruiter;
 import com.ccp.vis.async.business.recruiter.VisAsyncBusinessGroupResumesOpinionsByRecruiter;
 import com.ccp.vis.async.business.recruiter.VisAsyncBusinessRecruiterReceivingResumes;
+import com.ccp.vis.async.business.recruiter.VisAsyncBusinessResumeViewAdd;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessGroupResumeViewsByResume;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessGroupResumesOpinionsByResume;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeBucketSave;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeDelete;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeOpinionChange;
+import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeOpinionSave;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeSave;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeStatusChange;
 import com.ccp.vis.async.business.skills.VisAsyncBusinessSkillsSuggest;
@@ -39,8 +42,7 @@ class VisAsyncBusinessFactory implements CcpAsyncBusinessFactory {
 		this.map.put(VisAsyncBusiness.resumeBucketSave.name(), VisAsyncBusinessResumeBucketSave.INSTANCE);
 		this.map.put(VisAsyncBusiness.resumeDelete.name(), VisAsyncBusinessResumeDelete.INSTANCE);
 		this.map.put(VisAsyncBusiness.resumeSave.name(), VisAsyncBusinessResumeSave.INSTANCE);
-		this.map.put(VisAsyncBusiness.resumeSave.name(), VisAsyncBusinessResumeSave.INSTANCE);
-		this.map.put(VisAsyncBusiness.resumeSave.name(), VisAsyncBusinessResumeSave.INSTANCE);
+		this.map.put(VisAsyncBusiness.resumeOpinionSave.name(), VisAsyncBusinessResumeOpinionSave.INSTANCE);
 
 		this.map.put(VisAsyncBusiness.positionResumesReceivingByFrequency.name(), VisAsyncBusinessPositionResumesReceivingByFrequency.INSTANCE);
 		this.map.put(VisAsyncBusiness.groupResumesOpinionsByRecruiter.name(), VisAsyncBusinessGroupResumesOpinionsByRecruiter.INSTANCE);
@@ -50,8 +52,11 @@ class VisAsyncBusinessFactory implements CcpAsyncBusinessFactory {
 		this.map.put(VisAsyncBusiness.positionSave.name(), VisAsyncBusinessPositionSave.INSTANCE);
 
 		this.map.put(VisAsyncBusiness.recruiterReceivingResumes.name(), VisAsyncBusinessRecruiterReceivingResumes.INSTANCE);
+		this.map.put(VisAsyncBusiness.resumeViewAdd.name(), VisAsyncBusinessResumeViewAdd.INSTANCE);
 		
 		this.map.put(VisAsyncBusiness.skillsSuggest.name(), VisAsyncBusinessSkillsSuggest.INSTANCE);
+		
+		this.map.put(VisAsyncBusiness.getRecentLoggedUsers.name(), VisAsyncBusinessGetRecentLoggedUsers.INSTANCE);
 
 	}
 

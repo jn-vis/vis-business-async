@@ -19,13 +19,15 @@ public class VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes im
 	public static final VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes INSTANCE = new VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes();
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
-
+		
+		CcpJsonRepresentation duplicateValueFromKey = json.duplicateValueFromKey("email", "masters");
+		
+		VisAsyncUtils.groupPositionsByRecruiters(duplicateValueFromKey);
+		
+		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getLastUpdatedResumes = x -> VisAsyncUtils.getLastUpdated(VisEntityResume.INSTANCE, FrequencyOptions.yearly);
+		
 		List<String> email = json.getAsStringList("email");
-		
-		VisAsyncUtils.groupPositionsByRecruiters(json, x -> x, email);
-		
-		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getLastUpdatedResumes = x -> VisAsyncUtils.getLastUpdated(VisEntityResume.INSTANCE, ResumeSendFrequencyOptions.yearly);
-		
+
 		Function<String, CcpJsonRepresentation> getSavingPosition = frequency -> CcpConstants.EMPTY_JSON.put(email.get(0), json);
 
 		List<CcpJsonRepresentation> positionsWithFilteredAndSortedResumesAndTheirStatis = VisAsyncUtils.sendFilteredAndSortedResumesAndTheirStatisByEachPositionToEachRecruiter(json, getLastUpdatedResumes, getSavingPosition);
@@ -33,8 +35,8 @@ public class VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes im
 		CcpJsonRepresentation positionWithFilteredAndSortedResumesAndTheirStatis = positionsWithFilteredAndSortedResumesAndTheirStatis.get(0);
 		
 		List<CcpJsonRepresentation> resumes = positionWithFilteredAndSortedResumesAndTheirStatis.getAsJsonList("resumes");
-		CcpJsonRepresentation position = positionWithFilteredAndSortedResumesAndTheirStatis.getInnerJson("position");
 		
+		CcpJsonRepresentation position = positionWithFilteredAndSortedResumesAndTheirStatis.getInnerJson("position");
 
 		List<CcpBulkItem> allPagesTogether = new ArrayList<>();
 		int listSize = 10;
@@ -60,7 +62,7 @@ public class VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes im
 		
 		JnAsyncCommitAndAudit.INSTANCE.executeBulk(allPagesTogether);
 		
-		//TODO descobrir uma forma de gravar o agrupamento reverso
+		//TODO descobrir uma forma de gravar o agrupamento de vagas por currículos
 		
 		return positionWithFilteredAndSortedResumesAndTheirStatis;
 	}

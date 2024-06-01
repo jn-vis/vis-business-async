@@ -2,7 +2,7 @@ package com.ccp.vis.async.commons;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.cache.CcpCacheDecorator;
 import com.ccp.especifications.db.crud.CcpCrud;
@@ -18,6 +19,7 @@ import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
 import com.ccp.especifications.db.query.CcpQueryExecutor;
 import com.ccp.especifications.db.utils.CcpEntity;
+import com.ccp.especifications.db.utils.CcpEntityField;
 import com.ccp.especifications.file.bucket.CcpFileBucket;
 import com.ccp.jn.async.actions.TransferRecordToReverseEntity;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
@@ -26,6 +28,7 @@ import com.jn.commons.entities.base.JnBaseEntity;
 import com.jn.vis.commons.cache.tasks.ReadSkillsFromDataBase;
 import com.jn.vis.commons.entities.VisEntityBalance;
 import com.jn.vis.commons.entities.VisEntityDeniedViewToCompany;
+import com.jn.vis.commons.entities.VisEntityGroupPositionsByRecruiter;
 import com.jn.vis.commons.entities.VisEntityHashGrouper;
 import com.jn.vis.commons.entities.VisEntityPosition;
 import com.jn.vis.commons.entities.VisEntityResume;
@@ -36,6 +39,30 @@ import com.jn.vis.commons.utils.VisAsyncBusiness;
 import com.jn.vis.commons.utils.VisCommonsUtils;
 
 public class VisAsyncUtils {
+	
+	private static Set<String> nonProfessionalDomains = new HashSet<>();
+	
+	static {
+		nonProfessionalDomains.add("globalweb.com.br");
+		nonProfessionalDomains.add("localweb.com.br");
+		nonProfessionalDomains.add("protonmail.com");
+		nonProfessionalDomains.add("locaweb.com.br");
+		nonProfessionalDomains.add("outlook.com.br");
+		nonProfessionalDomains.add("yahoo.com.br");
+		nonProfessionalDomains.add("terra.com.br");
+		nonProfessionalDomains.add("outlook.com");
+		nonProfessionalDomains.add("hotmail.com");
+		nonProfessionalDomains.add("uol.com.br");
+		nonProfessionalDomains.add("bol.com.br");
+		nonProfessionalDomains.add("uolinc.com");
+		nonProfessionalDomains.add("yahoo.com");
+		nonProfessionalDomains.add("gmail.com");
+		nonProfessionalDomains.add("ig.com.br");
+		nonProfessionalDomains.add("live.com");
+		nonProfessionalDomains.add("msn.com");
+	}
+
+	
 	//TODO BOTAR EM FILA SEPARANDO AS VAGAS EM LOTE DE RECRUTADORES NAO REPETIDOS
 
 	public static List<CcpJsonRepresentation> sendFilteredAndSortedResumesAndTheirStatisByEachPositionToEachRecruiter(CcpJsonRepresentation schedullingPlan, Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getResumes, Function<String, CcpJsonRepresentation> getPositions) {
@@ -46,7 +73,7 @@ public class VisAsyncUtils {
 
 		List<CcpJsonRepresentation> resumes = getResumes.apply(schedullingPlan);
 
-		ResumeSendFrequencyOptions valueOf = ResumeSendFrequencyOptions.valueOf(frequency);
+		FrequencyOptions valueOf = FrequencyOptions.valueOf(frequency);
 
 		List<CcpJsonRepresentation> allPositionsWithFilteredResumesAndTheirStatis = VisAsyncUtils.getAllPositionsWithFilteredAndSortedResumesAndTheirStatis(allPositionsGroupedByRecruiters, resumes, valueOf);
 
@@ -135,7 +162,7 @@ public class VisAsyncUtils {
 		return result;
 	}
 
-	public static List<CcpJsonRepresentation> getLastUpdated(JnBaseEntity entity, ResumeSendFrequencyOptions valueOf) {
+	public static List<CcpJsonRepresentation> getLastUpdated(JnBaseEntity entity, FrequencyOptions valueOf) {
 		
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
 		
@@ -156,7 +183,7 @@ public class VisAsyncUtils {
 		return result;
 	}
 
-	public static CcpJsonRepresentation getAllPositionsGroupedByRecruiters(ResumeSendFrequencyOptions frequency) {
+	public static CcpJsonRepresentation getAllPositionsGroupedByRecruiters(FrequencyOptions frequency) {
 		// Injetando dependência do executor de query complexa
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
 		// Linha abaixo se refere a construção de uma query para filtrar vagas pela frequência
@@ -175,7 +202,7 @@ public class VisAsyncUtils {
 	private static List<CcpJsonRepresentation> getAllPositionsWithFilteredAndSortedResumesAndTheirStatis(
 			CcpJsonRepresentation allPositionsGroupedByRecruiters, 
 			List<CcpJsonRepresentation> resumes, 
-			ResumeSendFrequencyOptions frequency) {
+			FrequencyOptions frequency) {
 		
 		List<CcpJsonRepresentation> allSearchParameters = getAllSearchParameters(allPositionsGroupedByRecruiters, resumes,	frequency);
 
@@ -208,10 +235,10 @@ public class VisAsyncUtils {
 				continue;
 			}
 
-			CcpJsonRepresentation fee = searchResults.getRequiredEntityRow(VisEntityScheduleSendingResumeFees.INSTANCE, searchParameters);
+			CcpJsonRepresentation fee = VisEntityScheduleSendingResumeFees.INSTANCE.getRequiredEntityRow(searchResults, searchParameters);
 			Double feeValue = fee.getAsDoubleNumber("fee");
 			
-			CcpJsonRepresentation balance = searchResults.getRequiredEntityRow(VisEntityBalance.INSTANCE, searchParameters);
+			CcpJsonRepresentation balance = VisEntityBalance.INSTANCE.getRequiredEntityRow(searchResults, searchParameters);
 			Double balanceValue = balance.getAsDoubleNumber("balance");
 			
 			String recruiter = searchParameters.getAsString("recruiter");
@@ -265,7 +292,7 @@ public class VisAsyncUtils {
 		
 		for (CcpJsonRepresentation positionByThisRecruiter : positionsGroupedByThisRecruiter) {
 
-			CcpJsonRepresentation resume = searchResults.getRequiredEntityRow(VisEntityResume.INSTANCE, searchParameters);
+			CcpJsonRepresentation resume = VisEntityResume.INSTANCE.getRequiredEntityRow(searchResults, searchParameters);
 			
 			CcpCollectionDecorator dddsPosition = positionByThisRecruiter.getAsCollectionDecorator("ddd");
 			CcpCollectionDecorator dddsResume = resume.getAsCollectionDecorator("ddd");
@@ -324,17 +351,28 @@ public class VisAsyncUtils {
 		return put;
 	}
 	
-
+	
+	private static String getDomain(String recruiter) {
+	
+		String domain = new CcpStringDecorator(recruiter).email().getDomain();
+		
+		boolean isProfessional = nonProfessionalDomains.contains(domain);
+		
+		if(isProfessional) {
+			return domain;
+		}
+		return "";
+	}
+	
 	private static List<CcpJsonRepresentation> getAllSearchParameters(
-			CcpJsonRepresentation allPositionsGroupedByRecruiters, List<CcpJsonRepresentation> resumes, ResumeSendFrequencyOptions frequency) {
+			CcpJsonRepresentation allPositionsGroupedByRecruiters, List<CcpJsonRepresentation> resumes, FrequencyOptions frequency) {
 		List<CcpJsonRepresentation> allSearchParameters = new ArrayList<>();
 		
 		Set<String> recruiters = allPositionsGroupedByRecruiters.keySet();
 		for (String recruiter : recruiters) {
+			String recruiterDomain = getDomain(recruiter);
 			for (CcpJsonRepresentation resume : resumes) {
-//				String recruiterDomain = new CcpStringDecorator(recruiter).email().getProfessionalDomain();
-				//FIXME CLASSIFICAR E-MAILS PROFISSIONAIS E NAO PROFISSIONAIS
-				String recruiterDomain = "";
+
 				String email = resume.getAsString("email");
 				
 				CcpJsonRepresentation searchParameters = CcpConstants.EMPTY_JSON
@@ -407,27 +445,46 @@ public class VisAsyncUtils {
 				, tryToChangeStatusToInactive
 				);
 	}
+
+
 	
+	public static CcpJsonRepresentation groupPositionsByRecruiters(CcpJsonRepresentation json) {
+		
+		CcpJsonRepresentation groupDetailsByMasters = groupDetailsByMasters(json, VisEntityPosition.INSTANCE, VisEntityGroupPositionsByRecruiter.INSTANCE, VisEntityPosition.Fields.email, VisEntityGroupPositionsByRecruiter.Fields.position, VisEntityPosition.Fields.timestamp);
+		
+		return groupDetailsByMasters;
+	}
 	
-	public static CcpJsonRepresentation groupPositionsByRecruiters(CcpJsonRepresentation json, Function<VisEntityPosition, CcpEntity> getEntity, Collection<String> allValidLogins) {
+	public static CcpJsonRepresentation groupDetailsByMasters(
+			CcpJsonRepresentation json, 
+			CcpEntity entity, 
+			CcpEntity groupEntity, 
+			CcpEntityField masterField, 
+			CcpEntityField detailsField, 
+			CcpEntityField ascField) {
+		
+		List<String> masters = json.getAsStringList("masters");
+		
 		CcpDbQueryOptions query = CcpDbQueryOptions.INSTANCE
 				.startQuery()
 					.startBool()
 						.startMust()
-							.terms(VisEntityPosition.Fields.email, allValidLogins)
+							.terms(masterField, masters)
 						.endMustAndBackToBool()
 					.endBoolAndBackToQuery()
 				.endQueryAndBackToRequest()
-				.addAscSorting("position.timestamp")
+				.addAscSorting(ascField.name())
 		;
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
-		CcpEntity apply = getEntity.apply(VisEntityPosition.INSTANCE);
-		String entityName = apply.getEntityName();
-		String[] resourcesNames = new String[]{entityName};
+		CcpEntity mirrorEntity = entity.getMirrorEntity();
+		String mirrorName = mirrorEntity.getEntityName();
+		String entityName = entity.getEntityName();
+		String[] resourcesNames = new String[]{entityName, mirrorName};
 		
-		PositionsGroupedByRecruiters positionsGroupedByRecruiters = new PositionsGroupedByRecruiters();
-		queryExecutor.consumeQueryResult(query, resourcesNames, entityName, 10000, positionsGroupedByRecruiters, resourcesNames);
-		positionsGroupedByRecruiters.saveAllPositionsGroupedByRecruiters();
+		GroupDetailsByMasters detailsGroupedByMasters = new GroupDetailsByMasters(detailsField.name(), masterField.name(), entity, groupEntity);
+		
+		queryExecutor.consumeQueryResult(query, resourcesNames, entityName, 10000, detailsGroupedByMasters, resourcesNames);
+		detailsGroupedByMasters.saveAllDetailsGroupedByMasters();
 		return json;
 	}
 

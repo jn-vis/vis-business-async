@@ -1,6 +1,6 @@
 package com.ccp.vis.async.commons;
 
-public enum ResumeSendFrequencyOptions {
+public enum FrequencyOptions {
 	minute(1d/60d),
 	hourly(1),
 	daily(24),
@@ -10,7 +10,7 @@ public enum ResumeSendFrequencyOptions {
 	;
 	public final double hours;
 
-	private ResumeSendFrequencyOptions(double hours) {
+	private FrequencyOptions(double hours) {
 		this.hours = hours;
 	}
 	
