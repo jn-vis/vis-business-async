@@ -24,7 +24,7 @@ public class VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes im
 		
 		VisAsyncUtils.groupPositionsByRecruiters(duplicateValueFromKey);
 		
-		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getLastUpdatedResumes = x -> VisAsyncUtils.getLastUpdated(VisEntityResume.INSTANCE, FrequencyOptions.yearly);
+		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getLastUpdatedResumes = x -> VisAsyncUtils.getLastUpdated(VisEntityResume.INSTANCE, FrequencyOptions.yearly, VisEntityResume.Fields.timestamp.name());
 		
 		List<String> email = json.getAsStringList("email");
 

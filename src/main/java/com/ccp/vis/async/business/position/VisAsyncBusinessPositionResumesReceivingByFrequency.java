@@ -6,6 +6,7 @@ import java.util.function.Function;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.vis.async.commons.FrequencyOptions;
 import com.ccp.vis.async.commons.VisAsyncUtils;
+import com.jn.vis.commons.entities.VisEntityPosition;
 import com.jn.vis.commons.entities.VisEntityResume;
 
 public class VisAsyncBusinessPositionResumesReceivingByFrequency  implements  Function<CcpJsonRepresentation, CcpJsonRepresentation> {
@@ -16,7 +17,7 @@ public class VisAsyncBusinessPositionResumesReceivingByFrequency  implements  Fu
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation schedullingPlan) {
 
-		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getLastUpdatedResumes = x -> VisAsyncUtils.getLastUpdated(VisEntityResume.INSTANCE, FrequencyOptions.valueOf(x.getAsString("frequency")));
+		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getLastUpdatedResumes = x -> VisAsyncUtils.getLastUpdated(VisEntityResume.INSTANCE, FrequencyOptions.valueOf(x.getAsString("frequency")), VisEntityPosition.Fields.timestamp.name());
 
 		Function<String, CcpJsonRepresentation> getLastUpdatedPositions = frequency -> VisAsyncUtils.getAllPositionsGroupedByRecruiters(FrequencyOptions.valueOf(frequency));
 

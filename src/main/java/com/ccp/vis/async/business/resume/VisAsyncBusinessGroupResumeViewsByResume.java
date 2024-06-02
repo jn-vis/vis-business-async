@@ -5,7 +5,7 @@ import java.util.function.Function;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.vis.async.commons.VisAsyncUtils;
 import com.jn.vis.commons.entities.VisEntityGroupResumeViewsByResume;
-import com.jn.vis.commons.entities.VisEntityResumeView;
+import com.jn.vis.commons.entities.VisEntityResumeFreeView;
 
 public class VisAsyncBusinessGroupResumeViewsByResume implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
@@ -16,11 +16,11 @@ public class VisAsyncBusinessGroupResumeViewsByResume implements  Function<CcpJs
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 		CcpJsonRepresentation groupDetailsByMasters = VisAsyncUtils.groupDetailsByMasters(
 				json, 
-				VisEntityResumeView.INSTANCE, 
+				VisEntityResumeFreeView.INSTANCE, 
 				VisEntityGroupResumeViewsByResume.INSTANCE, 
-				VisEntityResumeView.Fields.email, 
+				VisEntityResumeFreeView.Fields.email, 
 				VisEntityGroupResumeViewsByResume.Fields.viewDetails, 
-				VisEntityResumeView.Fields.timestamp
+				VisEntityResumeFreeView.Fields.timestamp
 				);
 		
 		return groupDetailsByMasters;

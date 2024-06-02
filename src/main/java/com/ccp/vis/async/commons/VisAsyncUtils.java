@@ -14,6 +14,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.cache.CcpCacheDecorator;
+import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
@@ -32,9 +33,10 @@ import com.jn.vis.commons.entities.VisEntityGroupPositionsByRecruiter;
 import com.jn.vis.commons.entities.VisEntityHashGrouper;
 import com.jn.vis.commons.entities.VisEntityPosition;
 import com.jn.vis.commons.entities.VisEntityResume;
+import com.jn.vis.commons.entities.VisEntityResumeLastView;
 import com.jn.vis.commons.entities.VisEntityResumeOpinion;
-import com.jn.vis.commons.entities.VisEntityResumeView;
 import com.jn.vis.commons.entities.VisEntityScheduleSendingResumeFees;
+import com.jn.vis.commons.status.ViewResumeStatus;
 import com.jn.vis.commons.utils.VisAsyncBusiness;
 import com.jn.vis.commons.utils.VisCommonsUtils;
 
@@ -64,6 +66,8 @@ public class VisAsyncUtils {
 
 	
 	//TODO BOTAR EM FILA SEPARANDO AS VAGAS EM LOTE DE RECRUTADORES NAO REPETIDOS
+	//TODO UNION ALL COMEÇANDO PELOS AGRUPADORES POR CURRICULO E RECRUTADOR
+	//TODO PAGINAÇÃO DE BUCKET
 
 	public static List<CcpJsonRepresentation> sendFilteredAndSortedResumesAndTheirStatisByEachPositionToEachRecruiter(CcpJsonRepresentation schedullingPlan, Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getResumes, Function<String, CcpJsonRepresentation> getPositions) {
 		
@@ -105,11 +109,11 @@ public class VisAsyncUtils {
 			boolean hasAtLeastOneResume = total > 0;
 			if(hasAtLeastOneResume) {
 				double avg = sum / total;
-				positionsWithFilteredResumes = positionsWithFilteredResumes.putSubKey("statis", field, avg);
+				positionsWithFilteredResumes = positionsWithFilteredResumes.addToItem("statis", field, avg);
 			}
 		}
 		int resumesSize = resumes.size();
-		positionsWithFilteredResumes = positionsWithFilteredResumes.putSubKey("statis", "resumes", resumesSize);
+		positionsWithFilteredResumes = positionsWithFilteredResumes.addToItem("statis", "resumes", resumesSize);
 		return positionsWithFilteredResumes;
 	}
 	
@@ -162,7 +166,7 @@ public class VisAsyncUtils {
 		return result;
 	}
 
-	public static List<CcpJsonRepresentation> getLastUpdated(JnBaseEntity entity, FrequencyOptions valueOf) {
+	public static List<CcpJsonRepresentation> getLastUpdated(JnBaseEntity entity, FrequencyOptions valueOf, String filterFieldName) {
 		
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
 		
@@ -170,7 +174,7 @@ public class VisAsyncUtils {
 				CcpDbQueryOptions.INSTANCE
 					.startSimplifiedQuery()
 						.startRange()
-							.startFieldRange("lastUpdate")
+							.startFieldRange(filterFieldName)
 								.greaterThan(System.currentTimeMillis() - valueOf.hours * 3_600_000)
 							.endFieldRangeAndBackToRange()
 						.endRangeAndBackToSimplifiedQuery()
@@ -212,14 +216,16 @@ public class VisAsyncUtils {
 				allSearchParameters
 				,VisEntityResume.INSTANCE
 				,VisEntityBalance.INSTANCE
-				,VisEntityResumeView.INSTANCE
 				,VisEntityResumeOpinion.INSTANCE
+				,VisEntityResumeLastView.INSTANCE
 				,VisEntityDeniedViewToCompany.INSTANCE
 				,VisEntityScheduleSendingResumeFees.INSTANCE
 				,VisEntityResumeOpinion.INSTANCE.getMirrorEntity()
 				);
 		
 		CcpJsonRepresentation allPositionsWithFilteredResumes = CcpConstants.EMPTY_JSON;
+		
+		List<CcpBulkItem> errors = new ArrayList<>();
 		
 		for (CcpJsonRepresentation searchParameters : allSearchParameters) {
 
@@ -232,47 +238,66 @@ public class VisAsyncUtils {
 			boolean balanceNotFound = VisEntityBalance.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters) == false;
 
 			if(balanceNotFound) {
+				CcpBulkItem error = ViewResumeStatus.missingBalance.toBulkItemCreate(searchParameters);	
+				errors.add(error);
 				continue;
 			}
 
 			CcpJsonRepresentation fee = VisEntityScheduleSendingResumeFees.INSTANCE.getRequiredEntityRow(searchResults, searchParameters);
-			Double feeValue = fee.getAsDoubleNumber("fee");
 			
 			CcpJsonRepresentation balance = VisEntityBalance.INSTANCE.getRequiredEntityRow(searchResults, searchParameters);
-			Double balanceValue = balance.getAsDoubleNumber("balance");
 			
 			String recruiter = searchParameters.getAsString("recruiter");
 			List<CcpJsonRepresentation> positionsGroupedByThisRecruiter = allPositionsGroupedByRecruiters.getAsJsonList(recruiter);
 			int countPositionsGroupedByThisRecruiter = positionsGroupedByThisRecruiter.size();
-			Double totalCostToThisRecruiter = feeValue * countPositionsGroupedByThisRecruiter;
 			
-			boolean insuficientFunds = balanceValue <= totalCostToThisRecruiter;
+			boolean insuficientFunds = VisCommonsUtils.isInsufficientFunds(countPositionsGroupedByThisRecruiter, fee, balance);
 			
 			if(insuficientFunds) {
+				CcpBulkItem error = ViewResumeStatus.insufficientFunds.toBulkItemCreate(searchParameters);	
+				errors.add(error);
 				continue;
 			}
-			//TODO NOTIFICAR CANDIDATO DAQUILO QUE ELE PERDEU POR SEU CURRICULO ESTAR INATIVO
-			boolean inactiveResume = VisEntityResume.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters) == false;
+
+			boolean inactiveResume = VisEntityResume.INSTANCE.getMirrorEntity().isPresentInThisUnionAll(searchResults, searchParameters);
 			
 			if(inactiveResume) {
+				CcpBulkItem error = ViewResumeStatus.inactiveResume.toBulkItemCreate(searchParameters);	
+				errors.add(error);
+				continue;
+			}
+			
+			
+			
+			boolean resumeNotFound = VisEntityResume.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters) == false;
+			
+			if(resumeNotFound) {
+				CcpBulkItem error = ViewResumeStatus.resumeNotFound.toBulkItemCreate(searchParameters);	
+				errors.add(error);
 				continue;
 			}
 
 			boolean negativetedResume = VisEntityResumeOpinion.INSTANCE.getMirrorEntity().isPresentInThisUnionAll(searchResults, searchParameters);
 			
 			if(negativetedResume) {
+				CcpBulkItem error = ViewResumeStatus.negativatedResume.toBulkItemCreate(searchParameters);	
+				errors.add(error);
 				continue;
 			}
 
 			boolean deniedResume = VisEntityDeniedViewToCompany.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters);
 			
 			if(deniedResume) {
+				CcpBulkItem error = ViewResumeStatus.notAllowedRecruiter.toBulkItemCreate(searchParameters);	
+				errors.add(error);
 				continue;
 			}
 			
 			allPositionsWithFilteredResumes = getPositionWithFilteredResumes(positionsGroupedByThisRecruiter, 
 					allPositionsGroupedByRecruiters, allPositionsWithFilteredResumes, searchParameters, searchResults);
 		}
+		
+		JnAsyncCommitAndAudit.INSTANCE.executeBulk(errors);
 		
 	 	CcpJsonRepresentation allPositionsWithFilteredResumesCopy = CcpConstants.EMPTY_JSON.putAll(allPositionsWithFilteredResumes);
 		
@@ -310,17 +335,23 @@ public class VisAsyncUtils {
 			if(resumeDoesNotMatch) {
 				continue;
 			}
+
+			boolean resumeAlreadySeen = resumeAlreadySeen(positionByThisRecruiter, searchResults, searchParameters);
+			
+			if(resumeAlreadySeen) {
+				continue;
+			}
 			
 			String positionId = VisEntityPosition.INSTANCE.calculateId(positionByThisRecruiter);
 			
 			CcpJsonRepresentation emailMessageValuesToSent = allPositionsWithFilteredResumes.getInnerJson(positionId);
 
-			CcpJsonRepresentation resumeView = VisEntityResumeView.INSTANCE.getRecordFromUnionAll(searchResults, searchParameters);
+			CcpJsonRepresentation resumeLastView = VisEntityResumeLastView.INSTANCE.getRecordFromUnionAll(searchResults, searchParameters);
 
-			CcpJsonRepresentation resumeComment = VisEntityResumeOpinion.INSTANCE.getRecordFromUnionAll(searchResults, searchParameters);
+			CcpJsonRepresentation resumeOpinion = VisEntityResumeOpinion.INSTANCE.getRecordFromUnionAll(searchResults, searchParameters);
 	
 			CcpJsonRepresentation resumeWithCommentAndVisualizationDetails = resume
-					.put("resumeComment", resumeComment).put("resumeView", resumeView);
+					.put("resumeOpinion", resumeOpinion).put("resumeLastView", resumeLastView);
 
 			emailMessageValuesToSent = emailMessageValuesToSent
 					.addToList("resumes", resumeWithCommentAndVisualizationDetails)
@@ -330,6 +361,31 @@ public class VisAsyncUtils {
 			allPositionsWithFilteredResumes = allPositionsWithFilteredResumes.put(positionId, emailMessageValuesToSent);
 		}
 		return positionWithFilteredResumes;
+	}
+
+	private static boolean resumeAlreadySeen(CcpJsonRepresentation positionByThisRecruiter, CcpSelectUnionAll searchResults, CcpJsonRepresentation searchParameters) {
+	
+		boolean doNotFilterResumesAlreadySeen = positionByThisRecruiter.getAsBoolean("filterResumesAlreadySeen") == false;
+		
+		if(doNotFilterResumesAlreadySeen) {
+			return false;
+		}
+		
+		boolean thisResumeWasNeverSeenBefore = VisEntityResumeLastView.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters) == false;
+		
+		if(thisResumeWasNeverSeenBefore) {
+			return false;
+		}
+		
+		CcpJsonRepresentation resumeLastView = VisEntityResumeLastView.INSTANCE.getRequiredEntityRow(searchResults, searchParameters);
+		
+		CcpJsonRepresentation resume = VisEntityResume.INSTANCE.getRequiredEntityRow(searchResults, resumeLastView);
+		
+		Long resumeLastSeen = resumeLastView.getAsLongNumber(VisEntityResumeLastView.Fields.timestamp.name());
+
+		Long resumeLastUpdate = resume.getAsLongNumber(VisEntityResume.Fields.timestamp.name());
+		
+		return resumeLastUpdate <= resumeLastSeen;
 	}
 
 	private static CcpJsonRepresentation getPositionWithSortedResumes(String positionId, CcpJsonRepresentation allPositionsWithFilteredResumes) {
