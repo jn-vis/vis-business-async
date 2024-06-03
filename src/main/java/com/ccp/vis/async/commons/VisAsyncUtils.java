@@ -15,6 +15,7 @@ import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.cache.CcpCacheDecorator;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
+import com.ccp.especifications.db.bulk.CcpEntityOperationType;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
@@ -26,10 +27,10 @@ import com.ccp.jn.async.actions.TransferRecordToReverseEntity;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
 import com.jn.commons.entities.base.JnBaseEntity;
-import com.jn.vis.commons.cache.tasks.ReadSkillsFromDataBase;
 import com.jn.vis.commons.entities.VisEntityBalance;
 import com.jn.vis.commons.entities.VisEntityDeniedViewToCompany;
 import com.jn.vis.commons.entities.VisEntityGroupPositionsByRecruiter;
+import com.jn.vis.commons.entities.VisEntityGroupResumesByPosition;
 import com.jn.vis.commons.entities.VisEntityHashGrouper;
 import com.jn.vis.commons.entities.VisEntityPosition;
 import com.jn.vis.commons.entities.VisEntityResume;
@@ -64,7 +65,6 @@ public class VisAsyncUtils {
 		nonProfessionalDomains.add("msn.com");
 	}
 
-	
 	//TODO BOTAR EM FILA SEPARANDO AS VAGAS EM LOTE DE RECRUTADORES NAO REPETIDOS
 	//TODO UNION ALL COMEÇANDO PELOS AGRUPADORES POR CURRICULO E RECRUTADOR
 	//TODO PAGINAÇÃO DE BUCKET
@@ -97,7 +97,7 @@ public class VisAsyncUtils {
 			int total = 0;
 			double sum = 0;
 			for (CcpJsonRepresentation resume : resumes) {
-				boolean fieldIsMissing = resume.containsAllKeys(field) == false;
+				boolean fieldIsMissing = resume.containsAllFields(field) == false;
 				if(fieldIsMissing) {
 					continue;
 				}
@@ -122,14 +122,14 @@ public class VisAsyncUtils {
 		// O mandatorySkills trata das habilidades se este JSON se tratar de vaga.
 		List<String> resumeWords = json.getAsStringList("resumeWord", "mandatorySkills");
 
-		String enumsType = json.containsKey("experience") ? "resume" : "position";
-		List<Integer> disponibilities = json.get(GetDisponibilityValuesFromJson.valueOf(enumsType));
+		String enumsType = json.containsField("experience") ? "resume" : "position";
+		List<Integer> disponibilities = json.getTransformed(GetDisponibilityValuesFromJson.valueOf(enumsType));
 
 		List<CcpJsonRepresentation> moneyValues = getMoneyValues(enumsType, json);
 
-		String seniority = json.get(GetSeniorityValueFromJson.valueOf(enumsType));
+		String seniority = json.getTransformed(GetSeniorityValueFromJson.valueOf(enumsType));
 
-		List<Boolean> pcds = json.get(GetPcdValuesFromJson.valueOf(enumsType));;
+		List<Boolean> pcds = json.getTransformed(GetPcdValuesFromJson.valueOf(enumsType));;
 
 		List<String> hashes = new ArrayList<>();
 		// Todas as futuras possibilidades são gravadas em uma Lista
@@ -301,7 +301,7 @@ public class VisAsyncUtils {
 		
 	 	CcpJsonRepresentation allPositionsWithFilteredResumesCopy = CcpConstants.EMPTY_JSON.putAll(allPositionsWithFilteredResumes);
 		
-		List<CcpJsonRepresentation> positionsWithSortedResumes = allPositionsWithFilteredResumes.keySet().stream().map(positionId -> getPositionWithSortedResumes(positionId, allPositionsWithFilteredResumesCopy) ).collect(Collectors.toList());
+		List<CcpJsonRepresentation> positionsWithSortedResumes = allPositionsWithFilteredResumes.fieldSet().stream().map(positionId -> getPositionWithSortedResumes(positionId, allPositionsWithFilteredResumesCopy) ).collect(Collectors.toList());
 		return positionsWithSortedResumes;
 	}
 	
@@ -399,7 +399,7 @@ public class VisAsyncUtils {
 		if(singleResume) {
 			return positionWithResumes;
 		}
-		
+		//FIXME FAKE BUCKET
 		CcpJsonRepresentation position = positionWithResumes.getInnerJson("position");
 		PositionResumesSort positionResumesSort = new PositionResumesSort(position);
 		resumes.sort(positionResumesSort);
@@ -424,7 +424,7 @@ public class VisAsyncUtils {
 			CcpJsonRepresentation allPositionsGroupedByRecruiters, List<CcpJsonRepresentation> resumes, FrequencyOptions frequency) {
 		List<CcpJsonRepresentation> allSearchParameters = new ArrayList<>();
 		
-		Set<String> recruiters = allPositionsGroupedByRecruiters.keySet();
+		Set<String> recruiters = allPositionsGroupedByRecruiters.fieldSet();
 		for (String recruiter : recruiters) {
 			String recruiterDomain = getDomain(recruiter);
 			for (CcpJsonRepresentation resume : resumes) {
@@ -456,35 +456,6 @@ public class VisAsyncUtils {
 		bucket.save(tenant, bucketFolderResume, fileName, propertyValue);
 	}
 	
-	public static CcpJsonRepresentation getResumeWithSkills(CcpJsonRepresentation resume) {
-		CcpCacheDecorator cache = new CcpCacheDecorator("skills");
-		List<CcpJsonRepresentation> resultAsList = cache.get(ReadSkillsFromDataBase.INSTANCE, 86400);
-		
-		String resumeText = resume.getAsString("resumeText");
-		List<CcpJsonRepresentation> skills = new ArrayList<>();
-		
-		for (CcpJsonRepresentation skill : resultAsList) {
-		
-			String skillName = skill.getAsString("skill");
-			
-			boolean skillNotFoundInResume = resumeText.toUpperCase().contains(skillName.toUpperCase()) == false;
-			
-			if(skillNotFoundInResume) {
-				continue;
-			}
-			
-			List<CcpJsonRepresentation> prerequistes = skill.getAsStringList("prerequiste").stream().map(x -> CcpConstants.EMPTY_JSON.put("name", x).put("type", "prerequiste")).collect(Collectors.toList());
-			List<CcpJsonRepresentation> synonyms = skill.getAsStringList("synonym").stream().map(x -> CcpConstants.EMPTY_JSON.put("name", x).put("type", "synonym")).collect(Collectors.toList());
-			skills.addAll(prerequistes);
-			skills.addAll(synonyms);
-			CcpJsonRepresentation mainSkill = CcpConstants.EMPTY_JSON.put("name", skillName).put("type", "main");
-			skills.add(mainSkill);
-		}
-		
-		CcpJsonRepresentation resumeWithSkills = resume.put("skills", skills);
-		return resumeWithSkills;
-	}
-	
 	@SuppressWarnings("unchecked")
 	public static void changeStatus(CcpJsonRepresentation json, CcpEntity activeEntity,
 			Function<CcpJsonRepresentation, CcpJsonRepresentation> actionPosActivate,
@@ -506,7 +477,8 @@ public class VisAsyncUtils {
 	
 	public static CcpJsonRepresentation groupPositionsByRecruiters(CcpJsonRepresentation json) {
 		
-		CcpJsonRepresentation groupDetailsByMasters = groupDetailsByMasters(json, VisEntityPosition.INSTANCE, VisEntityGroupPositionsByRecruiter.INSTANCE, VisEntityPosition.Fields.email, VisEntityGroupPositionsByRecruiter.Fields.position, VisEntityPosition.Fields.timestamp);
+		CcpJsonRepresentation groupDetailsByMasters = groupDetailsByMasters(json, VisEntityPosition.INSTANCE, 
+				VisEntityGroupPositionsByRecruiter.INSTANCE, VisEntityPosition.Fields.email, VisEntityPosition.Fields.timestamp);
 		
 		return groupDetailsByMasters;
 	}
@@ -516,7 +488,6 @@ public class VisAsyncUtils {
 			CcpEntity entity, 
 			CcpEntity groupEntity, 
 			CcpEntityField masterField, 
-			CcpEntityField detailsField, 
 			CcpEntityField ascField) {
 		
 		List<String> masters = json.getAsStringList("masters");
@@ -537,11 +508,50 @@ public class VisAsyncUtils {
 		String entityName = entity.getEntityName();
 		String[] resourcesNames = new String[]{entityName, mirrorName};
 		
-		GroupDetailsByMasters detailsGroupedByMasters = new GroupDetailsByMasters(detailsField.name(), masterField.name(), entity, groupEntity);
+		GroupDetailsByMasters detailsGroupedByMasters = new GroupDetailsByMasters(masterField.name(), entity, groupEntity);
 		
 		queryExecutor.consumeQueryResult(query, resourcesNames, entityName, 10000, detailsGroupedByMasters, resourcesNames);
 		detailsGroupedByMasters.saveAllDetailsGroupedByMasters();
 		return json;
 	}
+	
+	
+	
+	public static void saveRecordsInPages(
+			List<CcpJsonRepresentation> records, 
+			CcpJsonRepresentation primaryKeySupplier,
+			CcpEntity entity) {
+
+		List<CcpBulkItem> allPagesTogether = getRecordsInPages(records, primaryKeySupplier, entity);
+		
+		JnAsyncCommitAndAudit.INSTANCE.executeBulk(allPagesTogether);
+	}
+
+	public static List<CcpBulkItem> getRecordsInPages(List<CcpJsonRepresentation> records,
+			CcpJsonRepresentation primaryKeySupplier, CcpEntity entity) {
+		List<CcpBulkItem> allPagesTogether = new ArrayList<>();
+		int listSize = 10;
+		int totalPages = records.size()  % listSize + 1;
+		int index = 0;
+		
+		for(int from = 0; from < totalPages; from++) {
+			List<CcpJsonRepresentation> page = new ArrayList<>();
+			for(;(index + 1) % listSize !=0 && index < records.size(); index++) {
+				CcpJsonRepresentation resume = records.get(index);
+				CcpJsonRepresentation put = resume.put("index", index);
+				page.add(put);
+			}
+			CcpJsonRepresentation put = CcpConstants.EMPTY_JSON
+					.put(VisEntityGroupResumesByPosition.Fields.detail.name(), page)
+					.put(VisEntityGroupResumesByPosition.Fields.listSize.name(), listSize)
+					.put(VisEntityGroupResumesByPosition.Fields.from.name(), from)
+					.putAll(primaryKeySupplier)
+					;
+			CcpBulkItem bulkItem = entity.toBulkItem(put, CcpEntityOperationType.create);
+			allPagesTogether.add(bulkItem);
+		}
+		return allPagesTogether;
+	}
+
 
 }

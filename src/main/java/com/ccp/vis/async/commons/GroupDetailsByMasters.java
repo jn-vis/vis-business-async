@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
-import com.ccp.especifications.db.bulk.CcpEntityOperationType;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 
@@ -17,12 +15,9 @@ public class GroupDetailsByMasters implements Consumer<CcpJsonRepresentation>{
 	
 	private CcpJsonRepresentation groupedRecords = CcpConstants.EMPTY_JSON;
 
-	private final String detailFieldName;
-	
 	private final String masterFieldName;
 
-	public GroupDetailsByMasters(String detailFieldName, String masterFieldName, CcpEntity entity , CcpEntity entityGrouper) {
-		this.detailFieldName = detailFieldName;
+	public GroupDetailsByMasters(String masterFieldName, CcpEntity entity , CcpEntity entityGrouper) {
 		this.masterFieldName = masterFieldName;
 		
 		CcpEntity mirrorEntityGrouper = entityGrouper.getMirrorEntity();
@@ -49,7 +44,7 @@ public class GroupDetailsByMasters implements Consumer<CcpJsonRepresentation>{
 	
 	public void saveAllDetailsGroupedByMasters(){
 		
-		Set<String> entities = this.groupedRecords.keySet();
+		Set<String> entities = this.groupedRecords.fieldSet();
 
 		List<CcpBulkItem> result = new ArrayList<>();
 		
@@ -59,29 +54,16 @@ public class GroupDetailsByMasters implements Consumer<CcpJsonRepresentation>{
 			
 			CcpJsonRepresentation mastersInThisGrouping = this.groupedRecords.getInnerJson(entity);
 			
-			Set<String> masters = mastersInThisGrouping.keySet();
-			
-			List<CcpBulkItem> collect = masters.stream()
-			.map(master -> this.getPositionsGroupedByEmail(mastersInThisGrouping, master, entityGroupToSaveRecords))
-			.collect(Collectors.toList());
-			
-			result.addAll(collect);
+			Set<String> masters = mastersInThisGrouping.fieldSet();
+
+			for (String master : masters) {
+				List<CcpJsonRepresentation> records = mastersInThisGrouping.getAsJsonList(master);
+				CcpJsonRepresentation primaryKeySupplier = CcpConstants.EMPTY_JSON.put(this.masterFieldName, master);
+				List<CcpBulkItem> recordsInPages = VisAsyncUtils.getRecordsInPages(records, primaryKeySupplier, entityGroupToSaveRecords);
+				result.addAll(recordsInPages);
+			}
 		}
-
 		JnAsyncCommitAndAudit.INSTANCE.executeBulk(result);
-	}
 
-	private CcpBulkItem getPositionsGroupedByEmail(CcpJsonRepresentation emailsInThisGrouping, String master, CcpEntity entityGroupToSaveRecords) {
-		
-		List<CcpJsonRepresentation> records = emailsInThisGrouping.getAsJsonList(master);
-		
-		CcpJsonRepresentation json = CcpConstants.EMPTY_JSON
-			.put(this.detailFieldName, records)
-			.put(this.masterFieldName, master);
-		
-		CcpBulkItem bulkItem = entityGroupToSaveRecords.toBulkItem(json, CcpEntityOperationType.create);
-		
-		return bulkItem;
 	}
-	
 }

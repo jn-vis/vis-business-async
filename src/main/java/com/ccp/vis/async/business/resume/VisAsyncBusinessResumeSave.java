@@ -5,8 +5,8 @@ import java.util.function.Function;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 import com.ccp.vis.async.commons.VisAsyncBusinessResumeSendToRecruiters;
-import com.ccp.vis.async.commons.VisAsyncUtils;
 import com.jn.vis.commons.entities.VisEntityResume;
+import com.jn.vis.commons.utils.VisCommonsUtils;
 
 public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {
 	
@@ -14,15 +14,19 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 	
 	public static final VisAsyncBusinessResumeSave INSTANCE = new VisAsyncBusinessResumeSave();
 	
-	public CcpJsonRepresentation apply(CcpJsonRepresentation resume) {
+	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 		
-		CcpJsonRepresentation resumeWithSkills = VisAsyncUtils.getResumeWithSkills(resume);
+		CcpJsonRepresentation jsonWithSkills = VisCommonsUtils.getJsonWithSkills(
+				json
+				, VisEntityResume.Fields.resumeText.name()
+				, VisEntityResume.Fields.skill.name()
+				);
 		
 		JnAsyncCommitAndAudit.INSTANCE.executeSelectUnionAllThenSaveInTheMainAndMirrorEntities(
-				resumeWithSkills, VisEntityResume.INSTANCE, 
+				jsonWithSkills, VisEntityResume.INSTANCE, 
 				VisAsyncBusinessResumeSendToRecruiters.INSTANCE);
 		
-		return resumeWithSkills;
+		return jsonWithSkills;
 	}
 	
 }

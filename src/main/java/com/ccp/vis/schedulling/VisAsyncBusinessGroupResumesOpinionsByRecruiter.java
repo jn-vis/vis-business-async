@@ -1,4 +1,4 @@
-package com.ccp.vis.async.business.recruiter;
+package com.ccp.vis.schedulling;
 
 import java.util.function.Function;
 
@@ -19,7 +19,6 @@ public class VisAsyncBusinessGroupResumesOpinionsByRecruiter implements  Functio
 				VisEntityResumeOpinion.INSTANCE, 
 				VisEntityGroupResumesOpinionsByRecruiter.INSTANCE, 
 				VisEntityResumeOpinion.Fields.email, 
-				VisEntityGroupResumesOpinionsByRecruiter.Fields.opinion, 
 				VisEntityResumeOpinion.Fields.timestamp
 				);
 		

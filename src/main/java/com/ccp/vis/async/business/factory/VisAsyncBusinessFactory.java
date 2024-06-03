@@ -6,17 +6,11 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.async.business.factory.CcpAsyncBusinessFactory;
-import com.ccp.vis.async.business.general.VisAsyncBusinessGetRecentLoggedUsers;
-import com.ccp.vis.async.business.position.VisAsyncBusinessPositionResumesReceivingByFrequency;
 import com.ccp.vis.async.business.position.VisAsyncBusinessPositionResumesSend;
 import com.ccp.vis.async.business.position.VisAsyncBusinessPositionSave;
 import com.ccp.vis.async.business.position.VisAsyncBusinessPositionStatusChange;
-import com.ccp.vis.async.business.recruiter.VisAsyncBusinessGroupResumeViewsByRecruiter;
-import com.ccp.vis.async.business.recruiter.VisAsyncBusinessGroupResumesOpinionsByRecruiter;
 import com.ccp.vis.async.business.recruiter.VisAsyncBusinessRecruiterReceivingResumes;
 import com.ccp.vis.async.business.recruiter.VisAsyncBusinessResumeViewSave;
-import com.ccp.vis.async.business.resume.VisAsyncBusinessGroupResumeViewsByResume;
-import com.ccp.vis.async.business.resume.VisAsyncBusinessGroupResumesOpinionsByResume;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeBucketSave;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeDelete;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeOpinionChange;
@@ -24,6 +18,12 @@ import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeOpinionSave;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeSave;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeStatusChange;
 import com.ccp.vis.async.business.skills.VisAsyncBusinessSkillsSuggest;
+import com.ccp.vis.schedulling.VisAsyncBusinessGetRecentLoggedUsers;
+import com.ccp.vis.schedulling.VisAsyncBusinessGroupResumeViewsByRecruiter;
+import com.ccp.vis.schedulling.VisAsyncBusinessGroupResumeViewsByResume;
+import com.ccp.vis.schedulling.VisAsyncBusinessGroupResumesOpinionsByRecruiter;
+import com.ccp.vis.schedulling.VisAsyncBusinessGroupResumesOpinionsByResume;
+import com.ccp.vis.schedulling.VisAsyncBusinessPositionResumesReceivingByFrequency;
 import com.jn.vis.commons.utils.VisAsyncBusiness;
 
 class VisAsyncBusinessFactory implements CcpAsyncBusinessFactory {

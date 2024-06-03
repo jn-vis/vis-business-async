@@ -25,11 +25,11 @@ public enum ResumeSortOptions {
 		
 		for (String key : keys) {
 			
-			if(o1.containsAllKeys(key) == false) {
+			if(o1.containsAllFields(key) == false) {
 				continue;
 			}
 			
-			if(o2.containsAllKeys(key) == false) {
+			if(o2.containsAllFields(key) == false) {
 				continue;
 			}
 			

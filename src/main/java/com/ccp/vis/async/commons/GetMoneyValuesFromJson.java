@@ -9,7 +9,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 public enum GetMoneyValuesFromJson  {
 	resume {
 		public List<CcpJsonRepresentation> apply(CcpJsonRepresentation json, String field) {
-			boolean fieldIsNotPresent = json.containsAllKeys(field) == false;
+			boolean fieldIsNotPresent = json.containsAllFields(field) == false;
 			
 			if(fieldIsNotPresent) {
 				return new ArrayList<>();
@@ -28,7 +28,7 @@ public enum GetMoneyValuesFromJson  {
 		}
 	}, position {
 		public List<CcpJsonRepresentation> apply(CcpJsonRepresentation json, String field) {
-			boolean fieldIsNotPresent = json.containsAllKeys(field) == false;
+			boolean fieldIsNotPresent = json.containsAllFields(field) == false;
 			
 			if(fieldIsNotPresent) {
 				return new ArrayList<>();
