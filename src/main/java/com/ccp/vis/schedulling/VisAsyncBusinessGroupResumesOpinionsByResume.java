@@ -4,8 +4,8 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.vis.async.commons.VisAsyncUtils;
-import com.jn.vis.commons.entities.VisEntityGroupResumesOpinionsByResume;
-import com.jn.vis.commons.entities.VisEntityResumeOpinion;
+import com.jn.vis.commons.entities.VisEntityGroupResumesPerceptionsByResume;
+import com.jn.vis.commons.entities.VisEntityResumePerception;
 
 public class VisAsyncBusinessGroupResumesOpinionsByResume implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
@@ -17,10 +17,10 @@ public class VisAsyncBusinessGroupResumesOpinionsByResume implements  Function<C
 		
 		CcpJsonRepresentation groupDetailsByMasters = VisAsyncUtils.groupDetailsByMasters(
 				json, 
-				VisEntityResumeOpinion.INSTANCE, 
-				VisEntityGroupResumesOpinionsByResume.INSTANCE, 
-				VisEntityResumeOpinion.Fields.email, 
-				VisEntityResumeOpinion.Fields.timestamp
+				VisEntityResumePerception.INSTANCE, 
+				VisEntityGroupResumesPerceptionsByResume.INSTANCE, 
+				VisEntityResumePerception.Fields.email, 
+				VisEntityResumePerception.Fields.timestamp
 				);
 		
 		return groupDetailsByMasters;

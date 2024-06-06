@@ -31,11 +31,11 @@ import com.jn.vis.commons.entities.VisEntityBalance;
 import com.jn.vis.commons.entities.VisEntityDeniedViewToCompany;
 import com.jn.vis.commons.entities.VisEntityGroupPositionsByRecruiter;
 import com.jn.vis.commons.entities.VisEntityGroupResumesByPosition;
-import com.jn.vis.commons.entities.VisEntityHashGrouper;
+import com.jn.vis.commons.entities.VisEntityVirtualHashGrouper;
 import com.jn.vis.commons.entities.VisEntityPosition;
 import com.jn.vis.commons.entities.VisEntityResume;
 import com.jn.vis.commons.entities.VisEntityResumeLastView;
-import com.jn.vis.commons.entities.VisEntityResumeOpinion;
+import com.jn.vis.commons.entities.VisEntityResumePerception;
 import com.jn.vis.commons.entities.VisEntityScheduleSendingResumeFees;
 import com.jn.vis.commons.status.ViewResumeStatus;
 import com.jn.vis.commons.utils.VisAsyncBusiness;
@@ -140,7 +140,7 @@ public class VisAsyncUtils {
 						CcpJsonRepresentation hash = CcpConstants.EMPTY_JSON.put("disponibility", disponibility)
 								.put("resumeWord", resumeWord).put("seniority", seniority).putAll(moneyValue)
 								.put("pcd", pcd);
-						String hashValue = VisEntityHashGrouper.INSTANCE.calculateId(hash);
+						String hashValue = VisEntityVirtualHashGrouper.INSTANCE.calculateId(hash);
 						hashes.add(hashValue);
 					}
 				}
@@ -216,11 +216,11 @@ public class VisAsyncUtils {
 				allSearchParameters
 				,VisEntityResume.INSTANCE
 				,VisEntityBalance.INSTANCE
-				,VisEntityResumeOpinion.INSTANCE
+				,VisEntityResumePerception.INSTANCE
 				,VisEntityResumeLastView.INSTANCE
 				,VisEntityDeniedViewToCompany.INSTANCE
 				,VisEntityScheduleSendingResumeFees.INSTANCE
-				,VisEntityResumeOpinion.INSTANCE.getMirrorEntity()
+				,VisEntityResumePerception.INSTANCE.getMirrorEntity()
 				);
 		
 		CcpJsonRepresentation allPositionsWithFilteredResumes = CcpConstants.EMPTY_JSON;
@@ -277,7 +277,7 @@ public class VisAsyncUtils {
 				continue;
 			}
 
-			boolean negativetedResume = VisEntityResumeOpinion.INSTANCE.getMirrorEntity().isPresentInThisUnionAll(searchResults, searchParameters);
+			boolean negativetedResume = VisEntityResumePerception.INSTANCE.getMirrorEntity().isPresentInThisUnionAll(searchResults, searchParameters);
 			
 			if(negativetedResume) {
 				CcpBulkItem error = ViewResumeStatus.negativatedResume.toBulkItemCreate(searchParameters);	
@@ -348,7 +348,7 @@ public class VisAsyncUtils {
 
 			CcpJsonRepresentation resumeLastView = VisEntityResumeLastView.INSTANCE.getRecordFromUnionAll(searchResults, searchParameters);
 
-			CcpJsonRepresentation resumeOpinion = VisEntityResumeOpinion.INSTANCE.getRecordFromUnionAll(searchResults, searchParameters);
+			CcpJsonRepresentation resumeOpinion = VisEntityResumePerception.INSTANCE.getRecordFromUnionAll(searchResults, searchParameters);
 	
 			CcpJsonRepresentation resumeWithCommentAndVisualizationDetails = resume
 					.put("resumeOpinion", resumeOpinion).put("resumeLastView", resumeLastView);

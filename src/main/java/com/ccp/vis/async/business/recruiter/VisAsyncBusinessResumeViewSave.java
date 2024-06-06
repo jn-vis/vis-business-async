@@ -12,7 +12,7 @@ import com.jn.vis.commons.entities.VisEntityPosition;
 import com.jn.vis.commons.entities.VisEntityResume;
 import com.jn.vis.commons.entities.VisEntityResumeFreeView;
 import com.jn.vis.commons.entities.VisEntityResumeLastView;
-import com.jn.vis.commons.entities.VisEntityResumeOpinion;
+import com.jn.vis.commons.entities.VisEntityResumePerception;
 
 public class VisAsyncBusinessResumeViewSave implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
@@ -30,10 +30,10 @@ public class VisAsyncBusinessResumeViewSave implements  Function<CcpJsonRepresen
 			//TODO IMPLEMENTAR PARTE FINANCEIRA
 		}
 
-		boolean negativatedResume = VisEntityResumeOpinion.INSTANCE.getMirrorEntity().isPresentInThisJsonInMainEntity(json);
+		boolean negativatedResume = VisEntityResumePerception.INSTANCE.getMirrorEntity().isPresentInThisJsonInMainEntity(json);
 		boolean inactivePosition = VisEntityPosition.INSTANCE.getMirrorEntity().isPresentInThisJsonInMainEntity(json);
 	
-		CcpJsonRepresentation opinion = VisEntityResumeOpinion.INSTANCE.getInnerJsonFromMainAndMirrorEntities(json);
+		CcpJsonRepresentation opinion = VisEntityResumePerception.INSTANCE.getInnerJsonFromMainAndMirrorEntities(json);
 		CcpJsonRepresentation position = VisEntityPosition.INSTANCE.getInnerJsonFromMainAndMirrorEntities(json);
 		CcpJsonRepresentation resume = VisEntityResume.INSTANCE.getInnerJsonFromMainAndMirrorEntities(json);
 		
