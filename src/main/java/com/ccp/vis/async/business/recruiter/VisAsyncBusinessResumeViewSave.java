@@ -33,13 +33,13 @@ public class VisAsyncBusinessResumeViewSave implements  Function<CcpJsonRepresen
 		boolean negativatedResume = VisEntityResumePerception.INSTANCE.getMirrorEntity().isPresentInThisJsonInMainEntity(json);
 		boolean inactivePosition = VisEntityPosition.INSTANCE.getMirrorEntity().isPresentInThisJsonInMainEntity(json);
 	
-		CcpJsonRepresentation opinion = VisEntityResumePerception.INSTANCE.getInnerJsonFromMainAndMirrorEntities(json);
+//		CcpJsonRepresentation opinion = VisEntityResumePerception.INSTANCE.getInnerJsonFromMainAndMirrorEntities(json);
 		CcpJsonRepresentation position = VisEntityPosition.INSTANCE.getInnerJsonFromMainAndMirrorEntities(json);
 		CcpJsonRepresentation resume = VisEntityResume.INSTANCE.getInnerJsonFromMainAndMirrorEntities(json);
 		
 		CcpJsonRepresentation dataToSave = json
 				.put(VisEntityResumeLastView.Fields.resume.name(), resume)
-				.put(VisEntityResumeLastView.Fields.opinion.name(), opinion)
+//				.put(VisEntityResumeLastView.Fields.opinion.name(), opinion)
 				.put(VisEntityResumeLastView.Fields.position.name(), position)
 				.put(VisEntityResumeLastView.Fields.inactivePosition.name(), inactivePosition)
 				.put(VisEntityResumeLastView.Fields.negativatedResume.name(), negativatedResume)
