@@ -27,19 +27,19 @@ import com.ccp.jn.async.actions.TransferRecordToReverseEntity;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
 import com.jn.commons.entities.base.JnBaseEntity;
-import com.jn.vis.commons.entities.VisEntityBalance;
-import com.jn.vis.commons.entities.VisEntityDeniedViewToCompany;
-import com.jn.vis.commons.entities.VisEntityGroupPositionsByRecruiter;
-import com.jn.vis.commons.entities.VisEntityGroupResumesByPosition;
-import com.jn.vis.commons.entities.VisEntityVirtualHashGrouper;
-import com.jn.vis.commons.entities.VisEntityPosition;
-import com.jn.vis.commons.entities.VisEntityResume;
-import com.jn.vis.commons.entities.VisEntityResumeLastView;
-import com.jn.vis.commons.entities.VisEntityResumePerception;
-import com.jn.vis.commons.entities.VisEntityScheduleSendingResumeFees;
 import com.jn.vis.commons.status.ViewResumeStatus;
 import com.jn.vis.commons.utils.VisAsyncBusiness;
 import com.jn.vis.commons.utils.VisCommonsUtils;
+import com.vis.commons.entities.VisEntityBalance;
+import com.vis.commons.entities.VisEntityDeniedViewToCompany;
+import com.vis.commons.entities.VisEntityGroupPositionsByRecruiter;
+import com.vis.commons.entities.VisEntityGroupResumesByPosition;
+import com.vis.commons.entities.VisEntityPosition;
+import com.vis.commons.entities.VisEntityResume;
+import com.vis.commons.entities.VisEntityResumeLastView;
+import com.vis.commons.entities.VisEntityResumePerception;
+import com.vis.commons.entities.VisEntityScheduleSendingResumeFees;
+import com.vis.commons.entities.VisEntityVirtualHashGrouper;
 
 public class VisAsyncUtils {
 	

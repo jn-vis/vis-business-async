@@ -8,11 +8,11 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpEntityOperationType;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
-import com.jn.vis.commons.entities.VisEntityPosition;
-import com.jn.vis.commons.entities.VisEntityResume;
-import com.jn.vis.commons.entities.VisEntityResumeFreeView;
-import com.jn.vis.commons.entities.VisEntityResumeLastView;
-import com.jn.vis.commons.entities.VisEntityResumePerception;
+import com.vis.commons.entities.VisEntityPosition;
+import com.vis.commons.entities.VisEntityResume;
+import com.vis.commons.entities.VisEntityResumeFreeView;
+import com.vis.commons.entities.VisEntityResumeLastView;
+import com.vis.commons.entities.VisEntityResumePerception;
 
 public class VisAsyncBusinessResumeViewSave implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 

@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.vis.async.commons.VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes;
-import com.jn.vis.commons.entities.VisEntityPosition;
+import com.vis.commons.entities.VisEntityPosition;
 
 public class VisAsyncBusinessPositionSave implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 

@@ -4,8 +4,8 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.vis.async.commons.VisAsyncUtils;
-import com.jn.vis.commons.entities.VisEntityGroupResumeViewsByResume;
-import com.jn.vis.commons.entities.VisEntityResumeFreeView;
+import com.vis.commons.entities.VisEntityGroupResumeViewsByResume;
+import com.vis.commons.entities.VisEntityResumeFreeView;
 
 public class VisAsyncBusinessGroupResumeViewsByResume implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 

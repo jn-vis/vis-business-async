@@ -5,7 +5,7 @@ import java.util.function.Function;
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.vis.async.commons.VisAsyncUtils;
-import com.jn.vis.commons.entities.VisEntityResumePerception;
+import com.vis.commons.entities.VisEntityResumePerception;
 
 public class VisAsyncBusinessResumeOpinionChange implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 

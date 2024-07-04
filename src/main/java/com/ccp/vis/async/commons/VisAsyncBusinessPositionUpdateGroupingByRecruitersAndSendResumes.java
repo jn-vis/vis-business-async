@@ -5,8 +5,8 @@ import java.util.function.Function;
 
 import com.ccp.constantes.CcpConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.jn.vis.commons.entities.VisEntityGroupResumesByPosition;
-import com.jn.vis.commons.entities.VisEntityResume;
+import com.vis.commons.entities.VisEntityGroupResumesByPosition;
+import com.vis.commons.entities.VisEntityResume;
 
 public class VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 

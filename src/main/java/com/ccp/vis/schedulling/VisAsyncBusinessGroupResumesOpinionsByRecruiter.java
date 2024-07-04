@@ -4,8 +4,8 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.vis.async.commons.VisAsyncUtils;
-import com.jn.vis.commons.entities.VisEntityGroupResumesPerceptionsByRecruiter;
-import com.jn.vis.commons.entities.VisEntityResumePerception;
+import com.vis.commons.entities.VisEntityGroupResumesPerceptionsByRecruiter;
+import com.vis.commons.entities.VisEntityResumePerception;
 
 public class VisAsyncBusinessGroupResumesOpinionsByRecruiter implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
