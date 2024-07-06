@@ -185,16 +185,15 @@ public class VisAsyncUtils {
 	}
 
 	public static CcpJsonRepresentation getAllPositionsGroupedByRecruiters(FrequencyOptions frequency) {
-		// Injetando dependência do executor de query complexa
+
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
-		// Linha abaixo se refere a construção de uma query para filtrar vagas pela frequência
+
 		CcpDbQueryOptions queryToSearchLastUpdatedResumes = 
 				CcpDbQueryOptions.INSTANCE
 					.startSimplifiedQuery()
 						.match(VisEntityPosition.Fields.frequency, frequency.name())
 					.endSimplifiedQueryAndBackToRequest()
 				;
-		// Escolhendo as tabelas para fazer a busca (from)
 		String[] resourcesNames = new String[] {VisEntityPosition.INSTANCE.getEntityName()};
 		CcpJsonRepresentation positionsGroupedByRecruiters = queryExecutor.getMap(queryToSearchLastUpdatedResumes, resourcesNames, "email");
 		return positionsGroupedByRecruiters;
