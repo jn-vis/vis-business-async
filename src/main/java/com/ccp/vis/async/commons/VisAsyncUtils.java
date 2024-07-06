@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -26,6 +27,7 @@ import com.ccp.especifications.file.bucket.CcpFileBucket;
 import com.ccp.jn.async.actions.TransferRecordToReverseEntity;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
+import com.ccp.vis.exceptions.RequiredSkillsMissingInResume;
 import com.jn.commons.entities.base.JnBaseEntity;
 import com.jn.vis.commons.status.ViewResumeStatus;
 import com.jn.vis.commons.utils.VisAsyncBusiness;
@@ -118,9 +120,6 @@ public class VisAsyncUtils {
 	}
 	
 	private static List<String> getHashes(CcpJsonRepresentation json) {
-		// O resumWord se trata das habilidades se este JSON se tratar de currículo.
-		// O mandatorySkills trata das habilidades se este JSON se tratar de vaga.
-		List<String> resumeWords = json.getAsStringList("resumeWord", "mandatorySkills");
 
 		String enumsType = json.containsField("experience") ? "resume" : "position";
 		List<Integer> disponibilities = json.getTransformed(GetDisponibilityValuesFromJson.valueOf(enumsType));
@@ -136,14 +135,12 @@ public class VisAsyncUtils {
 		for (Boolean pcd : pcds) {
 			for (Integer disponibility : disponibilities) {// 5 (vaga) = [5, 4, 3, 2, 1, 0] || 6 (candidato) [6, 7, 8, 9
 				for (CcpJsonRepresentation moneyValue : moneyValues) {
-					for (String resumeWord : resumeWords) {
 						CcpJsonRepresentation hash = CcpConstants.EMPTY_JSON.put("disponibility", disponibility)
-								.put("resumeWord", resumeWord).put("seniority", seniority).putAll(moneyValue)
+								.put("seniority", seniority).putAll(moneyValue)
 								.put("pcd", pcd);
 						String hashValue = VisEntityVirtualHashGrouper.INSTANCE.calculateId(hash);
 						hashes.add(hashValue);
 					}
-				}
 			}
 		}
 		return hashes;
@@ -335,7 +332,17 @@ public class VisAsyncUtils {
 			if(resumeDoesNotMatch) {
 				continue;
 			}
-
+			
+			List<CcpJsonRepresentation> requiredSkills;
+			
+			try {
+				requiredSkills = getRequiredSkillsInThisResume(positionByThisRecruiter, resume);
+			} catch (RequiredSkillsMissingInResume e) {
+				// TODO: salvar skills faltando no curriculo
+				continue;
+			}
+			
+			
 			boolean resumeAlreadySeen = resumeAlreadySeen(positionByThisRecruiter, searchResults, searchParameters);
 			
 			if(resumeAlreadySeen) {
@@ -356,11 +363,77 @@ public class VisAsyncUtils {
 			emailMessageValuesToSent = emailMessageValuesToSent
 					.addToList("resumes", resumeWithCommentAndVisualizationDetails)
 					.put("position", allPositionsGroupedByRecruiters)
+					.put("requiredSkills", requiredSkills)
 					;
 			
 			allPositionsWithFilteredResumes = allPositionsWithFilteredResumes.put(positionId, emailMessageValuesToSent);
 		}
 		return positionWithFilteredResumes;
+	}
+
+	private static List<CcpJsonRepresentation> getRequiredSkillsInThisResume(
+			CcpJsonRepresentation positionByThisRecruiter, 
+			CcpJsonRepresentation resume) {
+
+		List<String> requiredSkillsFromPosition = positionByThisRecruiter.getAsStringList(VisEntityPosition.Fields.requiredSkill.name());
+		
+		List<CcpJsonRepresentation> skillsFromResume = resume.getAsJsonList(VisEntityResume.Fields.skill.name());
+		List<String> requiredSkillsMissingInResume = new ArrayList<String>();
+		List<CcpJsonRepresentation> response = new ArrayList<>();
+		for (String requiredSkillFromPosition : requiredSkillsFromPosition) {
+			
+			boolean skillDirectlyFoundInResume = skillsFromResume.stream().filter(s -> s.getAsString("skill").equals(requiredSkillFromPosition)).findFirst().isPresent();
+			
+			if(skillDirectlyFoundInResume) {
+				CcpJsonRepresentation skill = CcpConstants.EMPTY_JSON
+					.put("type", ResumeSkillFoundType.CONTAINED_IN_RESUME)
+					.put("skill", requiredSkillFromPosition);
+				response.add(skill);
+				continue;
+			}
+			
+			Optional<CcpJsonRepresentation> synonymFound = skillsFromResume.stream().filter(s -> s.getAsStringList("synonyms").contains(requiredSkillFromPosition)).findFirst();
+			boolean skillFoundBySynonymInResume = synonymFound.isPresent();
+			
+			if(skillFoundBySynonymInResume) {
+				CcpJsonRepresentation synonym = synonymFound.get();
+				String synonymName = synonym.getAsString("skill");
+				CcpJsonRepresentation skill = CcpConstants.EMPTY_JSON
+						.put("type", ResumeSkillFoundType.SYNONYM)
+						.put("skill", requiredSkillFromPosition)
+						.put("synonym", synonymName)
+						;
+					response.add(skill);
+					continue;
+			}
+			List<String> parents = skillsFromResume.stream().filter(s -> 
+			s.getAsStringList("parent").contains(requiredSkillFromPosition))
+			.map(s -> s.getAsString("skill"))
+			.collect(Collectors.toList());
+			
+			boolean skillFoundByParentsInResume = parents.isEmpty() == false;
+			
+			if(skillFoundByParentsInResume) {
+				CcpJsonRepresentation skill = CcpConstants.EMPTY_JSON
+						.put("type", ResumeSkillFoundType.PARENT)
+						.put("skill", requiredSkillFromPosition)
+						.put("parents", parents)
+						;
+					response.add(skill);
+				continue;
+			}
+			
+			requiredSkillsMissingInResume.add(requiredSkillFromPosition);
+		}
+		
+		
+		boolean itIsMissingRequiredSkillInThisResume = requiredSkillsMissingInResume.isEmpty() == false;
+		
+		if(itIsMissingRequiredSkillInThisResume) {
+			throw new RequiredSkillsMissingInResume(requiredSkillsMissingInResume);
+		}
+	
+		return response;
 	}
 
 	private static boolean resumeAlreadySeen(CcpJsonRepresentation positionByThisRecruiter, CcpSelectUnionAll searchResults, CcpJsonRepresentation searchParameters) {
