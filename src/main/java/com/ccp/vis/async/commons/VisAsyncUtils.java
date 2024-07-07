@@ -203,7 +203,11 @@ public class VisAsyncUtils {
 			FrequencyOptions frequency) {
 		
 		List<CcpJsonRepresentation> allSearchParameters = getAllSearchParameters(allPositionsGroupedByRecruiters, resumes,	frequency);
-
+		boolean positionsNotFound = allSearchParameters.isEmpty();
+		
+		if(positionsNotFound) {
+			return new ArrayList<>();
+		}
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		
 		CcpSelectUnionAll searchResults = crud.unionAll(
@@ -469,7 +473,6 @@ public class VisAsyncUtils {
 		if(singleResume) {
 			return positionWithResumes;
 		}
-		//FIXME FAKE BUCKET
 		CcpJsonRepresentation position = positionWithResumes.getInnerJson("position");
 		PositionResumesSort positionResumesSort = new PositionResumesSort(position);
 		resumes.sort(positionResumesSort);
@@ -492,6 +495,13 @@ public class VisAsyncUtils {
 	
 	private static List<CcpJsonRepresentation> getAllSearchParameters(
 			CcpJsonRepresentation allPositionsGroupedByRecruiters, List<CcpJsonRepresentation> resumes, FrequencyOptions frequency) {
+		
+		boolean positionsNotFound = allPositionsGroupedByRecruiters.isEmpty();
+
+		if(positionsNotFound) {
+			return new ArrayList<>();
+		}
+		
 		List<CcpJsonRepresentation> allSearchParameters = new ArrayList<>();
 		
 		Set<String> recruiters = allPositionsGroupedByRecruiters.fieldSet();

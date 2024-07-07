@@ -24,7 +24,8 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 		
 		JnAsyncCommitAndAudit.INSTANCE.executeSelectUnionAllThenSaveInTheMainAndMirrorEntities(
 				jsonWithSkills, VisEntityResume.INSTANCE, 
-				VisAsyncBusinessResumeSendToRecruiters.INSTANCE);
+				VisAsyncBusinessResumeSendToRecruiters.INSTANCE
+				);
 		
 		return jsonWithSkills;
 	}

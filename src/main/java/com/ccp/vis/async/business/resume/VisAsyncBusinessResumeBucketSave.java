@@ -5,7 +5,6 @@ import java.util.function.Function;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.file.bucket.CcpFileBucket;
-import com.jn.vis.commons.utils.VisAsyncBusiness;
 import com.jn.vis.commons.utils.VisCommonsUtils;
 import com.vis.commons.entities.VisEntityResume;
 
@@ -20,7 +19,7 @@ public class VisAsyncBusinessResumeBucketSave implements  Function<CcpJsonRepres
 		
 		CcpFileBucket dependency = CcpDependencyInjection.getDependency(CcpFileBucket.class);
 		
-		String[] fields = VisAsyncBusiness.resumeBucketSave.getFields();
+		String[] fields = new String[] {"fileName", "resumeText", "originalEmail", "name", "observations", "resumeBase64"};
 	
 		String fileContent = json.getJsonPiece(fields).asUgglyJson();
 		String fileName = "" + json.getAsLongNumber(VisEntityResume.Fields.timestamp.name());
