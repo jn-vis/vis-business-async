@@ -17,13 +17,12 @@ public class VisAsyncBusinessResumeDelete implements  Function<CcpJsonRepresenta
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 
-		VisCommonsUtils.removeFromCache(json, "text", "file");
-
 		String tentant = VisCommonsUtils.getTenant();
 
-		String folder = VisCommonsUtils.getBucketFolderResume(json);
-		
-		CcpFileBucketOperation.delete.execute(tentant, folder, "text", "file");
+		String email = json.getAsString("email");
+		String folder = "resumes/" + email;
+		String file = "" + json.getAsLongNumber(VisEntityResume.Fields.timestamp.name());
+		CcpFileBucketOperation.delete.execute(tentant, folder, file);
 
 		JnAsyncCommitAndAudit.INSTANCE.executeBulk(json, VisEntityResume.INSTANCE, CcpEntityOperationType.delete);
 		

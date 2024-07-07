@@ -3,7 +3,11 @@ package com.ccp.vis.async.business.resume;
 import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.vis.async.commons.VisAsyncUtils;
+import com.ccp.dependency.injection.CcpDependencyInjection;
+import com.ccp.especifications.file.bucket.CcpFileBucket;
+import com.jn.vis.commons.utils.VisAsyncBusiness;
+import com.jn.vis.commons.utils.VisCommonsUtils;
+import com.vis.commons.entities.VisEntityResume;
 
 public class VisAsyncBusinessResumeBucketSave implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
@@ -12,8 +16,20 @@ public class VisAsyncBusinessResumeBucketSave implements  Function<CcpJsonRepres
 	private VisAsyncBusinessResumeBucketSave() {}
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
-		VisAsyncUtils.saveResume(json, "resumeBase64", "file");
-		VisAsyncUtils.saveResume(json, "resumeText", "text");
+		
+		
+		CcpFileBucket dependency = CcpDependencyInjection.getDependency(CcpFileBucket.class);
+		
+		String[] fields = VisAsyncBusiness.resumeBucketSave.getFields();
+	
+		String fileContent = json.getJsonPiece(fields).asUgglyJson();
+		String fileName = "" + json.getAsLongNumber(VisEntityResume.Fields.timestamp.name());
+		String folderName = json.getAsString(VisEntityResume.Fields.email.name());
+		String tenant = VisCommonsUtils.getTenant();
+		String bucketName = "resumes/" + folderName;
+
+		dependency.save(tenant, bucketName, fileName, fileContent);
+		
 		return json;
 	}
 

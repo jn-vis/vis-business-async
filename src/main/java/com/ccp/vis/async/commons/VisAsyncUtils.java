@@ -14,7 +14,6 @@ import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
-import com.ccp.especifications.cache.CcpCacheDecorator;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpEntityOperationType;
 import com.ccp.especifications.db.crud.CcpCrud;
@@ -23,7 +22,6 @@ import com.ccp.especifications.db.query.CcpDbQueryOptions;
 import com.ccp.especifications.db.query.CcpQueryExecutor;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityField;
-import com.ccp.especifications.file.bucket.CcpFileBucket;
 import com.ccp.jn.async.actions.TransferRecordToReverseEntity;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
@@ -516,17 +514,6 @@ public class VisAsyncUtils {
 		return allSearchParameters;
 	}
 	
-	
-	public static void saveResume(CcpJsonRepresentation resume, String propertyName, String fileName) {
-		String email = resume.getAsString("email");
-		String propertyValue = resume.getAsString(propertyName);
-		CcpCacheDecorator resumeCache = VisCommonsUtils.getResumeCache(email, fileName);
-		resumeCache.put(propertyValue, 86400);
-		String bucketFolderResume = VisCommonsUtils.getBucketFolderResume(resume);
-		String tenant = VisCommonsUtils.getTenant();
-		CcpFileBucket bucket = CcpDependencyInjection.getDependency(CcpFileBucket.class);
-		bucket.save(tenant, bucketFolderResume, fileName, propertyValue);
-	}
 	
 	@SuppressWarnings("unchecked")
 	public static void changeStatus(CcpJsonRepresentation json, CcpEntity activeEntity,

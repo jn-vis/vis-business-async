@@ -18,7 +18,7 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 		
 		CcpJsonRepresentation jsonWithSkills = VisCommonsUtils.getJsonWithSkills(
 				json
-				, VisEntityResume.Fields.resumeText.name()
+				, "resumeText"
 				, VisEntityResume.Fields.skill.name()
 				);
 		
