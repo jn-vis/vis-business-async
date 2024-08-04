@@ -282,7 +282,10 @@ public class VisAsyncUtils {
 				errors.add(error);
 				continue;
 			}
-
+				/*
+				 * TI -> backend -> java -> spring -> springboot
+				 */
+				
 			boolean deniedResume = VisEntityDeniedViewToCompany.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters);
 			
 			if(deniedResume) {

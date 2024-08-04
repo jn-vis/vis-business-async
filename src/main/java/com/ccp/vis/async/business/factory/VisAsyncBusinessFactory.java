@@ -45,7 +45,6 @@ class VisAsyncBusinessFactory implements CcpAsyncBusinessFactory {
 		this.map.put(VisAsyncBusiness.resumeDelete.name(), VisAsyncBusinessResumeDelete.INSTANCE);
 		this.map.put(VisAsyncBusiness.resumeSave.name(), VisAsyncBusinessResumeSave.INSTANCE);
 		this.map.put(VisAsyncBusiness.resume.name(), VisAsyncBusinessResume.INSTANCE);
-
 		this.map.put(VisAsyncBusiness.positionResumesReceivingByFrequency.name(), VisAsyncBusinessPositionResumesReceivingByFrequency.INSTANCE);
 		this.map.put(VisAsyncBusiness.groupResumesOpinionsByRecruiter.name(), VisAsyncBusinessGroupResumesOpinionsByRecruiter.INSTANCE);
 		this.map.put(VisAsyncBusiness.groupResumeViewsByRecruiter.name(), VisAsyncBusinessGroupResumeViewsByRecruiter.INSTANCE);
