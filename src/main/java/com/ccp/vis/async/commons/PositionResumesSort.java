@@ -22,7 +22,8 @@ public class PositionResumesSort implements Comparator<CcpJsonRepresentation>{
 		CcpJsonRepresentation put1 = this.putDesiredSkills(o1, desiredSkill);
 		CcpJsonRepresentation put2 = this.putDesiredSkills(o2, desiredSkill);
 		
-		List<String> sortFields = new ArrayList<>(this.position.getAsStringList("sortFields"));
+		List<String> asStringList = this.position.getAsStringList("sortFields");
+		List<String> sortFields = new ArrayList<>(asStringList);
 		
 		String desiredSkillEnumName = ResumeSortOptions.desiredSkill.name();
 		boolean desiredSkillNotChoosed = sortFields.contains(desiredSkillEnumName) == false;
