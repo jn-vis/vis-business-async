@@ -64,6 +64,5 @@ public class GroupDetailsByMasters implements Consumer<CcpJsonRepresentation>{
 			}
 		}
 		JnAsyncCommitAndAudit.INSTANCE.executeBulk(result);
-
 	}
 }

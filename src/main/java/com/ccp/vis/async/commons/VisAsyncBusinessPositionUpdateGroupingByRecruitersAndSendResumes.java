@@ -13,12 +13,12 @@ public class VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes im
 	private VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes() {}
 	
 	public static final VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes INSTANCE = new VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes();
-	
+	//0
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 		
 		CcpJsonRepresentation duplicateValueFromKey = json.duplicateValueFromField("email", "masters");
-		
-		VisAsyncUtils.groupPositionsByRecruiters(duplicateValueFromKey);
+
+		VisAsyncUtils.groupPositionsGroupedByRecruiters(duplicateValueFromKey);
 		
 		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getLastUpdatedResumes = x -> VisAsyncUtils.getLastUpdated(VisEntityResume.INSTANCE, FrequencyOptions.yearly, VisEntityResume.Fields.timestamp.name());
 		

@@ -547,7 +547,7 @@ public class VisAsyncUtils {
 
 
 	
-	public static CcpJsonRepresentation groupPositionsByRecruiters(CcpJsonRepresentation json) {
+	public static CcpJsonRepresentation groupPositionsGroupedByRecruiters(CcpJsonRepresentation json) {
 		
 		CcpJsonRepresentation groupDetailsByMasters = groupDetailsByMasters(json, VisEntityPosition.INSTANCE, 
 				VisEntityGroupPositionsByRecruiter.INSTANCE, VisEntityPosition.Fields.email, VisEntityPosition.Fields.timestamp);
@@ -561,7 +561,7 @@ public class VisAsyncUtils {
 			CcpEntity groupEntity, 
 			CcpEntityField masterField, 
 			CcpEntityField ascField) {
-		
+		//1
 		List<String> masters = json.getAsStringList("masters");
 		
 		CcpDbQueryOptions query = CcpDbQueryOptions.INSTANCE
@@ -575,15 +575,15 @@ public class VisAsyncUtils {
 				.addAscSorting(ascField.name())
 		;
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
-		CcpEntity mirrorEntity = entity.getMirrorEntity();
-		String mirrorName = mirrorEntity.getEntityName();
-		String entityName = entity.getEntityName();
-		String[] resourcesNames = new String[]{entityName, mirrorName};
+		
+		String[] entitiesToSelect = entity.getEntitiesToSelect();
 		
 		GroupDetailsByMasters detailsGroupedByMasters = new GroupDetailsByMasters(masterField.name(), entity, groupEntity);
 		
-		queryExecutor.consumeQueryResult(query, resourcesNames, entityName, 10000, detailsGroupedByMasters, resourcesNames);
+		queryExecutor.consumeQueryResult(query, entitiesToSelect, "10s", 10000, detailsGroupedByMasters);
+		
 		detailsGroupedByMasters.saveAllDetailsGroupedByMasters();
+		
 		return json;
 	}
 	
