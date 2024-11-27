@@ -7,7 +7,7 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.text.extractor.CcpTextExtractor;
 import com.ccp.exceptions.process.CcpFlow;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
-import com.ccp.jn.async.messages.JnAsyncUtilsGetMessage;
+import com.ccp.jn.async.messages.JnAsyncSendMessage;
 import com.ccp.process.CcpProcessStatus;
 import com.jn.commons.entities.JnEntityEmailMessageSent;
 import com.jn.vis.commons.utils.VisAsyncBusiness;
@@ -66,15 +66,16 @@ public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, 
 			.put(JnEntityEmailMessageSent.Fields.subjectType.name(), templateId);
 			
 		String language = VisStringConstants.PORTUGUESE.name();//TODO INTERNACIONALIZAR SALVAMENTO DE CURRICULO
-		JnAsyncUtilsGetMessage getMessage = new JnAsyncUtilsGetMessage();
-		getMessage
+		
+		JnAsyncSendMessage sender = new JnAsyncSendMessage();
+		sender
 		.createDefaultEmailStep()
 		.soWithAllAddedStepsAnd()
-		.withTemplateEntity(templateId)
-		.andWithEntityToSave(JnEntityEmailMessageSent.INSTANCE)
-		.andWithJsonValues(put)
-		.andWithSupportLanguage(language)
-		.executeAllAddedSteps()
+		.withTheTemplateEntity(templateId)
+		.andWithTheEntityToBlockMessageResend(JnEntityEmailMessageSent.INSTANCE)
+		.andWithTheMessageValuesFromJson(put)
+		.andWithTheSupportLanguage(language)
+		.sendAllMessages()
 		;
 		
 	}
