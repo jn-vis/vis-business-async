@@ -69,8 +69,8 @@ public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, 
 		
 		JnAsyncSendMessage sender = new JnAsyncSendMessage();
 		sender
-		.createDefaultEmailStep()
-		.soWithAllAddedStepsAnd()
+		.addDefaultProcessForEmailSending()
+		.soWithAllAddedProcessAnd()
 		.withTheTemplateEntity(templateId)
 		.andWithTheEntityToBlockMessageResend(JnEntityEmailMessageSent.INSTANCE)
 		.andWithTheMessageValuesFromJson(put)
