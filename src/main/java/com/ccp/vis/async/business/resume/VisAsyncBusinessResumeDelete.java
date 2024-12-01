@@ -27,7 +27,7 @@ public class VisAsyncBusinessResumeDelete implements  Function<CcpJsonRepresenta
 
 		bucket.delete(tentant, folder);
 		
-		JnAsyncCommitAndAudit.INSTANCE.executeBulk(json, VisEntityResume.INSTANCE, CcpEntityOperationType.delete);
+		JnAsyncCommitAndAudit.INSTANCE.executeBulk(json, VisEntityResume.ENTITY, CcpEntityOperationType.delete);
 		
 		return json;
 	}

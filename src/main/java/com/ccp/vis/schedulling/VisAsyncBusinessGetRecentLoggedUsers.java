@@ -21,7 +21,7 @@ public class VisAsyncBusinessGetRecentLoggedUsers implements  Function<CcpJsonRe
 		
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
 		
-		String entityName = JnEntityLoginSessionCurrent.INSTANCE.getEntityName();
+		String entityName = JnEntityLoginSessionCurrent.ENTITY.getEntityName();
 		CcpDbQueryOptions queryToSearchLastUpdated = 
 				CcpDbQueryOptions.INSTANCE
 					.startQuery()
@@ -39,7 +39,7 @@ public class VisAsyncBusinessGetRecentLoggedUsers implements  Function<CcpJsonRe
 					.maxResults()
 					.addDescSorting(JnEntityDisposableRecord.Fields.timestamp.name())
 				;
-		String[] resourcesNames = new String[] {JnEntityDisposableRecord.INSTANCE.getEntityName()};
+		String[] resourcesNames = new String[] {JnEntityDisposableRecord.ENTITY.getEntityName()};
 
 		queryExecutor.consumeQueryResult(queryToSearchLastUpdated, resourcesNames, "10m", 10000L, SendRecentUsersToGroupings.INSTANCE, JnEntityDisposableRecord.Fields.id.name());
 		

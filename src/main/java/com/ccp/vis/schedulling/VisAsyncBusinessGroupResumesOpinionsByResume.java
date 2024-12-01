@@ -17,8 +17,8 @@ public class VisAsyncBusinessGroupResumesOpinionsByResume implements  Function<C
 		
 		CcpJsonRepresentation groupDetailsByMasters = VisAsyncUtils.groupDetailsByMasters(
 				json, 
-				VisEntityResumePerception.INSTANCE, 
-				VisEntityGroupResumesPerceptionsByResume.INSTANCE, 
+				VisEntityResumePerception.ENTITY, 
+				VisEntityGroupResumesPerceptionsByResume.ENTITY, 
 				VisEntityResumePerception.Fields.email, 
 				VisEntityResumePerception.Fields.timestamp
 				);

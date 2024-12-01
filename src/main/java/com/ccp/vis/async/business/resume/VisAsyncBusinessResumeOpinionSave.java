@@ -16,7 +16,7 @@ public class VisAsyncBusinessResumeOpinionSave implements Function<CcpJsonRepres
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 		
 		JnAsyncCommitAndAudit.INSTANCE.executeSelectUnionAllThenSaveInTheMainAndMirrorEntities(
-				json, VisEntityResumePerception.INSTANCE, 
+				json, VisEntityResumePerception.ENTITY, 
 				CcpConstants.DO_NOTHING);
 		
 		return json;

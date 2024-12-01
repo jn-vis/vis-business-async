@@ -16,8 +16,8 @@ public class VisAsyncBusinessGroupResumesOpinionsByRecruiter implements  Functio
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 		CcpJsonRepresentation groupDetailsByMasters = VisAsyncUtils.groupDetailsByMasters(
 				json, 
-				VisEntityResumePerception.INSTANCE, 
-				VisEntityGroupResumesPerceptionsByRecruiter.INSTANCE, 
+				VisEntityResumePerception.ENTITY, 
+				VisEntityGroupResumesPerceptionsByRecruiter.ENTITY, 
 				VisEntityResumePerception.Fields.email, 
 				VisEntityResumePerception.Fields.timestamp
 				);

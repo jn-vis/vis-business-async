@@ -26,7 +26,6 @@ import com.ccp.jn.async.actions.TransferRecordToReverseEntity;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
 import com.ccp.vis.exceptions.RequiredSkillsMissingInResume;
-import com.jn.commons.entities.base.JnBaseEntity;
 import com.jn.vis.commons.status.ViewResumeStatus;
 import com.jn.vis.commons.utils.VisAsyncBusiness;
 import com.jn.vis.commons.utils.VisCommonsUtils;
@@ -136,7 +135,7 @@ public class VisAsyncUtils {
 						CcpJsonRepresentation hash = CcpConstants.EMPTY_JSON.put("disponibility", disponibility)
 								.put("seniority", seniority).putAll(moneyValue)
 								.put("pcd", pcd);
-						String hashValue = VisEntityVirtualHashGrouper.INSTANCE.calculateId(hash);
+						String hashValue = VisEntityVirtualHashGrouper.ENTITY.calculateId(hash);
 						hashes.add(hashValue);
 					}
 			}
@@ -161,7 +160,7 @@ public class VisAsyncUtils {
 		return result;
 	}
 
-	public static List<CcpJsonRepresentation> getLastUpdated(JnBaseEntity entity, FrequencyOptions valueOf, String filterFieldName) {
+	public static List<CcpJsonRepresentation> getLastUpdated(CcpEntity entity, FrequencyOptions valueOf, String filterFieldName) {
 		
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
 		
@@ -192,7 +191,7 @@ public class VisAsyncUtils {
 						.match(VisEntityPosition.Fields.frequency, frequency.name())
 					.endSimplifiedQueryAndBackToRequest()
 				;
-		String[] resourcesNames = new String[] {VisEntityPosition.INSTANCE.getEntityName()};
+		String[] resourcesNames = new String[] {VisEntityPosition.ENTITY.getEntityName()};
 		CcpJsonRepresentation positionsGroupedByRecruiters = queryExecutor.getMap(queryToSearchLastUpdatedResumes, resourcesNames, "email");
 		return positionsGroupedByRecruiters;
 	}
@@ -212,13 +211,13 @@ public class VisAsyncUtils {
 		
 		CcpSelectUnionAll searchResults = crud.unionAll(
 				allSearchParameters
-				,VisEntityResume.INSTANCE
-				,VisEntityBalance.INSTANCE
-				,VisEntityResumePerception.INSTANCE
-				,VisEntityResumeLastView.INSTANCE
-				,VisEntityDeniedViewToCompany.INSTANCE
-				,VisEntityScheduleSendingResumeFees.INSTANCE
-				,VisEntityResumePerception.INSTANCE.getMirrorEntity()
+				,VisEntityResume.ENTITY
+				,VisEntityBalance.ENTITY
+				,VisEntityResumePerception.ENTITY
+				,VisEntityResumeLastView.ENTITY
+				,VisEntityDeniedViewToCompany.ENTITY
+				,VisEntityScheduleSendingResumeFees.ENTITY
+				,VisEntityResumePerception.ENTITY.getTwinEntity()
 				);
 		
 		CcpJsonRepresentation allPositionsWithFilteredResumes = CcpConstants.EMPTY_JSON;
@@ -227,13 +226,13 @@ public class VisAsyncUtils {
 		
 		for (CcpJsonRepresentation searchParameters : allSearchParameters) {
 
-			boolean feeNotFound = VisEntityScheduleSendingResumeFees.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters) == false;
+			boolean feeNotFound = VisEntityScheduleSendingResumeFees.ENTITY.isPresentInThisUnionAll(searchResults, searchParameters) == false;
 
 			if(feeNotFound) {
 				throw new RuntimeException("It is missing the " + VisEntityScheduleSendingResumeFees.class.getSimpleName() + " of frequency " + frequency);
 			}
 			
-			boolean balanceNotFound = VisEntityBalance.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters) == false;
+			boolean balanceNotFound = VisEntityBalance.ENTITY.isPresentInThisUnionAll(searchResults, searchParameters) == false;
 
 			if(balanceNotFound) {
 				CcpBulkItem error = ViewResumeStatus.missingBalance.toBulkItemCreate(searchParameters);	
@@ -241,9 +240,9 @@ public class VisAsyncUtils {
 				continue;
 			}
 
-			CcpJsonRepresentation fee = VisEntityScheduleSendingResumeFees.INSTANCE.getRequiredEntityRow(searchResults, searchParameters);
+			CcpJsonRepresentation fee = VisEntityScheduleSendingResumeFees.ENTITY.getRequiredEntityRow(searchResults, searchParameters);
 			
-			CcpJsonRepresentation balance = VisEntityBalance.INSTANCE.getRequiredEntityRow(searchResults, searchParameters);
+			CcpJsonRepresentation balance = VisEntityBalance.ENTITY.getRequiredEntityRow(searchResults, searchParameters);
 			
 			String recruiter = searchParameters.getAsString("recruiter");
 			List<CcpJsonRepresentation> positionsGroupedByThisRecruiter = allPositionsGroupedByRecruiters.getAsJsonList(recruiter);
@@ -257,7 +256,7 @@ public class VisAsyncUtils {
 				continue;
 			}
 
-			boolean inactiveResume = VisEntityResume.INSTANCE.getMirrorEntity().isPresentInThisUnionAll(searchResults, searchParameters);
+			boolean inactiveResume = VisEntityResume.ENTITY.getTwinEntity().isPresentInThisUnionAll(searchResults, searchParameters);
 			
 			if(inactiveResume) {
 				CcpBulkItem error = ViewResumeStatus.inactiveResume.toBulkItemCreate(searchParameters);	
@@ -267,7 +266,7 @@ public class VisAsyncUtils {
 			
 			
 			
-			boolean resumeNotFound = VisEntityResume.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters) == false;
+			boolean resumeNotFound = VisEntityResume.ENTITY.isPresentInThisUnionAll(searchResults, searchParameters) == false;
 			
 			if(resumeNotFound) {
 				CcpBulkItem error = ViewResumeStatus.resumeNotFound.toBulkItemCreate(searchParameters);	
@@ -275,7 +274,7 @@ public class VisAsyncUtils {
 				continue;
 			}
 
-			boolean negativetedResume = VisEntityResumePerception.INSTANCE.getMirrorEntity().isPresentInThisUnionAll(searchResults, searchParameters);
+			boolean negativetedResume = VisEntityResumePerception.ENTITY.getTwinEntity().isPresentInThisUnionAll(searchResults, searchParameters);
 			
 			if(negativetedResume) {
 				CcpBulkItem error = ViewResumeStatus.negativatedResume.toBulkItemCreate(searchParameters);	
@@ -286,7 +285,7 @@ public class VisAsyncUtils {
 				 * TI -> backend -> java -> spring -> springboot
 				 */
 				
-			boolean deniedResume = VisEntityDeniedViewToCompany.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters);
+			boolean deniedResume = VisEntityDeniedViewToCompany.ENTITY.isPresentInThisUnionAll(searchResults, searchParameters);
 			
 			if(deniedResume) {
 				CcpBulkItem error = ViewResumeStatus.notAllowedRecruiter.toBulkItemCreate(searchParameters);	
@@ -318,7 +317,7 @@ public class VisAsyncUtils {
 		
 		for (CcpJsonRepresentation positionByThisRecruiter : positionsGroupedByThisRecruiter) {
 
-			CcpJsonRepresentation resume = VisEntityResume.INSTANCE.getRequiredEntityRow(searchResults, searchParameters);
+			CcpJsonRepresentation resume = VisEntityResume.ENTITY.getRequiredEntityRow(searchResults, searchParameters);
 			
 			CcpCollectionDecorator dddsPosition = positionByThisRecruiter.getAsCollectionDecorator("ddd");
 			CcpCollectionDecorator dddsResume = resume.getAsCollectionDecorator("ddd");
@@ -353,13 +352,13 @@ public class VisAsyncUtils {
 				continue;
 			}
 			
-			String positionId = VisEntityPosition.INSTANCE.calculateId(positionByThisRecruiter);
+			String positionId = VisEntityPosition.ENTITY.calculateId(positionByThisRecruiter);
 			
 			CcpJsonRepresentation emailMessageValuesToSent = allPositionsWithFilteredResumes.getInnerJson(positionId);
 
-			CcpJsonRepresentation resumeLastView = VisEntityResumeLastView.INSTANCE.getRecordFromUnionAll(searchResults, searchParameters);
+			CcpJsonRepresentation resumeLastView = VisEntityResumeLastView.ENTITY.getRecordFromUnionAll(searchResults, searchParameters);
 
-			CcpJsonRepresentation resumeOpinion = VisEntityResumePerception.INSTANCE.getRecordFromUnionAll(searchResults, searchParameters);
+			CcpJsonRepresentation resumeOpinion = VisEntityResumePerception.ENTITY.getRecordFromUnionAll(searchResults, searchParameters);
 	
 			CcpJsonRepresentation resumeWithCommentAndVisualizationDetails = resume
 					.put("resumeOpinion", resumeOpinion).put("resumeLastView", resumeLastView);
@@ -448,15 +447,15 @@ public class VisAsyncUtils {
 			return false;
 		}
 		
-		boolean thisResumeWasNeverSeenBefore = VisEntityResumeLastView.INSTANCE.isPresentInThisUnionAll(searchResults, searchParameters) == false;
+		boolean thisResumeWasNeverSeenBefore = VisEntityResumeLastView.ENTITY.isPresentInThisUnionAll(searchResults, searchParameters) == false;
 		
 		if(thisResumeWasNeverSeenBefore) {
 			return false;
 		}
 		
-		CcpJsonRepresentation resumeLastView = VisEntityResumeLastView.INSTANCE.getRequiredEntityRow(searchResults, searchParameters);
+		CcpJsonRepresentation resumeLastView = VisEntityResumeLastView.ENTITY.getRequiredEntityRow(searchResults, searchParameters);
 		
-		CcpJsonRepresentation resume = VisEntityResume.INSTANCE.getRequiredEntityRow(searchResults, resumeLastView);
+		CcpJsonRepresentation resume = VisEntityResume.ENTITY.getRequiredEntityRow(searchResults, resumeLastView);
 		
 		Long resumeLastSeen = resumeLastView.getAsLongNumber(VisEntityResumeLastView.Fields.timestamp.name());
 
@@ -533,7 +532,7 @@ public class VisAsyncUtils {
 			Function<CcpJsonRepresentation, CcpJsonRepresentation> actionPosActivate,
 			Function<CcpJsonRepresentation, CcpJsonRepresentation> actionPosInactivate
 			) {
-		CcpEntity inactiveResumeEntity = activeEntity.getMirrorEntity();
+		CcpEntity inactiveResumeEntity = activeEntity.getTwinEntity();
 		TransferRecordToReverseEntity tryToChangeStatusToActive = new TransferRecordToReverseEntity(inactiveResumeEntity, CcpConstants.DO_NOTHING, CcpConstants.DO_NOTHING, CcpConstants.DO_NOTHING, CcpConstants.DO_NOTHING);
 		TransferRecordToReverseEntity tryToChangeStatusToInactive = new TransferRecordToReverseEntity(activeEntity, actionPosInactivate, actionPosActivate, CcpConstants.DO_NOTHING, CcpConstants.DO_NOTHING);
 
@@ -549,8 +548,8 @@ public class VisAsyncUtils {
 	
 	public static CcpJsonRepresentation groupPositionsGroupedByRecruiters(CcpJsonRepresentation json) {
 		
-		CcpJsonRepresentation groupDetailsByMasters = groupDetailsByMasters(json, VisEntityPosition.INSTANCE, 
-				VisEntityGroupPositionsByRecruiter.INSTANCE, VisEntityPosition.Fields.email, VisEntityPosition.Fields.timestamp);
+		CcpJsonRepresentation groupDetailsByMasters = groupDetailsByMasters(json, VisEntityPosition.ENTITY, 
+				VisEntityGroupPositionsByRecruiter.ENTITY, VisEntityPosition.Fields.email, VisEntityPosition.Fields.timestamp);
 		
 		return groupDetailsByMasters;
 	}

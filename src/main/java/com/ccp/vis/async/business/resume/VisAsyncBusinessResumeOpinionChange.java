@@ -14,7 +14,7 @@ public class VisAsyncBusinessResumeOpinionChange implements  Function<CcpJsonRep
 	public static final VisAsyncBusinessResumeOpinionChange INSTANCE = new VisAsyncBusinessResumeOpinionChange();
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
-		VisAsyncUtils.changeStatus(json, VisEntityResumePerception.INSTANCE, VisAsyncBusinessResumeSave.INSTANCE, CcpConstants.DO_NOTHING);
+		VisAsyncUtils.changeStatus(json, VisEntityResumePerception.ENTITY, VisAsyncBusinessResumeSave.INSTANCE, CcpConstants.DO_NOTHING);
 		return json;
 	}
 

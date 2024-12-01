@@ -33,7 +33,7 @@ public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, 
 
 	private CcpJsonRepresentation getHandledResume(CcpJsonRepresentation json) {
 
-		CcpJsonRepresentation addTimeFields = VisEntityResume.INSTANCE.addTimeFields(json);
+		CcpJsonRepresentation addTimeFields = VisEntityResume.ENTITY.addTimeFields(json);
 		
 		CcpTextExtractor textExtractor = CcpDependencyInjection.getDependency(CcpTextExtractor.class);
 
@@ -72,7 +72,7 @@ public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, 
 		.addDefaultProcessForEmailSending()
 		.soWithAllAddedProcessAnd()
 		.withTheTemplateEntity(templateId)
-		.andWithTheEntityToBlockMessageResend(JnEntityEmailMessageSent.INSTANCE)
+		.andWithTheEntityToBlockMessageResend(JnEntityEmailMessageSent.ENTITY)
 		.andWithTheMessageValuesFromJson(put)
 		.andWithTheSupportLanguage(language)
 		.sendAllMessages()

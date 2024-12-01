@@ -15,7 +15,7 @@ public class VisAsyncBusinessResumeStatusChange  implements Function<CcpJsonRepr
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 	
 		JnAsyncCommitAndAudit.INSTANCE.
-		changeStatus(json, VisEntityResume.INSTANCE)
+		changeStatus(json, VisEntityResume.ENTITY)
 		;
 		
 		return json;

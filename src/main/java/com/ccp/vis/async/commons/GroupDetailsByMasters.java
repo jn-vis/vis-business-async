@@ -20,8 +20,8 @@ public class GroupDetailsByMasters implements Consumer<CcpJsonRepresentation>{
 	public GroupDetailsByMasters(String masterFieldName, CcpEntity entity , CcpEntity entityGrouper) {
 		this.masterFieldName = masterFieldName;
 		
-		CcpEntity mirrorEntityGrouper = entityGrouper.getMirrorEntity();
-		CcpEntity mirrorEntity = entity.getMirrorEntity();
+		CcpEntity mirrorEntityGrouper = entityGrouper.getTwinEntity();
+		CcpEntity mirrorEntity = entity.getTwinEntity();
 
 		String mirrorEntityName = mirrorEntity.getEntityName();
 		String entityName = entity.getEntityName();

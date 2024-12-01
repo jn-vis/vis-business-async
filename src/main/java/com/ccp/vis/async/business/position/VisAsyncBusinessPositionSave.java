@@ -14,7 +14,7 @@ public class VisAsyncBusinessPositionSave implements  Function<CcpJsonRepresenta
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 		
-		VisEntityPosition.INSTANCE.createOrUpdate(json);
+		VisEntityPosition.ENTITY.createOrUpdate(json);
 		
 		CcpJsonRepresentation apply = VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes.INSTANCE.apply(json);
 		

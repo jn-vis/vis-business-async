@@ -24,18 +24,18 @@ public class VisAsyncBusinessResumeViewSave implements  Function<CcpJsonRepresen
 		
 		List<CcpBulkItem> bulkItems = new ArrayList<>();
 		
-		boolean resumeViewIsNotFree = VisEntityResumeFreeView.INSTANCE.isPresentInThisJsonInMainEntity(json);
+		boolean resumeViewIsNotFree = VisEntityResumeFreeView.ENTITY.isPresentInThisJsonInMainEntity(json);
 		
 		if(resumeViewIsNotFree) {
 			//TODO IMPLEMENTAR PARTE FINANCEIRA
 		}
 
-		boolean negativatedResume = VisEntityResumePerception.INSTANCE.getMirrorEntity().isPresentInThisJsonInMainEntity(json);
-		boolean inactivePosition = VisEntityPosition.INSTANCE.getMirrorEntity().isPresentInThisJsonInMainEntity(json);
+		boolean negativatedResume = VisEntityResumePerception.ENTITY.getTwinEntity().isPresentInThisJsonInMainEntity(json);
+		boolean inactivePosition = VisEntityPosition.ENTITY.getTwinEntity().isPresentInThisJsonInMainEntity(json);
 	
 //		CcpJsonRepresentation opinion = VisEntityResumePerception.INSTANCE.getInnerJsonFromMainAndMirrorEntities(json);
-		CcpJsonRepresentation position = VisEntityPosition.INSTANCE.getInnerJsonFromMainAndMirrorEntities(json);
-		CcpJsonRepresentation resume = VisEntityResume.INSTANCE.getInnerJsonFromMainAndMirrorEntities(json);
+		CcpJsonRepresentation position = VisEntityPosition.ENTITY.getInnerJsonFromMainAndTwinEntities(json);
+		CcpJsonRepresentation resume = VisEntityResume.ENTITY.getInnerJsonFromMainAndTwinEntities(json);
 		
 		CcpJsonRepresentation dataToSave = json
 				.put(VisEntityResumeLastView.Fields.resume.name(), resume)
@@ -45,8 +45,8 @@ public class VisAsyncBusinessResumeViewSave implements  Function<CcpJsonRepresen
 				.put(VisEntityResumeLastView.Fields.negativatedResume.name(), negativatedResume)
 				;
 		
-		CcpBulkItem itemResumeLastView = VisEntityResumeLastView.INSTANCE.toBulkItem(dataToSave, CcpEntityOperationType.create);
-		CcpBulkItem itemResumeFreeView = VisEntityResumeFreeView.INSTANCE.toBulkItem(dataToSave, CcpEntityOperationType.create);
+		CcpBulkItem itemResumeLastView = VisEntityResumeLastView.ENTITY.toBulkItem(dataToSave, CcpEntityOperationType.create);
+		CcpBulkItem itemResumeFreeView = VisEntityResumeFreeView.ENTITY.toBulkItem(dataToSave, CcpEntityOperationType.create);
 		
 		bulkItems.add(itemResumeFreeView);
 		bulkItems.add(itemResumeLastView);

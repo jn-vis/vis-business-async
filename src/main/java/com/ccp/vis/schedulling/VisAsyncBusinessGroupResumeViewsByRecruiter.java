@@ -16,8 +16,8 @@ public class VisAsyncBusinessGroupResumeViewsByRecruiter implements  Function<Cc
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 		CcpJsonRepresentation groupDetailsByMasters = VisAsyncUtils.groupDetailsByMasters(
 				json, 
-				VisEntityResumeFreeView.INSTANCE, 
-				VisEntityGroupResumeViewsByRecruiter.INSTANCE, 
+				VisEntityResumeFreeView.ENTITY, 
+				VisEntityGroupResumeViewsByRecruiter.ENTITY, 
 				VisEntityResumeFreeView.Fields.email, 
 				VisEntityResumeFreeView.Fields.timestamp
 				);

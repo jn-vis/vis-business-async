@@ -20,7 +20,7 @@ public class VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes im
 
 		VisAsyncUtils.groupPositionsGroupedByRecruiters(duplicateValueFromKey);
 		
-		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getLastUpdatedResumes = x -> VisAsyncUtils.getLastUpdated(VisEntityResume.INSTANCE, FrequencyOptions.yearly, VisEntityResume.Fields.timestamp.name());
+		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getLastUpdatedResumes = x -> VisAsyncUtils.getLastUpdated(VisEntityResume.ENTITY, FrequencyOptions.yearly, VisEntityResume.Fields.timestamp.name());
 		
 		List<String> email = json.getAsStringList("email");
 
@@ -34,7 +34,7 @@ public class VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes im
 		
 		CcpJsonRepresentation position = positionWithFilteredAndSortedResumesAndTheirStatis.getInnerJson("position");
 
-		VisAsyncUtils.saveRecordsInPages(records, position, VisEntityGroupResumesByPosition.INSTANCE);
+		VisAsyncUtils.saveRecordsInPages(records, position, VisEntityGroupResumesByPosition.ENTITY);
 		
 		//TODO descobrir uma forma de gravar o agrupamento de vagas por currículos
 		
