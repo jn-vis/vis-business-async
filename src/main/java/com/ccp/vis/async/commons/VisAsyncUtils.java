@@ -135,6 +135,7 @@ public class VisAsyncUtils {
 						CcpJsonRepresentation hash = CcpConstants.EMPTY_JSON.put("disponibility", disponibility)
 								.put("seniority", seniority).putAll(moneyValue)
 								.put("pcd", pcd);
+						//TODO ELIMINAR NECESSIDADE DE CRIAR ESSA TABELA, ALEM DE ELIMINAR O VIRTUALENTITY
 						String hashValue = VisEntityVirtualHashGrouper.ENTITY.calculateId(hash);
 						hashes.add(hashValue);
 					}
