@@ -12,7 +12,6 @@ import com.ccp.process.CcpProcessStatus;
 import com.jn.commons.entities.JnEntityEmailMessageSent;
 import com.jn.vis.commons.utils.VisAsyncBusiness;
 import com.jn.vis.commons.utils.VisStringConstants;
-import com.vis.commons.entities.VisEntityResume;
 
 public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
@@ -33,8 +32,6 @@ public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, 
 
 	private CcpJsonRepresentation getHandledResume(CcpJsonRepresentation json) {
 
-		CcpJsonRepresentation addTimeFields = VisEntityResume.ENTITY.addTimeFields(json);
-		
 		CcpTextExtractor textExtractor = CcpDependencyInjection.getDependency(CcpTextExtractor.class);
 
 		String resumeBase64 = json.getAsString("resumeBase64");
@@ -50,7 +47,8 @@ public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, 
 			}
 			
 			this.sendMessage(json, VisStringConstants.ID_TO_LOAD_RESUME_SUCCESS_TEMPLATE_MESSAGE.name());
-			CcpJsonRepresentation put = addTimeFields.put("resumeText", resumeText);
+			//FIXME VERIFICAR CAMPOS DE TEMPO
+			CcpJsonRepresentation put = json.put("resumeText", resumeText);
 			
 			return put;
 			
