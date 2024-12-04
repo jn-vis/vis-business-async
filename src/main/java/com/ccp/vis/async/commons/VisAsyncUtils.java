@@ -175,7 +175,7 @@ public class VisAsyncUtils {
 						.endRangeAndBackToSimplifiedQuery()
 					.endSimplifiedQueryAndBackToRequest()
 				;
-		String[] resourcesNames = new String[] {entity.getEntityName()};
+		String[] resourcesNames = entity.getEntitiesToSelect();
 
 		List<CcpJsonRepresentation> result = queryExecutor.getResultAsList(queryToSearchLastUpdated, resourcesNames);
 		
@@ -192,7 +192,7 @@ public class VisAsyncUtils {
 						.match(VisEntityPosition.Fields.frequency, frequency.name())
 					.endSimplifiedQueryAndBackToRequest()
 				;
-		String[] resourcesNames = new String[] {VisEntityPosition.ENTITY.getEntityName()};
+		String[] resourcesNames = VisEntityPosition.ENTITY.getEntitiesToSelect();
 		CcpJsonRepresentation positionsGroupedByRecruiters = queryExecutor.getMap(queryToSearchLastUpdatedResumes, resourcesNames, "email");
 		return positionsGroupedByRecruiters;
 	}

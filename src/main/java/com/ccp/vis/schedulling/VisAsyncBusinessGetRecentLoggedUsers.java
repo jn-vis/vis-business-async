@@ -39,7 +39,7 @@ public class VisAsyncBusinessGetRecentLoggedUsers implements  Function<CcpJsonRe
 					.maxResults()
 					.addDescSorting(JnEntityDisposableRecord.Fields.timestamp.name())
 				;
-		String[] resourcesNames = new String[] {JnEntityDisposableRecord.ENTITY.getEntityName()};
+		String[] resourcesNames = JnEntityDisposableRecord.ENTITY.getEntitiesToSelect();
 
 		queryExecutor.consumeQueryResult(queryToSearchLastUpdated, resourcesNames, "10m", 10000L, SendRecentUsersToGroupings.INSTANCE, JnEntityDisposableRecord.Fields.id.name());
 		

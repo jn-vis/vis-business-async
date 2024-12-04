@@ -20,7 +20,7 @@ public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentatio
 		
 		CcpJsonRepresentation jsonWithSkills = json.getTransformedJson(putSkillsInJson);
 		
-		JnAsyncCommitAndAudit.INSTANCE.executeSelectUnionAllThenSaveInTheMainAndMirrorEntities(
+		JnAsyncCommitAndAudit.INSTANCE.executeSelectUnionAllThenSaveInTheMainAndTwinEntities(
 				jsonWithSkills, 
 				VisEntityResume.ENTITY, 
 				VisAsyncBusinessResumeSendToRecruiters.INSTANCE
