@@ -27,7 +27,7 @@ public class VisAsyncBusinessResumeViewSave implements  Function<CcpJsonRepresen
 		boolean resumeViewIsNotFree = VisEntityResumeFreeView.ENTITY.isPresentInThisJsonInMainEntity(json);
 		
 		if(resumeViewIsNotFree) {
-			//TODO IMPLEMENTAR PARTE FINANCEIRA
+			//LATER IMPLEMENTAR PARTE FINANCEIRA
 		}
 
 		boolean negativatedResume = VisEntityResumePerception.ENTITY.getTwinEntity().isPresentInThisJsonInMainEntity(json);

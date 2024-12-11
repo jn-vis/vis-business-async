@@ -4,6 +4,7 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
+import com.ccp.especifications.db.utils.decorators.CcpAddTimeFields;
 import com.ccp.especifications.text.extractor.CcpTextExtractor;
 import com.ccp.exceptions.process.CcpFlow;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
@@ -47,10 +48,12 @@ public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, 
 			}
 			
 			this.sendMessage(json, VisStringConstants.ID_TO_LOAD_RESUME_SUCCESS_TEMPLATE_MESSAGE.name());
-			//FIXME VERIFICAR CAMPOS DE TEMPO
+
 			CcpJsonRepresentation put = json.put("resumeText", resumeText);
 			
-			return put;
+			CcpJsonRepresentation transformedJson = put.getTransformedJson(CcpAddTimeFields.INSTANCE);
+			
+			return transformedJson;
 			
 		} catch (Exception e) {
 			
@@ -63,7 +66,7 @@ public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, 
 			.renameField(VisStringConstants.originalEmail.name(), JnEntityEmailMessageSent.Fields.email.name())
 			.put(JnEntityEmailMessageSent.Fields.subjectType.name(), templateId);
 			
-		String language = VisStringConstants.PORTUGUESE.name();//TODO INTERNACIONALIZAR SALVAMENTO DE CURRICULO
+		String language = VisStringConstants.PORTUGUESE.name();//LATER INTERNACIONALIZAR SALVAMENTO DE CURRICULO
 		
 		JnAsyncSendMessage sender = new JnAsyncSendMessage();
 		sender

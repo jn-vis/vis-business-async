@@ -64,9 +64,9 @@ public class VisAsyncUtils {
 		nonProfessionalDomains.add("msn.com");
 	}
 
-	//TODO BOTAR EM FILA SEPARANDO AS VAGAS EM LOTE DE RECRUTADORES NAO REPETIDOS
-	//TODO UNION ALL COMEÇANDO PELOS AGRUPADORES POR CURRICULO E RECRUTADOR
-	//TODO PAGINAÇÃO DE BUCKET
+	//FORGOT BOTAR EM FILA SEPARANDO AS VAGAS EM LOTE DE RECRUTADORES NAO REPETIDOS
+	//FORGOT UNION ALL COMEÇANDO PELOS AGRUPADORES POR CURRICULO E RECRUTADOR
+	//FORGOT PAGINAÇÃO DE BUCKET
 
 	public static List<CcpJsonRepresentation> sendFilteredAndSortedResumesAndTheirStatisByEachPositionToEachRecruiter(CcpJsonRepresentation schedullingPlan, Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getResumes, Function<String, CcpJsonRepresentation> getPositions) {
 		
@@ -135,7 +135,7 @@ public class VisAsyncUtils {
 						CcpJsonRepresentation hash = CcpConstants.EMPTY_JSON.put("disponibility", disponibility)
 								.put("seniority", seniority).putAll(moneyValue)
 								.put("pcd", pcd);
-						//TODO ELIMINAR NECESSIDADE DE CRIAR ESSA TABELA, ALEM DE ELIMINAR O VIRTUALENTITY
+						//LATER ELIMINAR NECESSIDADE DE CRIAR ESSA TABELA, ALEM DE ELIMINAR O VIRTUALENTITY
 						String hashValue = VisEntityVirtualHashGrouper.ENTITY.calculateId(hash);
 						hashes.add(hashValue);
 					}
@@ -342,7 +342,7 @@ public class VisAsyncUtils {
 			try {
 				requiredSkills = getRequiredSkillsInThisResume(positionByThisRecruiter, resume);
 			} catch (RequiredSkillsMissingInResume e) {
-				// TODO: salvar skills faltando no curriculo
+				// LATER: salvar skills faltando no curriculo
 				continue;
 			}
 			

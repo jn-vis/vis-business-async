@@ -36,7 +36,7 @@ public class VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes im
 
 		VisAsyncUtils.saveRecordsInPages(records, position, VisEntityGroupResumesByPosition.ENTITY);
 		
-		//TODO descobrir uma forma de gravar o agrupamento de vagas por currículos
+		//FORGOT descobrir uma forma de gravar o agrupamento de vagas por currículos
 		
 		return positionWithFilteredAndSortedResumesAndTheirStatis;
 	}
