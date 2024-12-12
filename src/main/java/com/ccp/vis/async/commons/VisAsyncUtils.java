@@ -18,6 +18,7 @@ import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpEntityOperationType;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
+import com.ccp.especifications.db.crud.CcpUnionAllExecutor;
 import com.ccp.especifications.db.query.CcpDbQueryOptions;
 import com.ccp.especifications.db.query.CcpQueryExecutor;
 import com.ccp.especifications.db.utils.CcpEntity;
@@ -210,7 +211,8 @@ public class VisAsyncUtils {
 		}
 		CcpCrud crud = CcpDependencyInjection.getDependency(CcpCrud.class);
 		
-		CcpSelectUnionAll searchResults = crud.unionAll(
+		CcpUnionAllExecutor unionAllExecutor = crud.getUnionAllExecutor();
+		CcpSelectUnionAll searchResults = unionAllExecutor.unionAll(
 				allSearchParameters
 				,VisEntityResume.ENTITY
 				,VisEntityBalance.ENTITY
