@@ -9,7 +9,7 @@ import com.ccp.especifications.text.extractor.CcpTextExtractor;
 import com.ccp.exceptions.process.CcpFlow;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
 import com.ccp.jn.async.messages.JnAsyncSendMessage;
-import com.ccp.process.CcpProcessStatus;
+import com.ccp.process.CcpDefaultProcessStatus;
 import com.jn.commons.entities.JnEntityEmailMessageSent;
 import com.jn.vis.commons.utils.VisAsyncBusiness;
 import com.jn.vis.commons.utils.VisStringConstants;
@@ -44,7 +44,7 @@ public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, 
 			
 			if(emptyText) {
 				this.sendMessage(json, VisStringConstants.ID_TO_LOAD_RESUME_ERROR_TEMPLATE_MESSAGE.name());
-				throw new CcpFlow(json, CcpProcessStatus.NOT_FOUND);
+				throw new CcpFlow(json, CcpDefaultProcessStatus.NOT_FOUND);
 			}
 			
 			this.sendMessage(json, VisStringConstants.ID_TO_LOAD_RESUME_SUCCESS_TEMPLATE_MESSAGE.name());
