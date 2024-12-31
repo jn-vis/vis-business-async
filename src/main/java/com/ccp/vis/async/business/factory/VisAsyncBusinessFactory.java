@@ -20,6 +20,7 @@ import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeOpinionSave;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeSave;
 import com.ccp.vis.async.business.resume.VisAsyncBusinessResumeStatusChange;
 import com.ccp.vis.async.business.skills.VisAsyncBusinessSkillsSuggest;
+import com.ccp.vis.async.commons.VisAsyncBusinessSendEmailMessageAndRegisterEmailSent;
 import com.ccp.vis.schedulling.VisAsyncBusinessGetRecentLoggedUsers;
 import com.ccp.vis.schedulling.VisAsyncBusinessGroupResumeViewsByRecruiter;
 import com.ccp.vis.schedulling.VisAsyncBusinessGroupResumeViewsByResume;
@@ -63,7 +64,8 @@ class VisAsyncBusinessFactory implements CcpAsyncBusinessFactory {
 		this.map.put(VisAsyncBusiness.skillsSuggest.name(), VisAsyncBusinessSkillsSuggest.INSTANCE);
 		
 		this.map.put(VisAsyncBusiness.getRecentLoggedUsers.name(), VisAsyncBusinessGetRecentLoggedUsers.INSTANCE);
-
+		this.map.put(VisAsyncBusinessSendEmailMessageAndRegisterEmailSent.resumeSuccessSaving.name(), VisAsyncBusinessSendEmailMessageAndRegisterEmailSent.resumeSuccessSaving);
+		this.map.put(VisAsyncBusinessSendEmailMessageAndRegisterEmailSent.resumeErrorSaving.name(), VisAsyncBusinessSendEmailMessageAndRegisterEmailSent.resumeErrorSaving);
 	}
 
 	public Map<String, Function<CcpJsonRepresentation, CcpJsonRepresentation>> getMap() {

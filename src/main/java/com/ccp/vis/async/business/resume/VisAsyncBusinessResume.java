@@ -8,11 +8,9 @@ import com.ccp.especifications.db.utils.decorators.CcpAddTimeFields;
 import com.ccp.especifications.text.extractor.CcpTextExtractor;
 import com.ccp.exceptions.process.CcpFlow;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
-import com.ccp.jn.async.messages.JnAsyncSendMessage;
 import com.ccp.process.CcpDefaultProcessStatus;
-import com.jn.commons.entities.JnEntityEmailMessageSent;
+import com.ccp.vis.async.commons.VisAsyncBusinessSendEmailMessageAndRegisterEmailSent;
 import com.jn.vis.commons.utils.VisAsyncBusiness;
-import com.jn.vis.commons.utils.VisStringConstants;
 
 public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
@@ -43,12 +41,12 @@ public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, 
 			boolean emptyText = resumeText.trim().isEmpty();
 			
 			if(emptyText) {
-				this.sendMessage(json, VisStringConstants.ID_TO_LOAD_RESUME_ERROR_TEMPLATE_MESSAGE.name());
+				JnAsyncMensageriaSender.INSTANCE.send(VisAsyncBusinessSendEmailMessageAndRegisterEmailSent.resumeErrorSaving, json);
 				throw new CcpFlow(json, CcpDefaultProcessStatus.NOT_FOUND);
 			}
 			
-			this.sendMessage(json, VisStringConstants.ID_TO_LOAD_RESUME_SUCCESS_TEMPLATE_MESSAGE.name());
-
+			JnAsyncMensageriaSender.INSTANCE.send(VisAsyncBusinessSendEmailMessageAndRegisterEmailSent.resumeSuccessSaving, json);
+			
 			CcpJsonRepresentation put = json.put("resumeText", resumeText);
 			
 			CcpJsonRepresentation transformedJson = put.getTransformedJson(CcpAddTimeFields.INSTANCE);
@@ -61,24 +59,5 @@ public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, 
 		}
 	}
 
-	private void sendMessage(CcpJsonRepresentation json, String templateId) {
-		CcpJsonRepresentation put = json
-			.renameField(VisStringConstants.originalEmail.name(), JnEntityEmailMessageSent.Fields.email.name())
-			.put(JnEntityEmailMessageSent.Fields.subjectType.name(), templateId);
-			
-		String language = VisStringConstants.PORTUGUESE.name();//LATER INTERNACIONALIZAR SALVAMENTO DE CURRICULO
-		
-		JnAsyncSendMessage sender = new JnAsyncSendMessage();
-		sender
-		.addDefaultProcessForEmailSending()
-		.soWithAllAddedProcessAnd()
-		.withTheTemplateEntity(templateId)
-		.andWithTheEntityToBlockMessageResend(JnEntityEmailMessageSent.ENTITY)
-		.andWithTheMessageValuesFromJson(put)
-		.andWithTheSupportLanguage(language)
-		.sendAllMessages()
-		;
-		
-	}
 
 }
