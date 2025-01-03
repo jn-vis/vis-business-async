@@ -3,7 +3,7 @@ package com.ccp.vis.async.commons;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ccp.constantes.CcpConstants;
+import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 
 public enum GetMoneyValuesFromJson  {
@@ -20,7 +20,7 @@ public enum GetMoneyValuesFromJson  {
 			int valueGaveByCandidate = json.getAsDoubleNumber(field).intValue();
 			
 			for(int k = valueGaveByCandidate; k <= 100000; k += 100) {
-				CcpJsonRepresentation put = CcpConstants.EMPTY_JSON.put("moneyValue", k).put("moneyType", field);
+				CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put("moneyValue", k).put("moneyType", field);
 				response.add(put);
 			}
 			
@@ -39,7 +39,7 @@ public enum GetMoneyValuesFromJson  {
 			int maxValueFromThisPosition = json.getAsDoubleNumber(field).intValue();
 			
 			for(int k = maxValueFromThisPosition; k >= 1000; k -= 100) {
-				CcpJsonRepresentation put = CcpConstants.EMPTY_JSON.put("moneyValue", k).put("moneyType", field);
+				CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.put("moneyValue", k).put("moneyType", field);
 				response.add(put);
 			}
 			

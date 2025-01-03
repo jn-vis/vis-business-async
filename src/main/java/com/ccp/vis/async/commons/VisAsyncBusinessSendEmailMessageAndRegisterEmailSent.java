@@ -5,6 +5,7 @@ import java.util.function.Function;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.jn.async.messages.JnAsyncSendMessage;
 import com.jn.commons.entities.JnEntityEmailMessageSent;
+import com.jn.commons.entities.JnEntityEmailTemplateMessage;
 import com.jn.commons.utils.JnTopic;
 
 public enum VisAsyncBusinessSendEmailMessageAndRegisterEmailSent implements Function<CcpJsonRepresentation, CcpJsonRepresentation>,JnTopic {
@@ -20,7 +21,8 @@ public enum VisAsyncBusinessSendEmailMessageAndRegisterEmailSent implements Func
 				.renameField("originalEmail", JnEntityEmailMessageSent.Fields.email.name())
 				.put(JnEntityEmailMessageSent.Fields.subjectType.name(), this.name());
 				
-			String language = json.getAsObject("language");//FIXME PASSE A LANGUAGE
+			String language = json.getAsObject(JnEntityEmailTemplateMessage.Fields.language.name());
+			//FIXME SENHA DE LOGIN E TOKEN DE SESSAO SENDO GRAVADOS INCORRETAMENTE
 			
 			JnAsyncSendMessage sender = new JnAsyncSendMessage();
 			sender

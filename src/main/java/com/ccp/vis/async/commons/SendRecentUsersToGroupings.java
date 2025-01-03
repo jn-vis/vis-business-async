@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import com.ccp.constantes.CcpConstants;
+import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
 import com.jn.commons.entities.JnEntityDisposableRecord;
@@ -24,7 +24,7 @@ public class SendRecentUsersToGroupings implements Consumer<List<CcpJsonRepresen
 		.map(json -> json.getAsString(JnEntityLoginSessionCurrent.Fields.email.name()))
 		.collect(Collectors.toList());
 		
-		CcpJsonRepresentation message = CcpConstants.EMPTY_JSON.put("masters", emails);
+		CcpJsonRepresentation message = CcpOtherConstants.EMPTY_JSON.put("masters", emails);
 		
 		JnAsyncMensageriaSender.INSTANCE.send(VisAsyncBusiness.groupResumesOpinionsByRecruiter, message);
 		JnAsyncMensageriaSender.INSTANCE.send(VisAsyncBusiness.groupResumesOpinionsByResume, message);

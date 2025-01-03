@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import com.ccp.constantes.CcpConstants;
+import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.utils.CcpEntity;
@@ -13,7 +13,7 @@ import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 
 public class GroupDetailsByMasters implements Consumer<CcpJsonRepresentation>{
 	
-	private CcpJsonRepresentation groupedRecords = CcpConstants.EMPTY_JSON;
+	private CcpJsonRepresentation groupedRecords = CcpOtherConstants.EMPTY_JSON;
 
 	private final String masterFieldName;
 
@@ -26,7 +26,7 @@ public class GroupDetailsByMasters implements Consumer<CcpJsonRepresentation>{
 		String mirrorEntityName = mirrorEntity.getEntityName();
 		String entityName = entity.getEntityName();
 		
-		this.mappers = CcpConstants.EMPTY_JSON
+		this.mappers = CcpOtherConstants.EMPTY_JSON
 					.put(entityName, entityGrouper)
 					.put(mirrorEntityName, mirrorEntityGrouper)
 					;
@@ -58,7 +58,7 @@ public class GroupDetailsByMasters implements Consumer<CcpJsonRepresentation>{
 
 			for (String master : masters) {
 				List<CcpJsonRepresentation> records = mastersInThisGrouping.getAsJsonList(master);
-				CcpJsonRepresentation primaryKeySupplier = CcpConstants.EMPTY_JSON.put(this.masterFieldName, master);
+				CcpJsonRepresentation primaryKeySupplier = CcpOtherConstants.EMPTY_JSON.put(this.masterFieldName, master);
 				List<CcpBulkItem> recordsInPages = VisAsyncUtils.getRecordsInPages(records, primaryKeySupplier, entityGroupToSaveRecords);
 				result.addAll(recordsInPages);
 			}

@@ -3,7 +3,7 @@ package com.ccp.vis.async.commons;
 import java.util.List;
 import java.util.function.Function;
 
-import com.ccp.constantes.CcpConstants;
+import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.vis.commons.entities.VisEntityGroupResumesByPosition;
 import com.vis.commons.entities.VisEntityResume;
@@ -24,7 +24,7 @@ public class VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes im
 		
 		List<String> email = json.getAsStringList("email");
 
-		Function<String, CcpJsonRepresentation> getSavingPosition = frequency -> CcpConstants.EMPTY_JSON.put(email.get(0), json);
+		Function<String, CcpJsonRepresentation> getSavingPosition = frequency -> CcpOtherConstants.EMPTY_JSON.put(email.get(0), json);
 
 		List<CcpJsonRepresentation> positionsWithFilteredAndSortedResumesAndTheirStatis = VisAsyncUtils.sendFilteredAndSortedResumesAndTheirStatisByEachPositionToEachRecruiter(json, getLastUpdatedResumes, getSavingPosition);
 		

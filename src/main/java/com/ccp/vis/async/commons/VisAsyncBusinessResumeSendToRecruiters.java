@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-import com.ccp.constantes.CcpConstants;
+import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 
 public class VisAsyncBusinessResumeSendToRecruiters implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {
@@ -19,7 +19,7 @@ public class VisAsyncBusinessResumeSendToRecruiters implements Function<CcpJsonR
 		
 		Function<String, CcpJsonRepresentation> getLastUpdatedPositions = frequency -> VisAsyncUtils.getAllPositionsGroupedByRecruiters(FrequencyOptions.valueOf(frequency));
 		
-		VisAsyncUtils.sendFilteredAndSortedResumesAndTheirStatisByEachPositionToEachRecruiter(CcpConstants.EMPTY_JSON.put("frequency", FrequencyOptions.minute), getSavingResume, getLastUpdatedPositions);
+		VisAsyncUtils.sendFilteredAndSortedResumesAndTheirStatisByEachPositionToEachRecruiter(CcpOtherConstants.EMPTY_JSON.put("frequency", FrequencyOptions.minute), getSavingResume, getLastUpdatedPositions);
 		
 		return resumeWithSkills;
 	}

@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.ccp.constantes.CcpConstants;
+import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpStringDecorator;
@@ -133,7 +133,7 @@ public class VisAsyncUtils {
 		for (Boolean pcd : pcds) {
 			for (Integer disponibility : disponibilities) {// 5 (vaga) = [5, 4, 3, 2, 1, 0] || 6 (candidato) [6, 7, 8, 9
 				for (CcpJsonRepresentation moneyValue : moneyValues) {
-						CcpJsonRepresentation hash = CcpConstants.EMPTY_JSON.put("disponibility", disponibility)
+						CcpJsonRepresentation hash = CcpOtherConstants.EMPTY_JSON.put("disponibility", disponibility)
 								.put("seniority", seniority).putAll(moneyValue)
 								.put("pcd", pcd);
 						//LATER ELIMINAR NECESSIDADE DE CRIAR ESSA TABELA, ALEM DE ELIMINAR O VIRTUALENTITY
@@ -223,7 +223,7 @@ public class VisAsyncUtils {
 				,VisEntityResumePerception.ENTITY.getTwinEntity()
 				);
 		
-		CcpJsonRepresentation allPositionsWithFilteredResumes = CcpConstants.EMPTY_JSON;
+		CcpJsonRepresentation allPositionsWithFilteredResumes = CcpOtherConstants.EMPTY_JSON;
 		
 		List<CcpBulkItem> errors = new ArrayList<>();
 		
@@ -302,7 +302,7 @@ public class VisAsyncUtils {
 		
 		JnAsyncCommitAndAudit.INSTANCE.executeBulk(errors);
 		
-	 	CcpJsonRepresentation allPositionsWithFilteredResumesCopy = CcpConstants.EMPTY_JSON.putAll(allPositionsWithFilteredResumes);
+	 	CcpJsonRepresentation allPositionsWithFilteredResumesCopy = CcpOtherConstants.EMPTY_JSON.putAll(allPositionsWithFilteredResumes);
 		
 		List<CcpJsonRepresentation> positionsWithSortedResumes = allPositionsWithFilteredResumes.fieldSet().stream().map(positionId -> getPositionWithSortedResumes(positionId, allPositionsWithFilteredResumesCopy) ).collect(Collectors.toList());
 		return positionsWithSortedResumes;
@@ -316,7 +316,7 @@ public class VisAsyncUtils {
 			CcpSelectUnionAll searchResults
 			) {
 	
-		CcpJsonRepresentation positionWithFilteredResumes = CcpConstants.EMPTY_JSON;
+		CcpJsonRepresentation positionWithFilteredResumes = CcpOtherConstants.EMPTY_JSON;
 		
 		for (CcpJsonRepresentation positionByThisRecruiter : positionsGroupedByThisRecruiter) {
 
@@ -391,7 +391,7 @@ public class VisAsyncUtils {
 			boolean skillDirectlyFoundInResume = skillsFromResume.stream().filter(s -> s.getAsString("skill").equals(requiredSkillFromPosition)).findFirst().isPresent();
 			
 			if(skillDirectlyFoundInResume) {
-				CcpJsonRepresentation skill = CcpConstants.EMPTY_JSON
+				CcpJsonRepresentation skill = CcpOtherConstants.EMPTY_JSON
 					.put("type", ResumeSkillFoundType.CONTAINED_IN_RESUME)
 					.put("skill", requiredSkillFromPosition);
 				response.add(skill);
@@ -404,7 +404,7 @@ public class VisAsyncUtils {
 			if(skillFoundBySynonymInResume) {
 				CcpJsonRepresentation synonym = synonymFound.get();
 				String synonymName = synonym.getAsString("skill");
-				CcpJsonRepresentation skill = CcpConstants.EMPTY_JSON
+				CcpJsonRepresentation skill = CcpOtherConstants.EMPTY_JSON
 						.put("type", ResumeSkillFoundType.SYNONYM)
 						.put("skill", requiredSkillFromPosition)
 						.put("synonym", synonymName)
@@ -420,7 +420,7 @@ public class VisAsyncUtils {
 			boolean skillFoundByParentsInResume = parents.isEmpty() == false;
 			
 			if(skillFoundByParentsInResume) {
-				CcpJsonRepresentation skill = CcpConstants.EMPTY_JSON
+				CcpJsonRepresentation skill = CcpOtherConstants.EMPTY_JSON
 						.put("type", ResumeSkillFoundType.PARENT)
 						.put("skill", requiredSkillFromPosition)
 						.put("parents", parents)
@@ -481,7 +481,7 @@ public class VisAsyncUtils {
 		CcpJsonRepresentation position = positionWithResumes.getInnerJson("position");
 		PositionResumesSort positionResumesSort = new PositionResumesSort(position);
 		resumes.sort(positionResumesSort);
-		CcpJsonRepresentation put = CcpConstants.EMPTY_JSON.putAll(positionWithResumes).put("resumes", resumes);
+		CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON.putAll(positionWithResumes).put("resumes", resumes);
 		return put;
 	}
 	
@@ -516,7 +516,7 @@ public class VisAsyncUtils {
 
 				String email = resume.getAsString("email");
 				
-				CcpJsonRepresentation searchParameters = CcpConstants.EMPTY_JSON
+				CcpJsonRepresentation searchParameters = CcpOtherConstants.EMPTY_JSON
 						.put("domain", recruiterDomain)
 						.put("recruiter", recruiter)
 						.put("frequency", frequency)
@@ -536,8 +536,8 @@ public class VisAsyncUtils {
 			Function<CcpJsonRepresentation, CcpJsonRepresentation> actionPosInactivate
 			) {
 		CcpEntity inactiveResumeEntity = activeEntity.getTwinEntity();
-		TransferRecordToReverseEntity tryToChangeStatusToActive = new TransferRecordToReverseEntity(inactiveResumeEntity, CcpConstants.DO_NOTHING, CcpConstants.DO_NOTHING, CcpConstants.DO_NOTHING, CcpConstants.DO_NOTHING);
-		TransferRecordToReverseEntity tryToChangeStatusToInactive = new TransferRecordToReverseEntity(activeEntity, actionPosInactivate, actionPosActivate, CcpConstants.DO_NOTHING, CcpConstants.DO_NOTHING);
+		TransferRecordToReverseEntity tryToChangeStatusToActive = new TransferRecordToReverseEntity(inactiveResumeEntity, CcpOtherConstants.DO_NOTHING, CcpOtherConstants.DO_NOTHING, CcpOtherConstants.DO_NOTHING, CcpOtherConstants.DO_NOTHING);
+		TransferRecordToReverseEntity tryToChangeStatusToInactive = new TransferRecordToReverseEntity(activeEntity, actionPosInactivate, actionPosActivate, CcpOtherConstants.DO_NOTHING, CcpOtherConstants.DO_NOTHING);
 
 		JnAsyncCommitAndAudit.INSTANCE.
 		executeSelectUnionAllThenExecuteBulkOperation(
@@ -615,7 +615,7 @@ public class VisAsyncUtils {
 				CcpJsonRepresentation put = resume.put("index", index);
 				page.add(put);
 			}
-			CcpJsonRepresentation put = CcpConstants.EMPTY_JSON
+			CcpJsonRepresentation put = CcpOtherConstants.EMPTY_JSON
 					.put(VisEntityGroupResumesByPosition.Fields.detail.name(), page)
 					.put(VisEntityGroupResumesByPosition.Fields.listSize.name(), listSize)
 					.put(VisEntityGroupResumesByPosition.Fields.from.name(), from)
