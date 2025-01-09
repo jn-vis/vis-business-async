@@ -4,7 +4,6 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
-import com.ccp.especifications.db.utils.decorators.CcpAddTimeFields;
 import com.ccp.especifications.text.extractor.CcpTextExtractor;
 import com.ccp.exceptions.process.CcpFlow;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
@@ -49,9 +48,7 @@ public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, 
 			
 			CcpJsonRepresentation put = json.put("resumeText", resumeText);
 			
-			CcpJsonRepresentation transformedJson = put.getTransformedJson(CcpAddTimeFields.INSTANCE);
-			
-			return transformedJson;
+			return put;
 			
 		} catch (Exception e) {
 			

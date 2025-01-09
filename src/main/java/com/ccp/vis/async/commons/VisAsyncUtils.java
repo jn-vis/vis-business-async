@@ -2,7 +2,6 @@ package com.ccp.vis.async.commons;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -12,7 +11,6 @@ import java.util.stream.Collectors;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.decorators.CcpStringDecorator;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.bulk.CcpEntityOperationType;
@@ -43,28 +41,6 @@ import com.vis.commons.entities.VisEntityVirtualHashGrouper;
 
 public class VisAsyncUtils {
 	
-	private static Set<String> nonProfessionalDomains = new HashSet<>();
-	
-	static {
-		nonProfessionalDomains.add("globalweb.com.br");
-		nonProfessionalDomains.add("localweb.com.br");
-		nonProfessionalDomains.add("protonmail.com");
-		nonProfessionalDomains.add("locaweb.com.br");
-		nonProfessionalDomains.add("outlook.com.br");
-		nonProfessionalDomains.add("yahoo.com.br");
-		nonProfessionalDomains.add("terra.com.br");
-		nonProfessionalDomains.add("outlook.com");
-		nonProfessionalDomains.add("hotmail.com");
-		nonProfessionalDomains.add("uol.com.br");
-		nonProfessionalDomains.add("bol.com.br");
-		nonProfessionalDomains.add("uolinc.com");
-		nonProfessionalDomains.add("yahoo.com");
-		nonProfessionalDomains.add("gmail.com");
-		nonProfessionalDomains.add("ig.com.br");
-		nonProfessionalDomains.add("live.com");
-		nonProfessionalDomains.add("msn.com");
-	}
-
 	//FORGOT BOTAR EM FILA SEPARANDO AS VAGAS EM LOTE DE RECRUTADORES NAO REPETIDOS
 	//FORGOT UNION ALL COMEÇANDO PELOS AGRUPADORES POR CURRICULO E RECRUTADOR
 	//FORGOT PAGINAÇÃO DE BUCKET
@@ -485,19 +461,6 @@ public class VisAsyncUtils {
 		return put;
 	}
 	
-	
-	private static String getDomain(String recruiter) {
-	
-		String domain = new CcpStringDecorator(recruiter).email().getDomain();
-		
-		boolean isProfessional = nonProfessionalDomains.contains(domain);
-		
-		if(isProfessional) {
-			return domain;
-		}
-		return "";
-	}
-	
 	private static List<CcpJsonRepresentation> getAllSearchParameters(
 			CcpJsonRepresentation allPositionsGroupedByRecruiters, List<CcpJsonRepresentation> resumes, FrequencyOptions frequency) {
 		
@@ -511,13 +474,11 @@ public class VisAsyncUtils {
 		
 		Set<String> recruiters = allPositionsGroupedByRecruiters.fieldSet();
 		for (String recruiter : recruiters) {
-			String recruiterDomain = getDomain(recruiter);
 			for (CcpJsonRepresentation resume : resumes) {
 
 				String email = resume.getAsString("email");
 				
 				CcpJsonRepresentation searchParameters = CcpOtherConstants.EMPTY_JSON
-						.put("domain", recruiterDomain)
 						.put("recruiter", recruiter)
 						.put("frequency", frequency)
 						.put("owner", recruiter)
