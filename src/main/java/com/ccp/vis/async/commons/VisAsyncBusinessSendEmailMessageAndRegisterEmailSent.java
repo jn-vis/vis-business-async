@@ -22,7 +22,6 @@ public enum VisAsyncBusinessSendEmailMessageAndRegisterEmailSent implements Func
 				.put(JnEntityEmailMessageSent.Fields.subjectType.name(), this.name());
 				
 			String language = json.getAsObject(JnEntityEmailTemplateMessage.Fields.language.name());
-			//FIXME SENHA DE LOGIN E TOKEN DE SESSAO SENDO GRAVADOS INCORRETAMENTE
 			
 			JnAsyncSendMessage sender = new JnAsyncSendMessage();
 			sender
