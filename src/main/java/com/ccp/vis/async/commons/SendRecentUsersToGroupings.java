@@ -9,7 +9,7 @@ import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
 import com.jn.commons.entities.JnEntityDisposableRecord;
 import com.jn.commons.entities.JnEntityLoginSessionCurrent;
-import com.jn.vis.commons.utils.VisAsyncBusiness;
+import com.vis.commons.utils.VisAsyncBusiness;
 
 public class SendRecentUsersToGroupings implements Consumer<List<CcpJsonRepresentation>> {
 	

@@ -5,7 +5,7 @@ import java.util.function.Function;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 import com.ccp.vis.async.commons.VisAsyncBusinessResumeSendToRecruiters;
-import com.jn.vis.commons.cache.tasks.PutSkillsInJson;
+import com.vis.commons.cache.tasks.PutSkillsInJson;
 import com.vis.commons.entities.VisEntityResume;
 
 public class VisAsyncBusinessResumeSave implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {

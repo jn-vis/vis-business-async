@@ -29,7 +29,7 @@ import com.ccp.vis.schedulling.VisAsyncBusinessGroupResumesOpinionsByResume;
 import com.ccp.vis.schedulling.VisAsyncBusinessPositionResumesReceivingByFrequency;
 import com.jn.commons.utils.JnAsyncBusiness;
 import com.jn.commons.utils.JnDeleteKeysFromCache;
-import com.jn.vis.commons.utils.VisAsyncBusiness;
+import com.vis.commons.utils.VisAsyncBusiness;
 
 class VisAsyncBusinessFactory implements CcpAsyncBusinessFactory {
 	

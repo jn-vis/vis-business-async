@@ -7,8 +7,8 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpEntityOperationType;
 import com.ccp.especifications.file.bucket.CcpFileBucket;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
-import com.jn.vis.commons.utils.VisCommonsUtils;
 import com.vis.commons.entities.VisEntityResume;
+import com.vis.commons.utils.VisCommonsUtils;
 
 public class VisAsyncBusinessResumeDelete implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 

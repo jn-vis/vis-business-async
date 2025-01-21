@@ -5,8 +5,8 @@ import java.util.function.Function;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.file.bucket.CcpFileBucket;
-import com.jn.vis.commons.utils.VisCommonsUtils;
 import com.vis.commons.entities.VisEntityResume;
+import com.vis.commons.utils.VisCommonsUtils;
 
 public class VisAsyncBusinessResumeBucketSave implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 

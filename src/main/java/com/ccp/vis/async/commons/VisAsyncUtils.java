@@ -25,9 +25,6 @@ import com.ccp.jn.async.actions.TransferRecordToReverseEntity;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
 import com.ccp.vis.exceptions.RequiredSkillsMissingInResume;
-import com.jn.vis.commons.status.ViewResumeStatus;
-import com.jn.vis.commons.utils.VisAsyncBusiness;
-import com.jn.vis.commons.utils.VisCommonsUtils;
 import com.vis.commons.entities.VisEntityBalance;
 import com.vis.commons.entities.VisEntityDeniedViewToCompany;
 import com.vis.commons.entities.VisEntityGroupPositionsByRecruiter;
@@ -38,6 +35,9 @@ import com.vis.commons.entities.VisEntityResumeLastView;
 import com.vis.commons.entities.VisEntityResumePerception;
 import com.vis.commons.entities.VisEntityScheduleSendingResumeFees;
 import com.vis.commons.entities.VisEntityVirtualHashGrouper;
+import com.vis.commons.status.ViewResumeStatus;
+import com.vis.commons.utils.VisAsyncBusiness;
+import com.vis.commons.utils.VisCommonsUtils;
 
 public class VisAsyncUtils {
 	

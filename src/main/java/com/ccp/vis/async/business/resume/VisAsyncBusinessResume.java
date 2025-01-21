@@ -9,7 +9,7 @@ import com.ccp.exceptions.process.CcpFlow;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
 import com.ccp.process.CcpDefaultProcessStatus;
 import com.ccp.vis.async.commons.VisAsyncBusinessSendEmailMessageAndRegisterEmailSent;
-import com.jn.vis.commons.utils.VisAsyncBusiness;
+import com.vis.commons.utils.VisAsyncBusiness;
 
 public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
