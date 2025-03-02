@@ -14,7 +14,7 @@ public class VisAsyncBusinessPositionStatusChange implements  Function<CcpJsonRe
 	public static final VisAsyncBusinessPositionStatusChange INSTANCE = new VisAsyncBusinessPositionStatusChange();
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
-		Function<CcpJsonRepresentation, CcpJsonRepresentation> whenPositionIsInactivated = data -> VisAsyncUtils.groupPositionsGroupedByRecruiters(data.duplicateValueFromField("email", "masters"));
+		Function<CcpJsonRepresentation, CcpJsonRepresentation> whenPositionIsInactivated = data -> VisAsyncUtils.groupPositionsGroupedByRecruiters(data.duplicateValueFromField(VisEntityPosition.Fields.email.name(), "masters"));
 		VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes whenPositionIsReactivated = VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes.INSTANCE;
 		VisAsyncUtils.changeStatus(json, VisEntityPosition.ENTITY, whenPositionIsReactivated, whenPositionIsInactivated);
 		return json;

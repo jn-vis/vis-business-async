@@ -6,7 +6,9 @@ import java.util.function.Function;
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.vis.commons.entities.VisEntityGroupResumesByPosition;
+import com.vis.commons.entities.VisEntityPosition;
 import com.vis.commons.entities.VisEntityResume;
+import com.vis.commons.entities.VisEntityResumeLastView;
 
 public class VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
@@ -16,13 +18,13 @@ public class VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes im
 	//0
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 		
-		CcpJsonRepresentation duplicateValueFromKey = json.duplicateValueFromField("email", "masters");
+		CcpJsonRepresentation duplicateValueFromKey = json.duplicateValueFromField(VisEntityPosition.Fields.email.name(), "masters");
 
 		VisAsyncUtils.groupPositionsGroupedByRecruiters(duplicateValueFromKey);
 		
 		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getLastUpdatedResumes = x -> VisAsyncUtils.getLastUpdated(VisEntityResume.ENTITY, FrequencyOptions.yearly, VisEntityResume.Fields.timestamp.name());
 		
-		List<String> email = json.getAsStringList("email");
+		List<String> email = json.getAsStringList(VisEntityPosition.Fields.email.name());
 
 		Function<String, CcpJsonRepresentation> getSavingPosition = frequency -> CcpOtherConstants.EMPTY_JSON.put(email.get(0), json);
 
@@ -32,7 +34,7 @@ public class VisAsyncBusinessPositionUpdateGroupingByRecruitersAndSendResumes im
 		
 		List<CcpJsonRepresentation> records = positionWithFilteredAndSortedResumesAndTheirStatis.getAsJsonList("resumes");
 		
-		CcpJsonRepresentation position = positionWithFilteredAndSortedResumesAndTheirStatis.getInnerJson("position");
+		CcpJsonRepresentation position = positionWithFilteredAndSortedResumesAndTheirStatis.getInnerJson(VisEntityResumeLastView.Fields.position.name());
 
 		VisAsyncUtils.saveRecordsInPages(records, position, VisEntityGroupResumesByPosition.ENTITY);
 		

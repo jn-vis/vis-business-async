@@ -1,13 +1,15 @@
 package com.ccp.vis.async.commons;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.vis.commons.entities.VisEntityPosition;
+import com.vis.commons.entities.VisEntityResume;
 
 public enum ResumeSortOptions {
 
-	disponibility("disponibility"),
-	desiredSkill("desiredSkill"),
-	money("clt", "pj", "btc"),
-	experience("experience"),
+	disponibility(VisEntityResume.Fields.disponibility.name()),
+	desiredSkill(VisEntityPosition.Fields.desiredSkill.name()),
+	money(VisEntityResume.Fields.clt.name(), VisEntityResume.Fields.pj.name(), VisEntityResume.Fields.btc.name()),
+	experience(VisEntityResume.Fields.experience.name()),
 	;
 	final String[] fieldsToSort;
 	

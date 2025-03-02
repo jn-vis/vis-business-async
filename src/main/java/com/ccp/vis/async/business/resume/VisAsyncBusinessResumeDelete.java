@@ -7,6 +7,7 @@ import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpEntityOperationType;
 import com.ccp.especifications.file.bucket.CcpFileBucket;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
+import com.vis.commons.entities.VisEntityPosition;
 import com.vis.commons.entities.VisEntityResume;
 import com.vis.commons.utils.VisCommonsUtils;
 
@@ -20,7 +21,7 @@ public class VisAsyncBusinessResumeDelete implements  Function<CcpJsonRepresenta
 
 		String tentant = VisCommonsUtils.getTenant();
 
-		String email = json.getAsString("email");
+		String email = json.getAsString(VisEntityResume.Fields.email.name());
 		String folder = "resumes/" + email;
 		
 		CcpFileBucket bucket = CcpDependencyInjection.getDependency(CcpFileBucket.class);

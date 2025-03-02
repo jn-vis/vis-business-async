@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.vis.commons.entities.VisEntityPosition;
 
 public enum GetPcdValuesFromJson implements Function<CcpJsonRepresentation, List<Boolean>> {
 	resume {
@@ -20,7 +21,7 @@ public enum GetPcdValuesFromJson implements Function<CcpJsonRepresentation, List
 		}
 	}, position {
 		public List<Boolean> apply(CcpJsonRepresentation json) {
-			boolean pcd = json.getAsBoolean("pcd");
+			boolean pcd = json.getAsBoolean(VisEntityPosition.Fields.pcd.name());
 
 			boolean pcdPosition = pcd;
 			// Vagas PCD podem filtrar apenas vagas PCD's.

@@ -6,6 +6,8 @@ import java.util.List;
 
 import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
+import com.vis.commons.entities.VisEntityPosition;
+import com.vis.commons.entities.VisEntityResume;
 
 public class PositionResumesSort implements Comparator<CcpJsonRepresentation>{
 
@@ -17,12 +19,12 @@ public class PositionResumesSort implements Comparator<CcpJsonRepresentation>{
 
 	public int compare(CcpJsonRepresentation o1, CcpJsonRepresentation o2) {
 		
-		List<String> desiredSkill = this.position.getAsStringList("desiredSkill");
+		List<String> desiredSkill = this.position.getAsStringList(VisEntityPosition.Fields.desiredSkill.name());
 		
 		CcpJsonRepresentation put1 = this.putDesiredSkills(o1, desiredSkill);
 		CcpJsonRepresentation put2 = this.putDesiredSkills(o2, desiredSkill);
 		
-		List<String> asStringList = this.position.getAsStringList("sortFields");
+		List<String> asStringList = this.position.getAsStringList(VisEntityPosition.Fields.sortFields.name());
 		List<String> sortFields = new ArrayList<>(asStringList);
 		
 		String desiredSkillEnumName = ResumeSortOptions.desiredSkill.name();
@@ -49,9 +51,9 @@ public class PositionResumesSort implements Comparator<CcpJsonRepresentation>{
 	}
 
 	private CcpJsonRepresentation putDesiredSkills(CcpJsonRepresentation o1, List<String> desiredSkills) {
-		CcpCollectionDecorator ccd1 = o1.getAsCollectionDecorator("skill");
+		CcpCollectionDecorator ccd1 = o1.getAsCollectionDecorator(VisEntityResume.Fields.skill.name());
 		int size1 = ccd1.getIntersectList(desiredSkills).size();
-		CcpJsonRepresentation put = o1.put("desiredSkill", -size1);
+		CcpJsonRepresentation put = o1.put(VisEntityPosition.Fields.desiredSkill.name(), -size1);
 		return put;
 	}
 

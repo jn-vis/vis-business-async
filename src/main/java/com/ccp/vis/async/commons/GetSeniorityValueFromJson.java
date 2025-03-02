@@ -4,11 +4,13 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.decorators.CcpTimeDecorator;
+import com.vis.commons.entities.VisEntityPosition;
+import com.vis.commons.entities.VisEntityResume;
 
 public enum GetSeniorityValueFromJson implements Function<CcpJsonRepresentation, String> {
 	resume {
 		public String apply(CcpJsonRepresentation json) {
-			Integer experience = json.getAsIntegerNumber("experience");
+			Integer experience = json.getAsIntegerNumber(VisEntityResume.Fields.experience.name());
 			
 			CcpTimeDecorator ctd = new CcpTimeDecorator();
 			int currentYear = ctd.getYear();
@@ -29,7 +31,7 @@ public enum GetSeniorityValueFromJson implements Function<CcpJsonRepresentation,
 		}
 	}, position {
 		public String apply(CcpJsonRepresentation json) {
-			String seniority = json.getAsString("seniority");
+			String seniority = json.getAsString(VisEntityPosition.Fields.seniority.name());
 			return seniority;
 		}
 	};

@@ -17,7 +17,7 @@ public class VisAsyncBusinessPositionResumesReceivingByFrequency  implements  Fu
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation schedullingPlan) {
 
-		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getLastUpdatedResumes = x -> VisAsyncUtils.getLastUpdated(VisEntityResume.ENTITY, FrequencyOptions.valueOf(x.getAsString("frequency")), VisEntityPosition.Fields.timestamp.name());
+		Function<CcpJsonRepresentation, List<CcpJsonRepresentation>> getLastUpdatedResumes = x -> VisAsyncUtils.getLastUpdated(VisEntityResume.ENTITY, FrequencyOptions.valueOf(x.getAsString(VisEntityPosition.Fields.frequency.name())), VisEntityPosition.Fields.timestamp.name());
 
 		Function<String, CcpJsonRepresentation> getLastUpdatedPositions = frequency -> VisAsyncUtils.getAllPositionsGroupedByRecruiters(FrequencyOptions.valueOf(frequency));
 
