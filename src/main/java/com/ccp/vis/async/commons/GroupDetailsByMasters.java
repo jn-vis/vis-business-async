@@ -42,7 +42,7 @@ public class GroupDetailsByMasters implements Consumer<CcpJsonRepresentation>{
 	
 	private CcpJsonRepresentation mappers;
 	
-	public void saveAllDetailsGroupedByMasters(){
+	public GroupDetailsByMasters saveAllDetailsGroupedByMasters(){
 		
 		Set<String> entities = this.groupedRecords.fieldSet();
 
@@ -64,5 +64,6 @@ public class GroupDetailsByMasters implements Consumer<CcpJsonRepresentation>{
 			}
 		}
 		JnAsyncCommitAndAudit.INSTANCE.executeBulk(result);
+		return this;
 	}
 }
