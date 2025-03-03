@@ -104,13 +104,13 @@ public class VisAsyncUtils {
 
 		String enumsType = json.containsField(VisEntityResume.Fields.experience.name()) 
 				? VisEntityResumeLastView.Fields.resume.name() : VisEntityResumeLastView.Fields.position.name();
-		List<Integer> disponibilities = json.getTransformed(GetDisponibilityValuesFromJson.valueOf(enumsType));
+		List<Integer> disponibilities = json.extractInformationFromJson(GetDisponibilityValuesFromJson.valueOf(enumsType));
 
 		List<CcpJsonRepresentation> moneyValues = getMoneyValues(enumsType, json);
 
-		String seniority = json.getTransformed(GetSeniorityValueFromJson.valueOf(enumsType));
+		String seniority = json.extractInformationFromJson(GetSeniorityValueFromJson.valueOf(enumsType));
 
-		List<Boolean> pcds = json.getTransformed(GetPcdValuesFromJson.valueOf(enumsType));;
+		List<Boolean> pcds = json.extractInformationFromJson(GetPcdValuesFromJson.valueOf(enumsType));;
 
 		List<String> hashes = new ArrayList<>();
 		// Todas as futuras possibilidades são gravadas em uma Lista
