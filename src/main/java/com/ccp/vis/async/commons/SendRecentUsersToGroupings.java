@@ -8,7 +8,7 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
 import com.jn.commons.entities.JnEntityDisposableRecord;
-import com.jn.commons.entities.JnEntityLoginSessionCurrent;
+import com.jn.commons.entities.JnEntityLoginSessionValidation;
 import com.vis.commons.utils.VisAsyncBusiness;
 
 public class SendRecentUsersToGroupings implements Consumer<List<CcpJsonRepresentation>> {
@@ -21,7 +21,7 @@ public class SendRecentUsersToGroupings implements Consumer<List<CcpJsonRepresen
 		List<String> emails = records.stream()
 		.map(rec ->	rec.getAsString(JnEntityDisposableRecord.Fields.id.name()))
 		.map(id -> new CcpJsonRepresentation(id))
-		.map(json -> json.getAsString(JnEntityLoginSessionCurrent.Fields.email.name()))
+		.map(json -> json.getAsString(JnEntityLoginSessionValidation.Fields.email.name()))
 		.collect(Collectors.toList());
 		
 		CcpJsonRepresentation message = CcpOtherConstants.EMPTY_JSON.put("masters", emails);

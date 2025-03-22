@@ -13,7 +13,7 @@ import com.ccp.decorators.CcpCollectionDecorator;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.dependency.injection.CcpDependencyInjection;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
-import com.ccp.especifications.db.bulk.CcpEntityOperationType;
+import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.especifications.db.crud.CcpCrud;
 import com.ccp.especifications.db.crud.CcpSelectUnionAll;
 import com.ccp.especifications.db.crud.CcpUnionAllExecutor;
@@ -590,7 +590,7 @@ public class VisAsyncUtils {
 					.put(VisEntityGroupResumesByPosition.Fields.from.name(), from)
 					.putAll(primaryKeySupplier)
 					;
-			CcpBulkItem bulkItem = entity.toBulkItem(put, CcpEntityOperationType.create);
+			CcpBulkItem bulkItem = entity.toBulkItem(put, CcpEntityBulkOperationType.create);
 			allPagesTogether.add(bulkItem);
 		}
 		return allPagesTogether;

@@ -9,7 +9,7 @@ import com.ccp.especifications.db.query.CcpQueryExecutor;
 import com.ccp.vis.async.commons.FrequencyOptions;
 import com.ccp.vis.async.commons.SendRecentUsersToGroupings;
 import com.jn.commons.entities.JnEntityDisposableRecord;
-import com.jn.commons.entities.JnEntityLoginSessionCurrent;
+import com.jn.commons.entities.JnEntityLoginSessionValidation;
 
 public class VisAsyncBusinessGetRecentLoggedUsers implements  Function<CcpJsonRepresentation, CcpJsonRepresentation>{
 
@@ -21,7 +21,7 @@ public class VisAsyncBusinessGetRecentLoggedUsers implements  Function<CcpJsonRe
 		
 		CcpQueryExecutor queryExecutor = CcpDependencyInjection.getDependency(CcpQueryExecutor.class);
 		
-		String entityName = JnEntityLoginSessionCurrent.ENTITY.getEntityName();
+		String entityName = JnEntityLoginSessionValidation.ENTITY.getEntityName();
 		CcpDbQueryOptions queryToSearchLastUpdated = 
 				CcpDbQueryOptions.INSTANCE
 					.startQuery()

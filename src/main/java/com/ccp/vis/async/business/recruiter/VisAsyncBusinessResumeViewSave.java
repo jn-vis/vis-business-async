@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
-import com.ccp.especifications.db.bulk.CcpEntityOperationType;
+import com.ccp.especifications.db.bulk.CcpEntityBulkOperationType;
 import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 import com.vis.commons.entities.VisEntityPosition;
 import com.vis.commons.entities.VisEntityResume;
@@ -45,8 +45,8 @@ public class VisAsyncBusinessResumeViewSave implements  Function<CcpJsonRepresen
 				.put(VisEntityResumeLastView.Fields.negativatedResume.name(), negativatedResume)
 				;
 		
-		CcpBulkItem itemResumeLastView = VisEntityResumeLastView.ENTITY.toBulkItem(dataToSave, CcpEntityOperationType.create);
-		CcpBulkItem itemResumeFreeView = VisEntityResumeFreeView.ENTITY.toBulkItem(dataToSave, CcpEntityOperationType.create);
+		CcpBulkItem itemResumeLastView = VisEntityResumeLastView.ENTITY.toBulkItem(dataToSave, CcpEntityBulkOperationType.create);
+		CcpBulkItem itemResumeFreeView = VisEntityResumeFreeView.ENTITY.toBulkItem(dataToSave, CcpEntityBulkOperationType.create);
 		
 		bulkItems.add(itemResumeFreeView);
 		bulkItems.add(itemResumeLastView);
