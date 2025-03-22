@@ -6,6 +6,7 @@ import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.async.business.factory.CcpAsyncBusinessFactory;
+import com.ccp.jn.async.business.login.JnAsyncBusinessExecuteLogout;
 import com.ccp.jn.async.business.support.JnAsyncBusinessNotifyError;
 import com.ccp.vis.async.business.position.VisAsyncBusinessPositionResumesSend;
 import com.ccp.vis.async.business.position.VisAsyncBusinessPositionSave;
@@ -56,6 +57,7 @@ class VisAsyncBusinessFactory implements CcpAsyncBusinessFactory {
 		this.map.put(VisAsyncBusiness.positionResumesSend.name(), VisAsyncBusinessPositionResumesSend.INSTANCE);
 		this.map.put(VisAsyncBusiness.positionSave.name(), VisAsyncBusinessPositionSave.INSTANCE);
 		this.map.put(JnAsyncBusiness.deleteKeysFromCache.name(), JnDeleteKeysFromCache.INSTANCE);
+		this.map.put(JnAsyncBusiness.executeLogout.name(), JnAsyncBusinessExecuteLogout.INSTANCE);
 		this.map.put(JnAsyncBusiness.notifyError.name(), JnAsyncBusinessNotifyError.INSTANCE);
 
 		this.map.put(VisAsyncBusiness.recruiterReceivingResumes.name(), VisAsyncBusinessRecruiterReceivingResumes.INSTANCE);
