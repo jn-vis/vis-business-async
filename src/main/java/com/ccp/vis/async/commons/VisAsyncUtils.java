@@ -36,6 +36,7 @@ import com.vis.commons.entities.VisEntityResumePerception;
 import com.vis.commons.entities.VisEntityScheduleSendingResumeFees;
 import com.vis.commons.entities.VisEntitySkill;
 import com.vis.commons.entities.VisEntityVirtualHashGrouper;
+import com.vis.commons.exceptions.VisAsyncMissingFeeToFrequency;
 import com.vis.commons.status.ViewResumeStatus;
 import com.vis.commons.utils.VisAsyncBusiness;
 import com.vis.commons.utils.VisCommonsUtils;
@@ -216,7 +217,7 @@ public class VisAsyncUtils {
 			boolean feeNotFound = VisEntityScheduleSendingResumeFees.ENTITY.isPresentInThisUnionAll(searchResults, searchParameters) == false;
 
 			if(feeNotFound) {
-				throw new RuntimeException("It is missing the " + VisEntityScheduleSendingResumeFees.class.getSimpleName() + " of frequency " + frequency);
+				throw new VisAsyncMissingFeeToFrequency(frequency.name());
 			}
 			
 			boolean balanceNotFound = VisEntityBalance.ENTITY.isPresentInThisUnionAll(searchResults, searchParameters) == false;

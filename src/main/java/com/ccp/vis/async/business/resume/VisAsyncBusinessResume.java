@@ -34,26 +34,20 @@ public class VisAsyncBusinessResume implements  Function<CcpJsonRepresentation, 
 
 		String resumeBase64 = json.getAsString("resumeBase64");
 
-		try {
-			String resumeText = textExtractor.extractText(resumeBase64);
-			
-			boolean emptyText = resumeText.trim().isEmpty();
-			
-			if(emptyText) {
-				JnAsyncMensageriaSender.INSTANCE.send(VisAsyncBusinessSendEmailMessageAndRegisterEmailSent.resumeErrorSaving, json);
-				throw new CcpFlowDisturb(json, CcpDefaultProcessStatus.NOT_FOUND);
-			}
-			
-			JnAsyncMensageriaSender.INSTANCE.send(VisAsyncBusinessSendEmailMessageAndRegisterEmailSent.resumeSuccessSaving, json);
-			
-			CcpJsonRepresentation put = json.put("resumeText", resumeText);
-			
-			return put;
-			
-		} catch (Exception e) {
-			
-			throw new RuntimeException(e);
+		String resumeText = textExtractor.extractText(resumeBase64);
+		
+		boolean emptyText = resumeText.trim().isEmpty();
+		
+		if(emptyText) {
+			JnAsyncMensageriaSender.INSTANCE.send(VisAsyncBusinessSendEmailMessageAndRegisterEmailSent.resumeErrorSaving, json);
+			throw new CcpFlowDisturb(json, CcpDefaultProcessStatus.NOT_FOUND);
 		}
+		
+		JnAsyncMensageriaSender.INSTANCE.send(VisAsyncBusinessSendEmailMessageAndRegisterEmailSent.resumeSuccessSaving, json);
+		
+		CcpJsonRepresentation put = json.put("resumeText", resumeText);
+		
+		return put;
 	}
 
 
