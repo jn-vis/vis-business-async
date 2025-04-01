@@ -591,7 +591,7 @@ public class VisAsyncUtils {
 					.put(VisEntityGroupResumesByPosition.Fields.from.name(), from)
 					.putAll(primaryKeySupplier)
 					;
-			CcpBulkItem bulkItem = entity.toBulkItem(put, CcpEntityBulkOperationType.create);
+			CcpBulkItem bulkItem = entity.getMainBulkItem(put, CcpEntityBulkOperationType.create);
 			allPagesTogether.add(bulkItem);
 		}
 		return allPagesTogether;

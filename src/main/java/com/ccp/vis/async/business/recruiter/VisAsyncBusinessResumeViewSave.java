@@ -45,8 +45,8 @@ public class VisAsyncBusinessResumeViewSave implements  Function<CcpJsonRepresen
 				.put(VisEntityResumeLastView.Fields.negativatedResume.name(), negativatedResume)
 				;
 		
-		CcpBulkItem itemResumeLastView = VisEntityResumeLastView.ENTITY.toBulkItem(dataToSave, CcpEntityBulkOperationType.create);
-		CcpBulkItem itemResumeFreeView = VisEntityResumeFreeView.ENTITY.toBulkItem(dataToSave, CcpEntityBulkOperationType.create);
+		CcpBulkItem itemResumeLastView = VisEntityResumeLastView.ENTITY.getMainBulkItem(dataToSave, CcpEntityBulkOperationType.create);
+		CcpBulkItem itemResumeFreeView = VisEntityResumeFreeView.ENTITY.getMainBulkItem(dataToSave, CcpEntityBulkOperationType.create);
 		
 		bulkItems.add(itemResumeFreeView);
 		bulkItems.add(itemResumeLastView);
