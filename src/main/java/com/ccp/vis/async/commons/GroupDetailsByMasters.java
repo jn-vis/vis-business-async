@@ -9,7 +9,7 @@ import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
 import com.ccp.especifications.db.bulk.CcpBulkItem;
 import com.ccp.especifications.db.utils.CcpEntity;
-import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
+import com.jn.commons.utils.JnCommonsExecuteBulkOperation;
 
 public class GroupDetailsByMasters implements Consumer<CcpJsonRepresentation>{
 	
@@ -63,7 +63,7 @@ public class GroupDetailsByMasters implements Consumer<CcpJsonRepresentation>{
 				result.addAll(recordsInPages);
 			}
 		}
-		JnAsyncCommitAndAudit.INSTANCE.executeBulk(result);
+		JnCommonsExecuteBulkOperation.INSTANCE.executeBulk(result);
 		return this;
 	}
 }

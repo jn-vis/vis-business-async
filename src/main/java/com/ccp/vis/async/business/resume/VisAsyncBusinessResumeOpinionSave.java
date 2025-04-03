@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 import com.ccp.constantes.CcpOtherConstants;
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
+import com.jn.commons.utils.JnCommonsExecuteBulkOperation;
 import com.vis.commons.entities.VisEntityResumePerception;
 
 public class VisAsyncBusinessResumeOpinionSave implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {
@@ -15,7 +15,7 @@ public class VisAsyncBusinessResumeOpinionSave implements Function<CcpJsonRepres
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 		
-		JnAsyncCommitAndAudit.INSTANCE.executeSelectUnionAllThenSaveInTheMainAndTwinEntities(
+		JnCommonsExecuteBulkOperation.INSTANCE.executeSelectUnionAllThenSaveInTheMainAndTwinEntities(
 				json, VisEntityResumePerception.ENTITY, 
 				CcpOtherConstants.DO_NOTHING);
 		

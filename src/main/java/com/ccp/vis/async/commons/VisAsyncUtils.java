@@ -22,9 +22,9 @@ import com.ccp.especifications.db.query.CcpQueryExecutor;
 import com.ccp.especifications.db.utils.CcpEntity;
 import com.ccp.especifications.db.utils.CcpEntityField;
 import com.ccp.jn.async.actions.TransferRecordToReverseEntity;
-import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
 import com.ccp.jn.async.commons.JnAsyncMensageriaSender;
 import com.ccp.vis.exceptions.RequiredSkillsMissingInResume;
+import com.jn.commons.utils.JnCommonsExecuteBulkOperation;
 import com.vis.commons.entities.VisEntityBalance;
 import com.vis.commons.entities.VisEntityDeniedViewToCompany;
 import com.vis.commons.entities.VisEntityGroupPositionsByRecruiter;
@@ -285,7 +285,7 @@ public class VisAsyncUtils {
 					allPositionsGroupedByRecruiters, allPositionsWithFilteredResumes, searchParameters, searchResults);
 		}
 		
-		JnAsyncCommitAndAudit.INSTANCE.executeBulk(errors);
+		JnCommonsExecuteBulkOperation.INSTANCE.executeBulk(errors);
 		
 	 	CcpJsonRepresentation allPositionsWithFilteredResumesCopy = CcpOtherConstants.EMPTY_JSON.putAll(allPositionsWithFilteredResumes);
 		
@@ -509,7 +509,7 @@ public class VisAsyncUtils {
 		TransferRecordToReverseEntity tryToChangeStatusToActive = new TransferRecordToReverseEntity(inactiveResumeEntity, CcpOtherConstants.DO_NOTHING, CcpOtherConstants.DO_NOTHING, CcpOtherConstants.DO_NOTHING, CcpOtherConstants.DO_NOTHING);
 		TransferRecordToReverseEntity tryToChangeStatusToInactive = new TransferRecordToReverseEntity(activeEntity, actionPosInactivate, actionPosActivate, CcpOtherConstants.DO_NOTHING, CcpOtherConstants.DO_NOTHING);
 
-		JnAsyncCommitAndAudit.INSTANCE.
+		JnCommonsExecuteBulkOperation.INSTANCE.
 		executeSelectUnionAllThenExecuteBulkOperation(
 				json 
 				, tryToChangeStatusToActive
@@ -568,7 +568,7 @@ public class VisAsyncUtils {
 
 		List<CcpBulkItem> allPagesTogether = getRecordsInPages(records, primaryKeySupplier, entity);
 		
-		JnAsyncCommitAndAudit.INSTANCE.executeBulk(allPagesTogether);
+		JnCommonsExecuteBulkOperation.INSTANCE.executeBulk(allPagesTogether);
 	}
 
 	public static List<CcpBulkItem> getRecordsInPages(List<CcpJsonRepresentation> records,

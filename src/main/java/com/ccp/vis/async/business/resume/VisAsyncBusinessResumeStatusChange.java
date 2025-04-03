@@ -3,7 +3,7 @@ package com.ccp.vis.async.business.resume;
 import java.util.function.Function;
 
 import com.ccp.decorators.CcpJsonRepresentation;
-import com.ccp.jn.async.commons.JnAsyncCommitAndAudit;
+import com.jn.commons.utils.JnCommonsExecuteBulkOperation;
 import com.vis.commons.entities.VisEntityResume;
 
 public class VisAsyncBusinessResumeStatusChange  implements Function<CcpJsonRepresentation, CcpJsonRepresentation> {
@@ -14,7 +14,7 @@ public class VisAsyncBusinessResumeStatusChange  implements Function<CcpJsonRepr
 	
 	public CcpJsonRepresentation apply(CcpJsonRepresentation json) {
 	
-		JnAsyncCommitAndAudit.INSTANCE.
+		JnCommonsExecuteBulkOperation.INSTANCE.
 		changeStatus(json, VisEntityResume.ENTITY)
 		;
 		
